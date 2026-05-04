@@ -433,24 +433,4 @@ _TBD — append once models trained and evaluated._
 
 ## Open Questions Pipeline
 
-(Will be answered one at a time during brainstorming. Each gets a D2, D3, ... entry above.)
-
-1. **Latent dim** — what z size?
-2. **Loss weighting** — per-block weights, inverse-variance, or learned?
-3. **Bio coverage handling** — masked loss for missing rows, or rely on has_bio flag?
-4. **Training schedule** — strict sequential or parallel runs?
-5. **Evaluation metrics** — which to compute, which to gate on?
-6. **Ablations** — which dimensions of comparison to include?
-7. **Final notebook structure** — one big notebook or three model-specific notebooks?
-
----
-
-## Final architecture (to be filled in once design approved)
-
-_TBD — appended after spec is written._
-
----
-
-## Lessons learned (to be filled in post-implementation)
-
-_TBD — append once models trained and evaluated._
+All questions resolved (D1-D10 above). Spec finalized at [`docs/superpowers/specs/2026-05-04-modeling-design.md`](../superpowers/specs/2026-05-04-modeling-design.md).
