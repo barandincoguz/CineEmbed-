@@ -165,6 +165,15 @@ Once MVP is delivered (intermediate report submitted):
 - Commit: `44309ee`
 - Next: T2 (data.py)
 
+### 2026-05-04 — Migrated to GitHub + git-clone Colab pattern
+- Repo pushed to https://github.com/barandincoguz/CineEmbed-
+- Notebooks refactored: code via `git clone` in Colab, artifacts only in Drive
+- `00_drive_setup.ipynb` → `00_colab_setup.ipynb` (renamed)
+- `MyDrive/cineembed_artifacts/` (flat, no repo/ subfolder)
+- Setup cell now: `git clone` if missing, `git pull` if exists, then `pip install -e`
+- All 4 notebooks parse cleanly, pushed to GitHub
+- Commit: `1086e0a`
+
 ### 2026-05-04 — Drive-direct workflow refactor
 - User feedback: drag-drop / zip-unzip dance is painful for repeated Colab sessions
 - New layout: `MyDrive/cineembed/{repo,artifacts}` — repo + artifacts both live on Drive
