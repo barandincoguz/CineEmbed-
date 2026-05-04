@@ -1,6 +1,7 @@
 """Generic training loop with early stopping + checkpoint save/resume (spec §4.3)."""
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from typing import Callable
 
@@ -62,7 +63,13 @@ def train_model(
     epochs_no_improve = 0
     epoch = 0
 
+    _t_start = time.time()
+    print(f"[{time.strftime('%H:%M:%S')}] training start: max {n_epochs} epochs, "
+          f"lr={lr}, weight_decay={weight_decay}, "
+          f"early_stop_patience={early_stop_patience}, device={device}")
+
     for epoch in range(n_epochs):
+        _t_epoch = time.time()
         # ─── train ───
         model.train()
         train_losses = []
@@ -96,6 +103,11 @@ def train_model(
 
         # ─── early stopping + checkpoint ───
         improved = (best_val - val_avg) > early_stop_min_delta
+        _marker = '↓' if improved else '·'
+        _epoch_elapsed = time.time() - _t_epoch
+        print(f"[{time.strftime('%H:%M:%S')}] epoch {epoch+1:3d}/{n_epochs} | "
+              f"train={train_avg:.4f} val={val_avg:.4f} {_marker} "
+              f"(best={best_val:.4f}) | {_epoch_elapsed:.1f}s")
         if improved:
             best_val = val_avg
             epochs_no_improve = 0
@@ -104,8 +116,13 @@ def train_model(
         else:
             epochs_no_improve += 1
             if epochs_no_improve >= early_stop_patience:
+                print(f"[{time.strftime('%H:%M:%S')}] early stop at epoch {epoch+1} "
+                      f"(best val={best_val:.4f}, patience exhausted)")
                 break
 
+    _total = time.time() - _t_start
+    print(f"[{time.strftime('%H:%M:%S')}] training done: {epoch+1} epochs in "
+          f"{_total/60:.1f} min, final best_val={best_val:.4f}")
     history['final_val_loss'] = best_val
     history['n_epochs_completed'] = epoch + 1
     return history
