@@ -33,7 +33,7 @@ The full implementation plan has 13 tasks producing 21-22 model runs. The MVP sc
 | # | Task | Description | Effort | Status |
 |---:|---|---|---|---|
 | 1 | T1 | Package skeleton + pyproject.toml + test_import | ~15 min | ✅ Done (`44309ee`) |
-| 2 | T2 | `data.py` — load + block indices + labels + dataloader | ~30 min | ⏸ Pending |
+| 2 | T2 | `data.py` — load + block indices + labels + dataloader | ~30 min | ✅ Done (`22a8abf`) |
 | 3 | T3 | `losses.py` — W2 + G2 + ELBO + DEC KL + W4 | ~30 min | ⏸ Pending |
 | 4 | T4 | `backbone.py` — MultiModalBackbone + block_mask | ~20 min | ⏸ Pending |
 | 5 | T5 | `heads.py` — AEHead, VAEHead, DECHead with re-init | ~30 min | ⏸ Pending |
@@ -164,3 +164,12 @@ Once MVP is delivered (intermediate report submitted):
 - Pyright unused-import diagnostic on `pd` fixed in amend
 - Commit: `44309ee`
 - Next: T2 (data.py)
+
+### 2026-05-04 — T2 complete
+- `data.py`: load_feature_matrix, get_block_indices (director-priority classifier), get_labels (3 axes), train_val_split, lazy-indexed _BlocksDataset, make_dataloader
+- `tests/test_data.py`: 5 tests, all passing
+- pytest: **6 passed** (1 import + 5 data)
+- Diagnostic fixes in amend: removed unused `json`, `pytest` imports; `_column_or_default` helper for type-safe DataFrame col access; converted lang_top10 to ndarray; added `pyrightconfig.json` with `extraPaths: ["src"]`
+- Plan deviation noted: lang_top10 type changed Series→ndarray; test updated to use `np.unique()` instead of `.unique()`
+- Commit: `a0484a6`
+- Next: T3+T4 bundle (losses.py + backbone.py)
