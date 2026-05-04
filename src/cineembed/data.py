@@ -107,7 +107,21 @@ def get_labels(csv_path: str | Path, top_lang_n: int = 10) -> dict[str, np.ndarr
     primary_genre = genres_first.apply(lambda s: s.split('|')[0] if s else 'Unknown')
     primary_genre = primary_genre.replace('', 'Unknown').to_numpy()
 
-    decade_bin = _column_or_default(df, 'decade', 0).apply(_bin_decade).to_numpy()
+    # decade_bin: prefer raw 'decade' column; fall back to reconstructing from 'decade_norm'
+    # (EDA's movies_eda_final.csv stores only normalized form: (decade - 1900) / 130).
+    if 'decade' in df.columns:
+        decade_bin = df['decade'].apply(_bin_decade).to_numpy()
+    elif 'decade_norm' in df.columns:
+        norm_arr = np.asarray(df['decade_norm'].fillna(0.0), dtype=np.float64)
+        decade_raw_arr = (norm_arr * 130.0 + 1900.0).round().astype(np.int64)
+        # Mask missing rows (has_release_date == 0) → 0 ('Unknown' decade bin)
+        if 'has_release_date' in df.columns:
+            has_date_arr = np.asarray(df['has_release_date'].fillna(0), dtype=np.float64) > 0
+            decade_raw_arr = np.where(has_date_arr, decade_raw_arr, 0)
+        # Round down to nearest decade
+        decade_bin = (decade_raw_arr // 10) * 10
+    else:
+        decade_bin = np.zeros(len(df), dtype=int)
 
     lang = _column_or_default(df, 'original_language', '').fillna('other').astype(str)
     top = lang.value_counts().head(top_lang_n).index
