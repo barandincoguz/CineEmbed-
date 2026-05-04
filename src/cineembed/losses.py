@@ -81,11 +81,13 @@ def weighted_recon_loss(
             exclude_blocks, its G2 helper is also skipped.
     """
     skip = exclude_blocks or set()
-    other = sum(
-        w_blocks[b] * F.mse_loss(decoded[b], target[b])
-        for b in target
-        if b != 'director' and b not in skip
-    )
+    # Tensor-typed accumulator (avoids `sum(...)` returning Literal[0] on empty generator)
+    device = next(iter(decoded.values())).device
+    other = torch.zeros((), device=device)
+    for b in target:
+        if b == 'director' or b in skip:
+            continue
+        other = other + w_blocks[b] * F.mse_loss(decoded[b], target[b])
     if 'director' in skip:
         return other
     return other + director_block_loss(
@@ -177,10 +179,12 @@ class LearnedWeightedLoss(nn.Module):
         target: dict[str, torch.Tensor],
         has_bio: torch.Tensor,
     ) -> torch.Tensor:
-        loss = 0.0
+        # Tensor-typed accumulator (avoids `loss = 0.0` causing Tensor|float union)
+        device = next(iter(decoded.values())).device
+        loss = torch.zeros((), device=device)
         for i, b in enumerate(self.block_names):
             if b == 'director':
-                # director uses G2 masked loss; the learned weight scales the whole director loss
+                # director uses G2 masked loss; learned weight scales the whole director loss
                 block_loss = director_block_loss(decoded[b], target[b], has_bio, w_block=1.0)
             else:
                 block_loss = F.mse_loss(decoded[b], target[b])
