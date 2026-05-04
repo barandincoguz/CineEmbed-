@@ -39,7 +39,7 @@ The full implementation plan has 13 tasks producing 21-22 model runs. The MVP sc
 | 5 | T5 | `heads.py` — AEHead, VAEHead, DECHead with re-init | ~30 min | ✅ Done (`da021c2`) |
 | 6 | T6 | `train.py` — generic loop with epoch-aware loss_fn | ~20 min | ✅ Done (`152c462`) |
 | 7 | T7 | `eval.py` — KMeans/DEC assignments, NMI/ARI L4, probing, UMAP | ~30 min | ✅ Done (`4e67a42`) |
-| 8 | T8 | `01_smoke_test.ipynb` — package validation | ~10 min | ⏸ Pending |
+| 8 | T8 | `01_smoke_test.ipynb` — package validation | ~10 min | ✅ Done (`faebe1f`) |
 | 9 | **T9p** | **Partial AE: vanilla_ae_z64 + ae_z64 + ae_z64_w1** (3 runs) | ~45 min Colab | ⏸ Pending |
 | 10 | **T11p** | **Partial DEC: dec_z64_k21** (1 run) | ~10 min Colab | ⏸ Pending |
 | 11 | **T12p** | **Partial results: KMeans baselines + comparison table** | ~20 min | ⏸ Pending |
@@ -164,6 +164,13 @@ Once MVP is delivered (intermediate report submitted):
 - Pyright unused-import diagnostic on `pd` fixed in amend
 - Commit: `44309ee`
 - Next: T2 (data.py)
+
+### 2026-05-04 — T8 complete
+- `notebooks/01_smoke_test.ipynb`: 8 cells, end-to-end package validation
+- Verified locally: AE 126k params, VAE 135k, DEC 127k; all losses non-NaN; KMeans on AE latent gives sensible (near-zero) NMI vs random labels
+- Cells run in <1 min on Mac CPU
+- Commit: `faebe1f`
+- Next: T9p (partial AE training notebook — write only, run in Colab)
 
 ### 2026-05-04 — T7 complete
 - `eval.py`: cluster_assignments_kmeans, cluster_assignments_dec, evaluate_run (3-axis L4 NMI/ARI), linear_probe, umap_plot (Agg backend)
