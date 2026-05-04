@@ -165,6 +165,15 @@ Once MVP is delivered (intermediate report submitted):
 - Commit: `44309ee`
 - Next: T2 (data.py)
 
+### 2026-05-04 — T11p + T12p complete (write-only)
+- `notebooks/04_train_dec.ipynb`: 8 cells, MVP scope = 1 run (`dec_z64_k21`)
+- `notebooks/05_results.ipynb`: 6 cells, preliminary intermediate-report results table
+- Both notebooks parse cleanly, follow 02_train_ae.ipynb's `get_ipython().system()` pattern
+- Each notebook has commented-out cells for the deferred final-report runs
+- 05_results includes a "narrative" cell that auto-checks: best deep vs best baseline rel gain, W2 vs W1, multi-modal vs vanilla — i.e., 3 of the spec's success criteria
+- Commits: `8f7b8f2` (DEC), `928c3d4` (results)
+- **All MVP code is written.** Next step is the user's Colab runs.
+
 ### 2026-05-04 — T9p complete (write-only)
 - `notebooks/02_train_ae.ipynb`: 9 cells, scoped to 3 MVP runs (vanilla_ae_z64, ae_z64, ae_z64_w1)
 - Cell 8 + 9 document and contain commented-out code for the 4 deferred runs (ae_z32, ae_z128, F1, F2, optional W4)
