@@ -362,6 +362,40 @@ Epoch 0: pure reconstruction. Epoch 10+: full ELBO. Standard technique from β-V
 
 ---
 
+### 2026-05-04 D10 — Second peer-review pass: blocking technical fixes
+
+**Trigger:** External LLM peer review of consolidated design (second pass, 2026-05-04). Four blocking technical bugs identified and fixed before plan-writing.
+
+**(1) Loss double-counting fixed**
+
+The original VAE/DEC loss formulas had:
+```python
+recon = sum(w_b * mse(b) for b in BLOCKS)
+recon += director_block_loss(...)   # director already counted in BLOCKS sum!
+```
+
+If `BLOCKS` includes `'director'`, this double-counts. Consolidated into a canonical `weighted_recon_loss(...)` helper (spec §5.2.1) that excludes director from the generic sum and adds it via `director_block_loss(...)` with G2 mask. AE main, VAE, DEC, and W1 ablation all use this canonical helper.
+
+**(2) Validation split contradiction resolved**
+
+Original spec said "100% data, no holdout" while also specifying `early_stop_patience=10` on validation MSE — incompatible. Reframed to **90/10 split with `random_state=42` for early-stopping** while embedding extraction and cluster evaluation still use all 329,044 films. Linear probing keeps its separate 80/20 split for the linear classifier itself.
+
+**(3) DEC P target distribution clarified as batch-wise**
+
+Original spec said both "P updated every T=100 mini-batches" and showed batch-wise P computation in code — inconsistent. Adopted **batch-wise P as a deliberate practical approximation** of the original DEC paper's full-dataset P. Removed `target_update_T` from `DEC_EXTRA` hyperparameters and documented the choice as a known simplification. This is standard for academic reproductions and avoids the engineering overhead of caching full-dataset P every T epochs.
+
+**(4) Colab install path corrected**
+
+Original snippet: `!pip install -e /content/cineembed-repo/src/cineembed` — wrong because `pyproject.toml` lives at the repo root with `src/` layout. Corrected to `!pip install -e /content/cineembed-repo`. Added a `sys.path` fallback in case modern setuptools auto-discovery fails on Colab.
+
+**(5) Optional: report figure-count guidance**
+
+27 UMAP figures is too many for a final report. Spec now explicitly states: 9 main figures (best AE/VAE/DEC × 3 axes) + 3 baseline genre-axis UMAPs = **12 figures in main report**, the remaining 18+ go to supplementary/appendix. All 27 are still produced for completeness.
+
+**Status:** Spec finalized. No further peer-review revisions expected before plan-writing.
+
+---
+
 ## Final Architecture Summary
 
 After D1-D9 decisions:

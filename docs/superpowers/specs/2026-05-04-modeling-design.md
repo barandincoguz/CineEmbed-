@@ -91,11 +91,13 @@ These vectors are fixed once at the start of evaluation and reused across all 21
 
 ### 3.3 Train / validation split
 
-For unsupervised reconstruction training, the convention is to use the full dataset. We adopt:
+We adopt a 90/10 split with `random_state=42` for early-stopping validation, and use ALL 329,044 embeddings for downstream evaluation:
 
-- **Encoder/decoder training**: 100% of 329,044 films (no holdout). Reconstruction is unsupervised; holdout adds no methodological value.
-- **Linear probing (Tier 2 eval)**: random 80/20 split with `random_state=42`. The split applies only to the linear classifier downstream of the frozen encoder, NOT to the encoder training itself.
-- **Reproducibility**: same seed (42) used everywhere via `seed_everything()` from EDA spec.
+- **Encoder/decoder training**: 90% of 329,044 films for gradient updates; 10% held out as a validation set used solely to track weighted reconstruction loss for early stopping. Final embedding extraction uses the trained encoder over the full 329,044 dataset.
+- **Why split despite "unsupervised"**: early stopping needs a held-out signal. Computing it on training data invites overfitting that we cannot detect.
+- **Cluster evaluation (NMI / ARI / UMAP)**: computed on all 329,044 embeddings (the encoder is frozen during eval, so train/val membership is irrelevant downstream).
+- **Linear probing (Tier 2 eval)**: separate 80/20 split with the same `random_state=42` for the LINEAR classifier itself; encoder remains frozen.
+- **Reproducibility**: same seed (42) used everywhere via `seed_everything()` from the EDA spec.
 
 ---
 
@@ -168,7 +170,7 @@ p_ij = q_ij² / Σ_i q_ij  →  p_ij /= Σ_j p_ij              # sharpened targe
 loss = KL(P || Q) + λ_recon * weighted_MSE(decoded, x)    # λ_recon = 0.1 default
 ```
 
-Both encoder and `μ_j` are fine-tuned. Target distribution `P` is updated every `T=100` mini-batches (standard DEC paper protocol).
+Both encoder and `μ_j` are fine-tuned. **Target distribution `P` is computed batch-wise** as a practical approximation of the full-dataset target — i.e., for each mini-batch, `Q` is computed from the batch's `z` vectors and `P` is derived from `Q` via the standard sharpening formula. This deviates from the original DEC paper's full-dataset `P` (refreshed every T epochs) but is the conventional pragmatic choice for academic reproductions and is mathematically valid as an unbiased estimator under uniform mini-batch sampling. Documented as a deliberate simplification.
 
 `k ∈ {10, 21, 30}` per the ablation grid; with z ∈ {32, 64, 128} this gives 9 DEC runs per main grid.
 
@@ -194,10 +196,10 @@ VAE_EXTRA = {
 
 DEC_EXTRA = {
     'kmeans_n_init':      20,
-    'target_update_T':    100,    # mini-batches between P update
     'lambda_recon':       0.1,    # weight of reconstruction term
     'finetune_epochs':    50,
     'cluster_size_floor': 0.001,  # if any cluster < 0.1% of data → re-init that center
+    # P target distribution is computed batch-wise (see §4.2.3)
 }
 ```
 
@@ -245,11 +247,38 @@ def director_block_loss(decoded_dir, input_dir, has_bio, w_block):
 
 The 0.5 split balances the two sub-components within the director block.
 
-### 5.3 W1 ablation (uniform weighting)
+### 5.2.1 Canonical reconstruction loss (used by AE main, VAE recon term, DEC recon term)
+
+This consolidates the "W2 weighted MSE + G2 bio mask" pattern into a single helper. Director is excluded from the generic sum and its loss is computed via `director_block_loss` to apply the G2 mask. Including director in the sum would double-count.
 
 ```python
-def loss_uniform(decoded, input):
-    return sum(F.mse_loss(decoded[b], input[b]) for b in BLOCKS)
+def weighted_recon_loss(decoded, input, has_bio, w_blocks):
+    """W2 weighted MSE on all blocks except director, plus G2 masked director loss.
+    
+    decoded, input: dict[block_name → Tensor]
+    has_bio:         (B,) tensor, 1 if has_director_bio else 0
+    w_blocks:        dict[block_name → float] from compute_block_weights(...)
+    """
+    other = sum(
+        w_blocks[b] * F.mse_loss(decoded[b], input[b])
+        for b in BLOCKS
+        if b != 'director'
+    )
+    return other + director_block_loss(
+        decoded['director'], input['director'], has_bio, w_blocks['director']
+    )
+```
+
+This is the canonical AE main training loss. VAE adds a KL term to it (§5.5). DEC scales it by `lambda_recon` and adds the cluster KL (§5.6).
+
+### 5.3 W1 ablation (uniform weighting)
+
+Same pattern as the canonical loss but with all block weights set to 1 (the G2 mask still applies — we are isolating the *weighting* effect, not the missing-handling behavior).
+
+```python
+def weighted_recon_loss_uniform(decoded, input, has_bio):
+    uniform_w = {b: 1.0 for b in BLOCKS}
+    return weighted_recon_loss(decoded, input, has_bio, uniform_w)
 ```
 
 ### 5.4 W4 stretch (Kendall et al. 2018 learned uncertainty)
@@ -278,8 +307,15 @@ def beta_schedule(epoch, warmup_epochs=10, beta_target=1.0):
     return min(epoch / warmup_epochs, 1.0) * beta_target
 
 def vae_loss(decoded, input, mu, log_var, has_bio, w_blocks, beta):
-    recon = sum(w_blocks[b] * mse_per_block(decoded[b], input[b]) for b in BLOCKS)
-    recon += director_block_loss(decoded['director'], input['director'], has_bio, w_blocks['director'])
+    # IMPORTANT: 'director' is excluded from the generic sum — its loss is computed
+    # via director_block_loss(...) which applies the G2 bio mask. Including 'director'
+    # in BLOCKS would double-count its contribution.
+    recon = sum(
+        w_blocks[b] * mse_per_block(decoded[b], input[b])
+        for b in BLOCKS
+        if b != 'director'
+    )
+    recon = recon + director_block_loss(decoded['director'], input['director'], has_bio, w_blocks['director'])
     kl = -0.5 * (1 + log_var - mu**2 - log_var.exp()).sum(dim=1).mean()
     return recon + beta * kl, recon.item(), kl.item()   # returned tuple for logging
 ```
@@ -300,9 +336,15 @@ def dec_loss(z, decoded, input, cluster_centers, has_bio, w_blocks, lambda_recon
     
     kl = (p * (p / q.clamp_min(1e-12)).log()).sum(dim=1).mean()
     
-    # Reconstruction term keeps encoder grounded in input space
-    recon = sum(w_blocks[b] * mse_per_block(decoded[b], input[b]) for b in BLOCKS)
-    recon += director_block_loss(decoded['director'], input['director'], has_bio, w_blocks['director'])
+    # Reconstruction term keeps encoder grounded in input space.
+    # 'director' is excluded from the generic sum — handled via director_block_loss
+    # with G2 bio masking. Including in BLOCKS would double-count.
+    recon = sum(
+        w_blocks[b] * mse_per_block(decoded[b], input[b])
+        for b in BLOCKS
+        if b != 'director'
+    )
+    recon = recon + director_block_loss(decoded['director'], input['director'], has_bio, w_blocks['director'])
     
     return kl + lambda_recon * recon, kl.item(), recon.item()
 ```
@@ -464,18 +506,24 @@ Each training notebook follows the same skeleton: load data → train → save c
 
 ### 7.4 Colab setup snippet (top of every training notebook)
 
+The package uses a `src/` layout — `pyproject.toml` lives at the repository root, and modern setuptools auto-discovers `src/cineembed/`. The install path is the **repository root**, NOT the package subdirectory.
+
 ```python
 !git clone <repo-url> /content/cineembed-repo  # or upload manually
-!pip install -e /content/cineembed-repo/src/cineembed -q
-
-import sys
-sys.path.insert(0, '/content/cineembed-repo/src')
+!pip install -e /content/cineembed-repo -q     # install from repo root, not src/cineembed/
 
 from cineembed import data, backbone, heads, losses, eval, train
 
 # Load feature matrix from Drive (mounted) or session uploads
 X, feature_names = data.load_feature_matrix('/content/drive/MyDrive/cineembed_artifacts/feature_matrix.npz')
 labels = data.get_labels('/content/drive/MyDrive/cineembed_artifacts/movies_eda_final.csv')
+```
+
+If `pip install -e` fails due to Colab caching or pyproject.toml issues, fallback:
+```python
+import sys
+sys.path.insert(0, '/content/cineembed-repo/src')
+from cineembed import ...   # works because src/ is on path
 ```
 
 ---
@@ -507,6 +555,8 @@ Also computed per run:
 For all 9 main runs (AE/VAE/DEC × {32, 64, 128}), produce 3 UMAP scatter plots colored by `genre` / `decade` / `lang_top10`. Total: 27 figures saved to `artifacts/figures/latent_umap_<run>_<axis>.png`.
 
 UMAP parameters fixed for reproducibility: `n_neighbors=15`, `min_dist=0.1`, `random_state=42`.
+
+**Reporting strategy:** All 27 figures are produced and committed for completeness (supplementary material). The **final report figure set** uses only the BEST run per model family across the three axes — i.e., 3 runs (best AE / best VAE / best DEC, selected by genre NMI) × 3 axes = **9 main figures** + the 3 baseline UMAPs (KMeans-raw, PCA+KMeans, vanilla concat-AE) at the genre axis only = **12 figures in main report**. The remaining 18+ go to appendix / supplementary section.
 
 ### 8.3 Tier 2 add-ons (z=64 main runs only)
 
