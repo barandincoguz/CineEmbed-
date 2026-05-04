@@ -36,8 +36,8 @@ The full implementation plan has 13 tasks producing 21-22 model runs. The MVP sc
 | 2 | T2 | `data.py` — load + block indices + labels + dataloader | ~30 min | ✅ Done (`22a8abf`) |
 | 3 | T3 | `losses.py` — W2 + G2 + ELBO + DEC KL + W4 | ~30 min | ✅ Done (`ed8c71d`) |
 | 4 | T4 | `backbone.py` — MultiModalBackbone + block_mask | ~20 min | ✅ Done (`2c4e6f6`) |
-| 5 | T5 | `heads.py` — AEHead, VAEHead, DECHead with re-init | ~30 min | ⏸ Pending |
-| 6 | T6 | `train.py` — generic loop with epoch-aware loss_fn | ~20 min | ⏸ Pending |
+| 5 | T5 | `heads.py` — AEHead, VAEHead, DECHead with re-init | ~30 min | ✅ Done (`da021c2`) |
+| 6 | T6 | `train.py` — generic loop with epoch-aware loss_fn | ~20 min | ✅ Done (`152c462`) |
 | 7 | T7 | `eval.py` — KMeans/DEC assignments, NMI/ARI L4, probing, UMAP | ~30 min | ⏸ Pending |
 | 8 | T8 | `01_smoke_test.ipynb` — package validation | ~10 min | ⏸ Pending |
 | 9 | **T9p** | **Partial AE: vanilla_ae_z64 + ae_z64 + ae_z64_w1** (3 runs) | ~45 min Colab | ⏸ Pending |
@@ -164,6 +164,16 @@ Once MVP is delivered (intermediate report submitted):
 - Pyright unused-import diagnostic on `pd` fixed in amend
 - Commit: `44309ee`
 - Next: T2 (data.py)
+
+### 2026-05-04 — T5+T6 bundle complete
+- `heads.py`: AEHead (deterministic), VAEHead (μ/σ + reparameterization), DECHead (Student-t kernel + reinit_collapsed_centers D10 patch)
+- `train.py`: train_model with auto-detected `accepts_epoch` via inspect.signature (β warmup support), early stopping, checkpoint save/load
+- pytest: **26 passed** (1 + 5 + 8 + 5 + 5 + 2)
+- Pyright fixes: `# type: ignore[arg-type]` on KMeans n_init (sklearn-stubs lag), unused-import cleanup
+- heads.py: changed absolute `from cineembed.backbone` → relative `from .backbone` for cleaner package internals
+- Pyright noise on `from cineembed import X` persists but is IDE-only — runtime + pytest fully working
+- Commits: `da021c2` (heads), `152c462` (train)
+- Next: T7 (eval.py)
 
 ### 2026-05-04 — T3+T4 bundle complete
 - `losses.py`: compute_block_weights (with clipping), director_block_loss (G2 mask), weighted_recon_loss (canonical), weighted_recon_loss_uniform (W1), vae_elbo (β-aware), dec_loss (batch-wise P), LearnedWeightedLoss (W4)
