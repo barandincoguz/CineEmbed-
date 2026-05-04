@@ -34,8 +34,8 @@ The full implementation plan has 13 tasks producing 21-22 model runs. The MVP sc
 |---:|---|---|---|---|
 | 1 | T1 | Package skeleton + pyproject.toml + test_import | ~15 min | ✅ Done (`44309ee`) |
 | 2 | T2 | `data.py` — load + block indices + labels + dataloader | ~30 min | ✅ Done (`22a8abf`) |
-| 3 | T3 | `losses.py` — W2 + G2 + ELBO + DEC KL + W4 | ~30 min | ⏸ Pending |
-| 4 | T4 | `backbone.py` — MultiModalBackbone + block_mask | ~20 min | ⏸ Pending |
+| 3 | T3 | `losses.py` — W2 + G2 + ELBO + DEC KL + W4 | ~30 min | ✅ Done (`ed8c71d`) |
+| 4 | T4 | `backbone.py` — MultiModalBackbone + block_mask | ~20 min | ✅ Done (`2c4e6f6`) |
 | 5 | T5 | `heads.py` — AEHead, VAEHead, DECHead with re-init | ~30 min | ⏸ Pending |
 | 6 | T6 | `train.py` — generic loop with epoch-aware loss_fn | ~20 min | ⏸ Pending |
 | 7 | T7 | `eval.py` — KMeans/DEC assignments, NMI/ARI L4, probing, UMAP | ~30 min | ⏸ Pending |
@@ -164,6 +164,17 @@ Once MVP is delivered (intermediate report submitted):
 - Pyright unused-import diagnostic on `pd` fixed in amend
 - Commit: `44309ee`
 - Next: T2 (data.py)
+
+### 2026-05-04 — T3+T4 bundle complete
+- `losses.py`: compute_block_weights (with clipping), director_block_loss (G2 mask), weighted_recon_loss (canonical), weighted_recon_loss_uniform (W1), vae_elbo (β-aware), dec_loss (batch-wise P), LearnedWeightedLoss (W4)
+- `backbone.py`: MultiModalBackbone with block_mask support, DEFAULT_PROJ_DIMS at module level
+- `tests/test_losses.py`: 8 tests (incl. exclude_blocks regression test)
+- `tests/test_backbone.py`: 5 tests (incl. block_mask test)
+- pytest: **19 passed** (1 + 5 + 8 + 5)
+- Pyright fix: tensor-typed accumulators in `weighted_recon_loss` and `LearnedWeightedLoss.forward` (avoid `Tensor | Literal[0]` and `Tensor | float` unions)
+- Pyright noise: `from cineembed import losses/backbone` shows "unknown import symbol" until language server re-indexes — IDE-only, runtime fine
+- Commits: `ed8c71d` (losses), `2c4e6f6` (backbone)
+- Next: T5+T6 bundle (heads.py + train.py)
 
 ### 2026-05-04 — T2 complete
 - `data.py`: load_feature_matrix, get_block_indices (director-priority classifier), get_labels (3 axes), train_val_split, lazy-indexed _BlocksDataset, make_dataloader
