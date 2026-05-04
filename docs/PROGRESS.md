@@ -165,6 +165,15 @@ Once MVP is delivered (intermediate report submitted):
 - Commit: `44309ee`
 - Next: T2 (data.py)
 
+### 2026-05-04 — Drive-direct workflow refactor
+- User feedback: drag-drop / zip-unzip dance is painful for repeated Colab sessions
+- New layout: `MyDrive/cineembed/{repo,artifacts}` — repo + artifacts both live on Drive
+- Created `notebooks/00_drive_setup.ipynb` (5 cells) — one-time helper that mounts, verifies 12 required files, creates models/eval dirs, installs package
+- Updated setup cell in `02_train_ae`, `04_train_dec`, `05_results` — replaced zip-unpack with direct Drive paths + `assert REPO_ROOT.exists()` guard
+- `01_smoke_test.ipynb` left untouched (local-only)
+- All notebooks parse cleanly
+- Commit: `ef21d66`
+
 ### 2026-05-04 — T11p + T12p complete (write-only)
 - `notebooks/04_train_dec.ipynb`: 8 cells, MVP scope = 1 run (`dec_z64_k21`)
 - `notebooks/05_results.ipynb`: 6 cells, preliminary intermediate-report results table
