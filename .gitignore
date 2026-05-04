@@ -1,0 +1,16 @@
+artifacts/
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+data/AllMoviesDetailsCleaned.csv
+data/AllMoviesCastingRaw.csv
+data/220k_awards_by_directors.csv
+data/500 favorite directors_with wikipedia summary.csv
+data/MostCommonLanguageByDirector.csv
+data/language to country.csv
+data/900_acclaimed_directors_awards.csv
+data/spielberg_awards.csv
+data/Deep_Learning_EDA_ipynb_adlı_not_defterinin_kopyası.ipynb
+data/SENG474_Presentation_Team3.pptx
