@@ -314,7 +314,20 @@ src/cineembed.egg-info/
 EOF
 ```
 
-- [ ] **Step 1.5: Install package in editable mode and verify pytest runs.**
+- [ ] **Step 1.5: Add a green-from-start import test.**
+
+Create `tests/test_import.py`:
+```python
+"""Sanity test — verifies the package installs and exposes its version."""
+import cineembed
+
+
+def test_import_and_version():
+    assert hasattr(cineembed, '__version__')
+    assert cineembed.__version__ == "0.1.0"
+```
+
+- [ ] **Step 1.6: Install package in editable mode and verify pytest passes.**
 
 ```bash
 cd "/Users/barandincoguz/Desktop/deep learning movie project"
@@ -327,18 +340,19 @@ pip install -e ".[dev]" -q
 python3 -c "import cineembed; print(f'cineembed v{cineembed.__version__}')"
 # expected: cineembed v0.1.0
 
-# verify pytest runs (zero tests is OK at this point)
+# pytest must be GREEN (1 passed) — exit code 0
 pytest tests/ -v
-# expected: "no tests ran" or similar; exit code 5 is fine for empty
+# expected: tests/test_import.py::test_import_and_version PASSED  [100%]
+#           ===== 1 passed in 0.0Xs =====
 ```
 
 If `pip install -e .` errors, ensure `pyproject.toml` is at repo root (not nested) and `src/cineembed/__init__.py` exists.
 
-- [ ] **Step 1.6: Commit.**
+- [ ] **Step 1.7: Commit.**
 
 ```bash
 git add pyproject.toml src/ tests/ .gitignore
-git commit -m "feat(cineembed): package skeleton + pytest scaffolding"
+git commit -m "feat(cineembed): package skeleton + pytest scaffolding (1 import test)"
 ```
 
 ---
@@ -546,15 +560,28 @@ def train_val_split(n: int, val_frac: float = 0.1, seed: int = 42) -> tuple[np.n
 
 
 class _BlocksDataset(Dataset):
-    def __init__(self, X: torch.Tensor, has_bio: torch.Tensor, indices: np.ndarray | None = None):
-        self.X = X if indices is None else X[indices]
-        self.has_bio = has_bio if indices is None else has_bio[indices]
+    """Memory-efficient view of (X, has_bio) optionally restricted to indices.
+
+    IMPORTANT: never copies X — both train and val datasets share the same underlying
+    tensor and only differ in their `indices` array. With X at (329044, 564), copying
+    would balloon Colab RAM to several GB unnecessarily.
+    """
+    def __init__(
+        self,
+        X: torch.Tensor,
+        has_bio: torch.Tensor,
+        indices: np.ndarray | None = None,
+    ):
+        self.X = X
+        self.has_bio = has_bio
+        self.indices = None if indices is None else np.asarray(indices, dtype=np.int64)
 
     def __len__(self):
-        return self.X.shape[0]
+        return self.X.shape[0] if self.indices is None else len(self.indices)
 
     def __getitem__(self, i):
-        return {'X': self.X[i], 'has_bio': self.has_bio[i]}
+        real_i = int(self.indices[i]) if self.indices is not None else int(i)
+        return {'X': self.X[real_i], 'has_bio': self.has_bio[real_i]}
 
 
 def _split_into_blocks(X_batch: torch.Tensor, block_slices: dict[str, slice]) -> dict[str, torch.Tensor]:
@@ -733,6 +760,22 @@ def test_vae_elbo_returns_recon_kl_separately(synthetic_decoded_input):
     assert abs(loss.item() - (recon_val + 0.5 * kl_val)) < 1e-4
 
 
+def test_weighted_recon_loss_exclude_blocks(synthetic_decoded_input):
+    """F1/F2 ablation: exclude_blocks must skip the named block from the sum."""
+    dec, inp, has_bio = synthetic_decoded_input
+    w_blocks = {b: 1.0 for b in inp}
+
+    full = losses.weighted_recon_loss(dec, inp, has_bio, w_blocks)
+    no_text = losses.weighted_recon_loss(dec, inp, has_bio, w_blocks, exclude_blocks={'text'})
+    expected_diff = w_blocks['text'] * torch.nn.functional.mse_loss(dec['text'], inp['text'])
+    assert torch.allclose(full - no_text, expected_diff, atol=1e-5)
+
+    # Excluding 'director' must skip the G2 helper too
+    no_dir = losses.weighted_recon_loss(dec, inp, has_bio, w_blocks, exclude_blocks={'director'})
+    expected_dir = losses.director_block_loss(dec['director'], inp['director'], has_bio, w_blocks['director'])
+    assert torch.allclose(full - no_dir, expected_dir, atol=1e-5)
+
+
 def test_dec_loss_runs_and_returns_components():
     """DEC loss returns (loss, kl_val, recon_val) and computes batch-wise P/Q."""
     torch.manual_seed(0)
@@ -829,17 +872,28 @@ def weighted_recon_loss(
     target: dict[str, torch.Tensor],
     has_bio: torch.Tensor,
     w_blocks: dict[str, float],
+    exclude_blocks: set | None = None,
 ) -> torch.Tensor:
     """Canonical W2 + G2 reconstruction loss (spec §5.2.1).
 
     'director' is excluded from the generic sum and added via director_block_loss
     to apply the G2 mask. Including 'director' in the sum would double-count.
+
+    Args:
+        exclude_blocks: optional set of block names to skip. Used by F1/F2
+            modality ablation runs (spec §8.3.2) — skipping the masked block in
+            both forward AND loss prevents the model from being penalized for
+            failing to reconstruct the zero input. If 'director' is in
+            exclude_blocks, its G2 helper is also skipped.
     """
+    skip = exclude_blocks or set()
     other = sum(
         w_blocks[b] * F.mse_loss(decoded[b], target[b])
         for b in target
-        if b != 'director'
+        if b != 'director' and b not in skip
     )
+    if 'director' in skip:
+        return other
     return other + director_block_loss(
         decoded['director'], target['director'], has_bio, w_blocks['director']
     )
@@ -1022,6 +1076,21 @@ def test_backbone_supports_different_latent_dims(synthetic_blocks_dict):
         )
         z = model(synthetic_blocks_dict)
         assert z.shape == (200, z_dim)
+
+
+def test_backbone_block_mask_zeros_modality(synthetic_blocks_dict):
+    """F1/F2 ablation: block_mask={'text': 0.0} → text projection contribution removed."""
+    torch.manual_seed(42)
+    model = backbone.MultiModalBackbone(
+        block_dims=BLOCK_DIMS, proj_dims=PROJ_DIMS, hidden_dim=128, latent_dim=64,
+    )
+    z_full = model(synthetic_blocks_dict)
+    mask_no_text = {b: 1.0 for b in BLOCK_DIMS}
+    mask_no_text['text'] = 0.0
+    z_no_text = model(synthetic_blocks_dict, block_mask=mask_no_text)
+    # Ablating text MUST change the output
+    assert not torch.allclose(z_full, z_no_text), \
+        "block_mask={text: 0.0} should change z; backbone isn't honoring the mask"
 ```
 
 - [ ] **Step 4.2: Run — confirm failures.**
@@ -1108,8 +1177,26 @@ class MultiModalBackbone(nn.Module):
         self.hidden_dim = hidden_dim
         self.latent_dim = latent_dim
 
-    def forward(self, blocks: dict[str, torch.Tensor]) -> torch.Tensor:
-        projected = [self.projections[b](blocks[b]) for b in self.block_order]
+    def forward(
+        self,
+        blocks: dict[str, torch.Tensor],
+        block_mask: dict[str, float] | None = None,
+    ) -> torch.Tensor:
+        """Forward pass.
+
+        Args:
+            blocks: per-block input tensors.
+            block_mask: optional dict {block_name: 0.0 or 1.0}. A value of 0.0 zeros
+                that block's projected output before concatenation, simulating
+                "modality removed" for ablation studies (F1/F2 in spec §8.3.2).
+                Missing keys default to 1.0 (kept).
+        """
+        projected = []
+        for b in self.block_order:
+            p = self.projections[b](blocks[b])
+            if block_mask is not None and block_mask.get(b, 1.0) == 0.0:
+                p = torch.zeros_like(p)
+            projected.append(p)
         h = torch.cat(projected, dim=1)
         return self.backbone(h)
 ```
@@ -1219,6 +1306,36 @@ def test_dec_head_forward_returns_z_decoded_q(fresh_backbone, synthetic_blocks_d
     # q rows sum to ~1 (probability distribution)
     row_sums = q.sum(dim=1)
     assert torch.allclose(row_sums, torch.ones(200), atol=1e-4)
+
+
+def test_dec_head_reinit_collapsed_centers(fresh_backbone, synthetic_blocks_dict):
+    """Re-init must replace centers whose cluster-count is below the floor."""
+    ae_head = heads.AEHead(
+        backbone=fresh_backbone, block_dims=BLOCK_DIMS, proj_dims=PROJ_DIMS, hidden_dim=128,
+    )
+    dec_head = heads.DECHead(
+        backbone=fresh_backbone, ae_decoder=ae_head.decoder, n_clusters=5, latent_dim=64,
+    )
+    # Initialize centers, then snapshot the current state
+    with torch.no_grad():
+        z_init = fresh_backbone(synthetic_blocks_dict)
+    dec_head.initialize_centers(z_init.numpy(), seed=42)
+    centers_before = dec_head.cluster_centers.clone()
+
+    # Force two clusters into "collapsed" state (count < floor * n_total)
+    counts = torch.tensor([100, 80, 0, 0, 100])  # clusters 2 and 3 are collapsed
+    z_pool = z_init.numpy()
+    n_reinit = dec_head.reinit_collapsed_centers(
+        cluster_counts=counts, z_pool=z_pool, n_total=300, size_floor=0.001, seed=42,
+    )
+    assert n_reinit == 2
+
+    # The two collapsed centers should have moved; the others should be unchanged
+    diff = (dec_head.cluster_centers - centers_before).abs().sum(dim=1)
+    assert diff[0] == 0 and diff[1] == 0 and diff[4] == 0, \
+        f"non-collapsed centers were modified: {diff.tolist()}"
+    assert diff[2] > 0 and diff[3] > 0, \
+        f"collapsed centers were not re-initialized: {diff.tolist()}"
 ```
 
 - [ ] **Step 5.2: Run — confirm failures.**
@@ -1389,6 +1506,40 @@ class DECHead(nn.Module):
         centers = torch.from_numpy(km.cluster_centers_.astype(np.float32))
         self.cluster_centers.data.copy_(centers)
 
+    @torch.no_grad()
+    def reinit_collapsed_centers(
+        self,
+        cluster_counts: torch.Tensor,
+        z_pool: np.ndarray,
+        n_total: int,
+        size_floor: float = 0.001,
+        seed: int = 42,
+    ) -> int:
+        """Re-initialize cluster centers that hold < size_floor * n_total samples.
+
+        Mitigation for cluster collapse (spec §10). Called every epoch in the DEC
+        training loop. New center is sampled from a random latent point in z_pool.
+
+        Args:
+            cluster_counts: (k,) tensor of per-cluster argmax counts over the dataset
+            z_pool: (n_total, latent_dim) latent vectors to sample re-init points from
+            n_total: total number of samples (denominator for floor check)
+
+        Returns: number of clusters re-initialized.
+        """
+        floor_count = max(1, int(round(size_floor * n_total)))
+        rng = np.random.default_rng(seed)
+        n_reinit = 0
+        for j in range(self.n_clusters):
+            if int(cluster_counts[j].item()) < floor_count:
+                # Sample a random latent point as the new center
+                new_idx = int(rng.integers(0, z_pool.shape[0]))
+                self.cluster_centers.data[j] = torch.from_numpy(z_pool[new_idx]).to(
+                    self.cluster_centers.device
+                )
+                n_reinit += 1
+        return n_reinit
+
     def soft_assignments(self, z: torch.Tensor) -> torch.Tensor:
         """Student-t kernel soft assignments q (B, k)."""
         diff = z.unsqueeze(1) - self.cluster_centers.unsqueeze(0)  # (B, k, z)
@@ -1522,7 +1673,7 @@ from torch.utils.data import DataLoader
 def train_model(
     *,
     model: nn.Module,
-    loss_fn: Callable[[nn.Module, dict], torch.Tensor],
+    loss_fn: Callable,
     train_loader: DataLoader,
     val_loader: DataLoader | None = None,
     n_epochs: int = 100,
@@ -1539,18 +1690,29 @@ def train_model(
     """Generic training loop.
 
     Args:
-        loss_fn: callable (model, batch_dict) → scalar tensor. Batch dict has keys
-                 'blocks' (dict of per-block tensors) and 'has_bio'.
+        loss_fn: callable (model, batch, epoch) → scalar tensor or tuple. Batch dict
+                 has keys 'blocks' (per-block tensors) and 'has_bio'. The `epoch`
+                 argument enables schedules like VAE β warmup. For backward
+                 compatibility, the signature is auto-detected: if the function
+                 accepts only (model, batch), epoch is omitted.
         extra_params: optional extra parameters to pass to the optimizer (e.g.,
                       learned-uncertainty log_sigmas in W4 stretch).
 
     Returns:
         history dict with 'train_loss' and 'val_loss' lists.
     """
+    import inspect
     torch.manual_seed(seed)
     model = model.to(device)
     params = list(model.parameters()) + (list(extra_params) if extra_params else [])
     optimizer = Adam(params, lr=lr, weight_decay=weight_decay)
+
+    # Auto-detect whether loss_fn expects an epoch argument
+    sig = inspect.signature(loss_fn)
+    accepts_epoch = len(sig.parameters) >= 3
+
+    def _call_loss(model, batch, epoch):
+        return loss_fn(model, batch, epoch) if accepts_epoch else loss_fn(model, batch)
 
     history = {'train_loss': [], 'val_loss': []}
     best_val = float('inf')
@@ -1563,7 +1725,7 @@ def train_model(
         for batch in train_loader:
             batch = _move_batch_to_device(batch, device)
             optimizer.zero_grad()
-            loss = loss_fn(model, batch)
+            loss = _call_loss(model, batch, epoch)
             if isinstance(loss, tuple):  # vae_elbo / dec_loss return (loss, ...)
                 loss = loss[0]
             loss.backward()
@@ -1581,7 +1743,7 @@ def train_model(
             with torch.no_grad():
                 for batch in val_loader:
                     batch = _move_batch_to_device(batch, device)
-                    loss = loss_fn(model, batch)
+                    loss = _call_loss(model, batch, epoch)
                     if isinstance(loss, tuple):
                         loss = loss[0]
                     val_losses.append(float(loss.item()))
@@ -2094,50 +2256,54 @@ val_loader = data.make_dataloader(X, has_bio, batch_size=512, shuffle=False,
 def train_ae_run(run_name, z_dim, w_blocks_to_use, *,
                  use_proj_dims=PROJ_DIMS, mask_text=False, mask_director=False,
                  n_epochs=100, vanilla=False):
-    """Train one AE run; save checkpoint and metrics. Returns metrics dict."""
+    """Train one AE run; save checkpoint and metrics. Returns metrics dict.
+
+    Modality ablation (mask_text / mask_director) uses the backbone's `block_mask`
+    parameter (zeros that block's projected encoder output) AND `weighted_recon_loss`
+    `exclude_blocks` (skips that block in the reconstruction loss).
+    """
     torch.manual_seed(42)
     if vanilla:
         # Single FC encoder, no modality projection — vanilla concat-AE baseline.
-        bb = nn.Sequential(
+        # Uses the same per-block decoder as multi-modal AE for fair comparison.
+        bb_fc = nn.Sequential(
             nn.Linear(564, 128), nn.ReLU(), nn.Dropout(0.2), nn.Linear(128, z_dim),
         )
-        # Wrap as a "fake" backbone for compatibility
         class _VanillaWrap(nn.Module):
-            def __init__(self, fc, z_dim):
+            def __init__(self, fc, z_dim_):
                 super().__init__()
                 self.fc = fc
-                self.latent_dim = z_dim
-            def forward(self, blocks):
-                X_cat = torch.cat([blocks[b] for b in BLOCK_DIMS], dim=1)
+                self.latent_dim = z_dim_
+                self.block_order = list(BLOCK_DIMS.keys())
+            def forward(self, blocks, block_mask=None):
+                # block_mask intentionally ignored — vanilla baseline doesn't support
+                # ablation. F1/F2 ablations only apply to multi-modal AE.
+                X_cat = torch.cat([blocks[b] for b in self.block_order], dim=1)
                 return self.fc(X_cat)
-        bb = _VanillaWrap(bb, z_dim)
+        bb = _VanillaWrap(bb_fc, z_dim)
     else:
         bb = backbone.MultiModalBackbone(BLOCK_DIMS, use_proj_dims, hidden_dim=128, latent_dim=z_dim)
     head = heads.AEHead(bb, BLOCK_DIMS, use_proj_dims, hidden_dim=128)
 
+    # Determine which blocks to ablate (gated at both forward AND loss).
+    masked_blocks: set = set()
+    if mask_text:
+        masked_blocks.add('text')
+    if mask_director:
+        masked_blocks.add('director')
+    block_mask = ({b: 0.0 for b in masked_blocks} | {b: 1.0 for b in BLOCK_DIMS if b not in masked_blocks}
+                  if masked_blocks else None)
+
     def loss_fn(model, batch):
-        b = batch['blocks']
-        if mask_text:
-            b = {**b, 'text': torch.zeros_like(b['text'])}
-        if mask_director:
-            b = {**b, 'director': torch.zeros_like(b['director'])}
-        decoded = model({**batch['blocks'], **b}) if (mask_text or mask_director) else model(b)
-        # When masking, exclude that block from the loss (peer-review note in spec §8.3.2)
-        target = batch['blocks']
-        if mask_text:
-            target = {k: v for k, v in target.items() if k != 'text'}
-            decoded = {k: v for k, v in decoded.items() if k != 'text'}
-            local_w = {k: v for k, v in w_blocks_to_use.items() if k != 'text'}
+        if block_mask is not None and not vanilla:
+            z = model.backbone(batch['blocks'], block_mask=block_mask)
+            decoded = model.decoder(z)
         else:
-            local_w = w_blocks_to_use
-        if mask_director:
-            target = {k: v for k, v in target.items() if k != 'director'}
-            decoded = {k: v for k, v in decoded.items() if k != 'director'}
-            local_w = {k: v for k, v in local_w.items() if k != 'director'}
-            # No director means we can't use the canonical helper (it requires 'director')
-            return sum(local_w[bk] * torch.nn.functional.mse_loss(decoded[bk], target[bk])
-                       for bk in target)
-        return losses.weighted_recon_loss(decoded, target, batch['has_bio'], local_w)
+            decoded = model(batch['blocks'])
+        return losses.weighted_recon_loss(
+            decoded, batch['blocks'], batch['has_bio'], w_blocks_to_use,
+            exclude_blocks=masked_blocks if masked_blocks else None,
+        )
 
     ckpt_path = ARTIFACTS / 'models' / f'{run_name}.pt'
     history = train.train_model(
@@ -2319,73 +2485,45 @@ val_loader = data.make_dataloader(X, has_bio, batch_size=512, shuffle=False,
                                     indices=val_idx, block_slices=block_slices, seed=42)
 ```
 
-**Cell 5 (code) — VAE trainer with β warmup:**
+**Cell 5 (code) — VAE trainer using `train.train_model` with β warmup via the epoch-aware loss_fn:**
 ```python
-def train_vae_run(run_name, z_dim, w_blocks_to_use, n_epochs=100, beta_warmup=10):
+BETA_WARMUP_EPOCHS = 10
+BETA_TARGET = 1.0
+
+def train_vae_run(run_name, z_dim, w_blocks_to_use, n_epochs=100):
+    """Train one VAE run with β warmup wired through train_model's epoch arg."""
     torch.manual_seed(42)
     bb = backbone.MultiModalBackbone(BLOCK_DIMS, PROJ_DIMS, hidden_dim=128, latent_dim=z_dim)
     head = heads.VAEHead(bb, BLOCK_DIMS, PROJ_DIMS, hidden_dim=128)
 
-    def loss_fn(model, batch):
+    # IMPORTANT: 3-arg signature (model, batch, epoch) — train_model auto-detects this
+    # and forwards the current epoch each step, enabling β warmup without manual loops.
+    def loss_fn(model, batch, epoch):
         decoded, mu, log_var = model(batch['blocks'])
-        # β depends on epoch; we approximate by wrapping in closure that reads global state
-        # A cleaner approach uses train_model's epoch hook — simplified here.
-        beta = min(loss_fn.current_epoch / beta_warmup, 1.0)
+        beta = min(epoch / BETA_WARMUP_EPOCHS, 1.0) * BETA_TARGET
         loss, recon_v, kl_v = losses.vae_elbo(
             decoded, batch['blocks'], mu, log_var, batch['has_bio'], w_blocks_to_use, beta)
         return loss
-    loss_fn.current_epoch = 0
 
-    # Manual training loop (so we can advance the epoch counter for β scheduling)
-    head = head.to(DEVICE)
-    opt = torch.optim.Adam(head.parameters(), lr=1e-3, weight_decay=1e-5)
-    history = {'train_loss': [], 'val_loss': []}
-    best_val = float('inf'); patience = 0
     ckpt_path = ARTIFACTS / 'models' / f'{run_name}.pt'
+    history = train.train_model(
+        model=head, loss_fn=loss_fn,
+        train_loader=train_loader, val_loader=val_loader,
+        n_epochs=n_epochs, lr=1e-3, weight_decay=1e-5,
+        early_stop_patience=10, early_stop_min_delta=1e-4,
+        device=DEVICE, checkpoint_path=ckpt_path, seed=42,
+    )
 
-    for epoch in range(n_epochs):
-        loss_fn.current_epoch = epoch
-        head.train(); train_losses = []
-        for batch in train_loader:
-            batch = {'blocks': {k: v.to(DEVICE) for k, v in batch['blocks'].items()},
-                     'has_bio': batch['has_bio'].to(DEVICE)}
-            opt.zero_grad()
-            loss = loss_fn(head, batch)
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(head.parameters(), 1.0)
-            opt.step()
-            train_losses.append(float(loss.item()))
-        history['train_loss'].append(sum(train_losses) / len(train_losses))
-
-        head.eval(); val_losses = []
-        with torch.no_grad():
-            for batch in val_loader:
-                batch = {'blocks': {k: v.to(DEVICE) for k, v in batch['blocks'].items()},
-                         'has_bio': batch['has_bio'].to(DEVICE)}
-                val_losses.append(float(loss_fn(head, batch).item()))
-        val_avg = sum(val_losses) / len(val_losses)
-        history['val_loss'].append(val_avg)
-
-        if best_val - val_avg > 1e-4:
-            best_val = val_avg; patience = 0
-            ckpt_path.parent.mkdir(parents=True, exist_ok=True)
-            torch.save({'model_state': head.state_dict(), 'epoch': epoch,
-                        'val_loss': val_avg, 'history': history}, ckpt_path)
-        else:
-            patience += 1
-            if patience >= 10:
-                break
-
-    # Embed all 329k films
-    state = torch.load(ckpt_path, weights_only=False)
-    head.load_state_dict(state['model_state'])
+    # Embed all 329k films using μ (deterministic) for downstream clustering
+    train.load_checkpoint(head, ckpt_path, device=DEVICE)
     head.eval()
     z_full = []
+    full_loader = data.make_dataloader(X, has_bio, batch_size=2048, shuffle=False,
+                                         block_slices=block_slices)
     with torch.no_grad():
-        full_loader = data.make_dataloader(X, has_bio, batch_size=2048, shuffle=False,
-                                             block_slices=block_slices)
         for batch in full_loader:
-            mu, _ = head.encode({k: v.to(DEVICE) for k, v in batch['blocks'].items()})
+            blk = {k: v.to(DEVICE) for k, v in batch['blocks'].items()}
+            mu, _ = head.encode(blk)
             z_full.append(mu.cpu().numpy())
     z_all = np.concatenate(z_full, axis=0)
 
@@ -2393,7 +2531,8 @@ def train_vae_run(run_name, z_dim, w_blocks_to_use, n_epochs=100, beta_warmup=10
     metrics = cev.evaluate_run(c_ids, labels)
     metrics['run_name'] = run_name
     metrics['z_dim'] = z_dim
-    metrics['final_val_loss'] = best_val
+    metrics['final_val_loss'] = history['final_val_loss']
+    metrics['n_epochs'] = history['n_epochs_completed']
     return metrics, z_all
 ```
 
@@ -2503,9 +2642,29 @@ val_loader = data.make_dataloader(X, has_bio, batch_size=512, shuffle=False,
                                     indices=val_idx, block_slices=block_slices, seed=42)
 ```
 
-**Cell 5 (code) — DEC trainer:**
+**Cell 5 (code) — DEC trainer with cluster-collapse re-init hook:**
 ```python
-def train_dec_run(run_name, z_dim, k, ae_checkpoint_path, n_epochs=50):
+def _compute_full_latents_and_counts(model, X, has_bio, block_slices, device):
+    """Forward pass over the entire dataset; return (z_array, per-cluster counts)."""
+    model.eval()
+    full_loader = data.make_dataloader(X, has_bio, batch_size=2048, shuffle=False,
+                                         block_slices=block_slices)
+    z_chunks, q_argmax_chunks = [], []
+    with torch.no_grad():
+        for batch in full_loader:
+            blk = {k_: v.to(device) for k_, v in batch['blocks'].items()}
+            z, _, q = model(blk)
+            z_chunks.append(z.cpu().numpy())
+            q_argmax_chunks.append(q.argmax(dim=1).cpu().numpy())
+    z_all = np.concatenate(z_chunks, axis=0)
+    assignments = np.concatenate(q_argmax_chunks, axis=0)
+    counts = np.bincount(assignments, minlength=model.n_clusters)
+    return z_all, torch.from_numpy(counts)
+
+
+def train_dec_run(run_name, z_dim, k, ae_checkpoint_path, n_epochs=50,
+                   cluster_size_floor=0.001):
+    """DEC training with explicit cluster-collapse re-init between epochs."""
     torch.manual_seed(42)
     bb = backbone.MultiModalBackbone(BLOCK_DIMS, PROJ_DIMS, hidden_dim=128, latent_dim=z_dim)
     ae_head = heads.AEHead(bb, BLOCK_DIMS, PROJ_DIMS, hidden_dim=128)
@@ -2527,20 +2686,65 @@ def train_dec_run(run_name, z_dim, k, ae_checkpoint_path, n_epochs=50):
     dec_head.initialize_centers(z_init, seed=42)
     dec_head = dec_head.to(DEVICE)
 
-    def loss_fn(model, batch):
-        z, decoded, _ = model(batch['blocks'])
-        loss, _, _ = losses.dec_loss(z, decoded, batch['blocks'],
-                                      model.cluster_centers, batch['has_bio'],
-                                      w_blocks, lambda_recon=0.1)
-        return loss
-
+    # Manual training loop because we need a per-epoch cluster-count check.
+    opt = torch.optim.Adam(dec_head.parameters(), lr=1e-3, weight_decay=1e-5)
+    history = {'train_loss': [], 'val_loss': [], 'n_reinit': []}
+    best_val = float('inf'); patience = 0
     ckpt_path = ARTIFACTS / 'models' / f'{run_name}.pt'
-    history = train.train_model(
-        model=dec_head, loss_fn=loss_fn,
-        train_loader=train_loader, val_loader=val_loader,
-        n_epochs=n_epochs, lr=1e-3, device=DEVICE,
-        checkpoint_path=ckpt_path, early_stop_patience=8, seed=42,
-    )
+
+    n_total = X.shape[0]
+
+    for epoch in range(n_epochs):
+        dec_head.train()
+        train_losses = []
+        for batch in train_loader:
+            blk = {k_: v.to(DEVICE) for k_, v in batch['blocks'].items()}
+            hb = batch['has_bio'].to(DEVICE)
+            opt.zero_grad()
+            z, decoded, _ = dec_head(blk)
+            loss, _, _ = losses.dec_loss(z, decoded, blk, dec_head.cluster_centers,
+                                           hb, w_blocks, lambda_recon=0.1)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(dec_head.parameters(), 1.0)
+            opt.step()
+            train_losses.append(float(loss.item()))
+        history['train_loss'].append(sum(train_losses) / max(len(train_losses), 1))
+
+        # ─── Cluster-collapse re-init (spec §10 mitigation) ───
+        z_full, cluster_counts = _compute_full_latents_and_counts(
+            dec_head, X, has_bio, block_slices, DEVICE,
+        )
+        n_reinit = dec_head.reinit_collapsed_centers(
+            cluster_counts=cluster_counts, z_pool=z_full,
+            n_total=n_total, size_floor=cluster_size_floor, seed=42 + epoch,
+        )
+        history['n_reinit'].append(n_reinit)
+        if n_reinit > 0:
+            print(f"  [epoch {epoch}] re-initialized {n_reinit} collapsed clusters")
+
+        # Validation pass
+        dec_head.eval()
+        val_losses = []
+        with torch.no_grad():
+            for batch in val_loader:
+                blk = {k_: v.to(DEVICE) for k_, v in batch['blocks'].items()}
+                hb = batch['has_bio'].to(DEVICE)
+                z, decoded, _ = dec_head(blk)
+                v_loss, _, _ = losses.dec_loss(z, decoded, blk, dec_head.cluster_centers,
+                                                 hb, w_blocks, lambda_recon=0.1)
+                val_losses.append(float(v_loss.item()))
+        val_avg = sum(val_losses) / max(len(val_losses), 1)
+        history['val_loss'].append(val_avg)
+
+        if best_val - val_avg > 1e-4:
+            best_val = val_avg; patience = 0
+            ckpt_path.parent.mkdir(parents=True, exist_ok=True)
+            torch.save({'model_state': dec_head.state_dict(), 'epoch': epoch,
+                        'val_loss': val_avg, 'history': history}, ckpt_path)
+        else:
+            patience += 1
+            if patience >= 8:
+                break
 
     # Final cluster assignments via DEC argmax
     train.load_checkpoint(dec_head, ckpt_path, device=DEVICE)
@@ -2552,6 +2756,8 @@ def train_dec_run(run_name, z_dim, k, ae_checkpoint_path, n_epochs=50):
     metrics['run_name'] = run_name
     metrics['z_dim'] = z_dim
     metrics['k'] = k
+    metrics['total_reinit'] = int(sum(history['n_reinit']))
+    metrics['final_val_loss'] = best_val
     return metrics
 ```
 
