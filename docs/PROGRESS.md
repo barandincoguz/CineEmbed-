@@ -32,7 +32,7 @@ The full implementation plan has 13 tasks producing 21-22 model runs. The MVP sc
 
 | # | Task | Description | Effort | Status |
 |---:|---|---|---|---|
-| 1 | T1 | Package skeleton + pyproject.toml + test_import | ~15 min | ⏸ Pending |
+| 1 | T1 | Package skeleton + pyproject.toml + test_import | ~15 min | ✅ Done (`44309ee`) |
 | 2 | T2 | `data.py` — load + block indices + labels + dataloader | ~30 min | ⏸ Pending |
 | 3 | T3 | `losses.py` — W2 + G2 + ELBO + DEC KL + W4 | ~30 min | ⏸ Pending |
 | 4 | T4 | `backbone.py` — MultiModalBackbone + block_mask | ~20 min | ⏸ Pending |
@@ -156,3 +156,11 @@ Once MVP is delivered (intermediate report submitted):
 - MVP scope decided after second peer review: 11 tasks, 5 model runs
 - Subagent-driven execution chosen (sonnet model)
 - Starting T1 next
+
+### 2026-05-04 — T1 complete
+- Package skeleton built: `pyproject.toml`, `src/cineembed/__init__.py`, `tests/conftest.py` (6 fixtures), `tests/test_import.py`
+- `.venv` set up with Python 3.13.3, `pip install -e ".[dev]"` succeeded
+- pytest: 1 passed (test_import)
+- Pyright unused-import diagnostic on `pd` fixed in amend
+- Commit: `44309ee`
+- Next: T2 (data.py)
