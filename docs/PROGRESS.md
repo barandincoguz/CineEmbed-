@@ -40,7 +40,7 @@ The full implementation plan has 13 tasks producing 21-22 model runs. The MVP sc
 | 6 | T6 | `train.py` — generic loop with epoch-aware loss_fn | ~20 min | ✅ Done (`152c462`) |
 | 7 | T7 | `eval.py` — KMeans/DEC assignments, NMI/ARI L4, probing, UMAP | ~30 min | ✅ Done (`4e67a42`) |
 | 8 | T8 | `01_smoke_test.ipynb` — package validation | ~10 min | ✅ Done (`faebe1f`) |
-| 9 | **T9p** | **Partial AE: vanilla_ae_z64 + ae_z64 + ae_z64_w1** (3 runs) | ~45 min Colab | ⏸ Pending |
+| 9 | **T9p** | **Partial AE: vanilla_ae_z64 + ae_z64 + ae_z64_w1** (3 runs) | ~45 min Colab | ✅ Written (`58563cf`); awaits Colab run |
 | 10 | **T11p** | **Partial DEC: dec_z64_k21** (1 run) | ~10 min Colab | ⏸ Pending |
 | 11 | **T12p** | **Partial results: KMeans baselines + comparison table** | ~20 min | ⏸ Pending |
 
@@ -164,6 +164,15 @@ Once MVP is delivered (intermediate report submitted):
 - Pyright unused-import diagnostic on `pd` fixed in amend
 - Commit: `44309ee`
 - Next: T2 (data.py)
+
+### 2026-05-04 — T9p complete (write-only)
+- `notebooks/02_train_ae.ipynb`: 9 cells, scoped to 3 MVP runs (vanilla_ae_z64, ae_z64, ae_z64_w1)
+- Cell 8 + 9 document and contain commented-out code for the 4 deferred runs (ae_z32, ae_z128, F1, F2, optional W4)
+- Bug catch: `!pip install` magic replaced with `get_ipython().system()` for syntax validity
+- All 7 code cells parse cleanly
+- Commit: `58563cf`
+- **TODO: User runs in Colab** (~45 min T4 compute)
+- Next: T11p+T12p bundle (DEC notebook + results notebook, both write-only)
 
 ### 2026-05-04 — T8 complete
 - `notebooks/01_smoke_test.ipynb`: 8 cells, end-to-end package validation
