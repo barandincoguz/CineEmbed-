@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 from sklearn.cluster import KMeans
 
-from cineembed.backbone import MultiModalBackbone
+from .backbone import MultiModalBackbone
 
 
 class _BlockDecoder(nn.Module):
@@ -152,7 +152,9 @@ class DECHead(nn.Module):
     @torch.no_grad()
     def initialize_centers(self, z_array: np.ndarray, seed: int = 42) -> None:
         """Initialize cluster centers via KMeans on a precomputed latent array."""
-        km = KMeans(n_clusters=self.n_clusters, n_init=20, random_state=seed)
+        # sklearn 1.4+ stub annotates n_init as `'auto' | int`; some sklearn-stubs
+        # versions have a stale `str`-only annotation. Runtime accepts int 20 fine.
+        km = KMeans(n_clusters=self.n_clusters, n_init=20, random_state=seed)  # type: ignore[arg-type]
         km.fit(z_array)
         centers = torch.from_numpy(km.cluster_centers_.astype(np.float32))
         self.cluster_centers.data.copy_(centers)
