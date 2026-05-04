@@ -41,8 +41,8 @@ The full implementation plan has 13 tasks producing 21-22 model runs. The MVP sc
 | 7 | T7 | `eval.py` — KMeans/DEC assignments, NMI/ARI L4, probing, UMAP | ~30 min | ✅ Done (`4e67a42`) |
 | 8 | T8 | `01_smoke_test.ipynb` — package validation | ~10 min | ✅ Done (`faebe1f`) |
 | 9 | **T9p** | **Partial AE: vanilla_ae_z64 + ae_z64 + ae_z64_w1** (3 runs) | ~45 min Colab | ✅ Written (`58563cf`); awaits Colab run |
-| 10 | **T11p** | **Partial DEC: dec_z64_k21** (1 run) | ~10 min Colab | ⏸ Pending |
-| 11 | **T12p** | **Partial results: KMeans baselines + comparison table** | ~20 min | ⏸ Pending |
+| 10 | **T11p** | **Partial DEC: dec_z64_k21** (1 run) | ~10 min Colab | ✅ Written (`8f7b8f2`); awaits Colab |
+| 11 | **T12p** | **Partial results: KMeans baselines + comparison table** | ~20 min | ✅ Written (`928c3d4`); awaits 02+04 |
 
 **MVP estimated total:** ~3 saat dev (T1-T8) + ~1 saat Colab compute (T9p+T11p) + ~30 min results (T12p) = **~4-5 hours wall-clock**.
 
