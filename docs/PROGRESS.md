@@ -38,7 +38,7 @@ The full implementation plan has 13 tasks producing 21-22 model runs. The MVP sc
 | 4 | T4 | `backbone.py` — MultiModalBackbone + block_mask | ~20 min | ✅ Done (`2c4e6f6`) |
 | 5 | T5 | `heads.py` — AEHead, VAEHead, DECHead with re-init | ~30 min | ✅ Done (`da021c2`) |
 | 6 | T6 | `train.py` — generic loop with epoch-aware loss_fn | ~20 min | ✅ Done (`152c462`) |
-| 7 | T7 | `eval.py` — KMeans/DEC assignments, NMI/ARI L4, probing, UMAP | ~30 min | ⏸ Pending |
+| 7 | T7 | `eval.py` — KMeans/DEC assignments, NMI/ARI L4, probing, UMAP | ~30 min | ✅ Done (`4e67a42`) |
 | 8 | T8 | `01_smoke_test.ipynb` — package validation | ~10 min | ⏸ Pending |
 | 9 | **T9p** | **Partial AE: vanilla_ae_z64 + ae_z64 + ae_z64_w1** (3 runs) | ~45 min Colab | ⏸ Pending |
 | 10 | **T11p** | **Partial DEC: dec_z64_k21** (1 run) | ~10 min Colab | ⏸ Pending |
@@ -164,6 +164,15 @@ Once MVP is delivered (intermediate report submitted):
 - Pyright unused-import diagnostic on `pd` fixed in amend
 - Commit: `44309ee`
 - Next: T2 (data.py)
+
+### 2026-05-04 — T7 complete
+- `eval.py`: cluster_assignments_kmeans, cluster_assignments_dec, evaluate_run (3-axis L4 NMI/ARI), linear_probe, umap_plot (Agg backend)
+- `tests/test_eval.py`: 4 tests
+- pytest: **30 passed** (1 + 5 + 8 + 5 + 5 + 2 + 4); 1 harmless umap warning
+- Pyright: type-ignore on KMeans n_init + umap import (no bundled stubs)
+- Commit: `4e67a42`
+- All 7 modules (data, losses, backbone, heads, train, eval) DONE — all unit tests passing
+- Next: T8 (01_smoke_test.ipynb) for end-to-end package validation
 
 ### 2026-05-04 — T5+T6 bundle complete
 - `heads.py`: AEHead (deterministic), VAEHead (μ/σ + reparameterization), DECHead (Student-t kernel + reinit_collapsed_centers D10 patch)
