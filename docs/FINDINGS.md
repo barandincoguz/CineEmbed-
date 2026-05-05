@@ -12,6 +12,8 @@ All three pre-registered hypotheses **PASS**:
 
 Best model: `dec_z64_k21` — genre_NMI=0.332, lang_NMI=0.294, decade_NMI=0.342.
 
+**Bonus finding (post-hoc):** UMAP analysis revealed a coherent missing-data sub-manifold (Finding 9), not predicted by H1–H3.
+
 ---
 
 ## Run inventory
@@ -117,6 +119,37 @@ DEC was initialized from `ae_z64`'s encoder weights and trained for 21 KL+recon 
 
 **Spec criterion (D8/H1):** DEC.NMI > AE.NMI. **PASS** marginally (+1.2%). The richer story is the +6.6% ARI gain at the same information level.
 
+### 🏆 Finding 8 — Latent topology evolves dramatically: blobs → islands → tight islands
+
+UMAP projection of the z=64 latent (15K subsample, cosine metric) reveals a **qualitative topology shift** across the architecture progression that quantitative metrics alone don't fully convey:
+
+| Architecture | Latent topology | What this signals |
+|---|---|---|
+| `vanilla_ae_z64` | **2 mega-blobs** with a dense "Unknown-genre" blue mass dominating one of them | Single FC encoder collapses heterogeneous modalities; under-represents one-hot blocks |
+| `ae_z64` (multi-modal, W2) | **Dozens of small islands** with the central genre-coherent micro-clusters; Unknown films distributed throughout | Modality projection allocates capacity per block, surfacing fine-structure |
+| `dec_z64_k21` (DEC) | **Even more atomized, tighter islands** with sharper inter-cluster gaps | KL pressure on soft assignments compresses each cluster into a tighter Gaussian-like blob |
+| `ae_z64_w1` (W1 ablation) | Several mid-sized blobs but **no fine genre structure within them** | Without W2 weighting, gradient is dominated by 384-dim text noise; small blocks lose signal |
+
+**Claim:** This is the **visual signature of representation learning** — not what's encoded changes (NMI/ARI numbers shift only modestly), but **how the latent space is geometrically organized**. The progression from 2 blobs → many islands → tight islands is paper-quality empirical evidence that:
+1. Modality-specific projection (Finding 1) creates structural diversity
+2. Inverse-variance weighting (Finding 2) keeps that diversity stable
+3. Explicit clustering (Finding 7) sharpens it into discrete partitions
+
+**Hero figure:** `artifacts/figures/umap/umap_comparison_genre.png` — the 3-panel side-by-side is the single most informative figure in the entire study.
+
+### 🏆 Finding 9 — Films with missing release_date form a coherent latent sub-manifold
+
+In the **DEC decade plot**, films with `decade_bin = 0` (~1112 of 15000 ≈ 7.4%, marked red — "missing release_date") form a **clearly isolated cluster in the upper-right** of the latent. The same red points are present in the vanilla and ae_z64 decade plots but are **less spatially separated** — DEC compresses them into the cleanest partition.
+
+**Why this matters:**
+- The model wasn't *forced* to encode missingness as structural — `has_release_date` is just one of 564 input features.
+- Yet across all four architectures, "no release date known" emerges as a **dimension of latent geometry, not just a flag**. DEC's KL pressure makes this manifold most explicit.
+- Practical implication: latent-space queries (e.g., nearest-neighbor recommendations) will naturally cluster missing-metadata films together — useful for downstream "data-quality triage" workflows.
+
+**This was unexpected.** Our pre-registered hypotheses (H1–H3) only concerned NMI/ARI on labeled axes. Finding 9 is a **post-hoc discovery** worth highlighting as a representation-learning interpretability win.
+
+**Hero figure:** `artifacts/figures/umap/umap_dec_z64_k21_decade.png` — the isolated red cluster is the visual story.
+
 ---
 
 ## 🎯 Final hero comparison (rapor için canonical table)
@@ -191,4 +224,20 @@ See `docs/PROGRESS.md` "Path to final report" section for the full deferred list
 - Spec: `docs/superpowers/specs/2026-05-04-modeling-design.md`
 - Implementation plan: `docs/superpowers/plans/2026-05-04-modeling-implementation.md`
 - Progress tracker: `docs/PROGRESS.md`
-- Results JSON: `MyDrive/CineEmbed/artifacts/eval/results.json`
+- Results JSON: `artifacts/eval/results.json` (also on Drive)
+- Results CSV: `artifacts/eval/results_table_mvp.csv`
+
+## Figure index — UMAP visualizations (`artifacts/figures/umap/`)
+
+13 PNG figures from `notebooks/06_umap.ipynb`. Tier-ranked for the report:
+
+| Tier | File | Slot | Story |
+|---|---|---|---|
+| 🥇 hero | `umap_comparison_genre.png` | Method/Results main | Architecture progression: blobs → islands → tight islands (Finding 8) |
+| 🥇 hero | `umap_dec_z64_k21_decade.png` | Discussion / Discovery | Missing-data manifold isolated as red cluster (Finding 9) |
+| 🥈 strong | `umap_dec_z64_k21_lang.png` | Results | Language micro-clusters visible — supports lang_NMI=0.294 |
+| 🥈 strong | `umap_ae_z64_w1_genre.png` | Ablation slide | W1 collapse — diffuse blob with no fine structure (Finding 2 visual) |
+| supporting | `umap_ae_z64_genre.png` + `umap_ae_z64_lang.png` | Method | Multi-modal architecture in isolation |
+| supporting | `umap_vanilla_ae_z64_*.png` (3 figs) | Comparison context | Baseline architecture topology |
+| supporting | `umap_dec_z64_k21_genre.png` | Closing | Best model genre clusters in isolation |
+| reference | `umap_ae_z64_w1_decade.png`, `umap_ae_z64_w1_lang.png`, `umap_ae_z64_decade.png` | Appendix | Completeness — full grid |
