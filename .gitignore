@@ -1,9 +1,29 @@
-artifacts/
+# ---------------------------------------------------------------
+# Artifacts policy:
+#   • Track everything under artifacts/ (models, eval, figures, metadata)
+#     EXCEPT files >100MB that exceed GitHub's hard limit.
+# ---------------------------------------------------------------
+
+# Files exceeding GitHub 100MB limit (regenerable via EDA pipeline)
+artifacts/feature_matrix.npz
+artifacts/feature_matrix_raw.npz
+artifacts/movies_eda_final.csv
+
+# (Earlier version blocked all of artifacts/ — switched to file-level
+# blocks so checkpoints + figures + results JSON travel with the repo.)
+
+# IDE + Python ephemeral
 .ipynb_checkpoints/
 __pycache__/
 *.pyc
+.pytest_cache/
+.venv/
+*.egg-info/
+src/cineembed.egg-info/
 .DS_Store
 .env
+
+# data/ raw inputs (large CSVs, presentation deck, EDA copy notebook)
 data/AllMoviesDetailsCleaned.csv
 data/AllMoviesCastingRaw.csv
 data/220k_awards_by_directors.csv
@@ -14,13 +34,3 @@ data/900_acclaimed_directors_awards.csv
 data/spielberg_awards.csv
 data/Deep_Learning_EDA_ipynb_adlı_not_defterinin_kopyası.ipynb
 data/SENG474_Presentation_Team3.pptx
-
-# Modeling phase
-artifacts/models/
-artifacts/eval/
-*.pt
-__pycache__/
-.pytest_cache/
-.venv/
-*.egg-info/
-src/cineembed.egg-info/
