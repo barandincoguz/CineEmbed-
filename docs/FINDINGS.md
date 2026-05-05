@@ -12,11 +12,13 @@
 | `vanilla_ae_z64` | 64 | — | ✅ | 0.287 | 0.369 | 0.095 | 0.0126 | 58 |
 | `ae_z64` (multi-modal) | 64 | — | ✅ | **0.328** | 0.341 | **0.264** | 0.0208 | 69 |
 | `ae_z64_w1` (uniform W) | 64 | — | ✅ | 0.165 | 0.367 | 0.070 | 0.0453 | 37 |
-| `dec_z64_k21` | 64 | 21 | ⏳ pending | — | — | — | — | — |
+| `dec_z64_k21` | 64 | 21 | ✅ | **0.332** | 0.342 | **0.294** | 0.127† | 21 |
 | `kmeans_raw_k21` (baseline) | 564 | 21 | ⏳ from 05_results | — | — | — | — | — |
 | `pca_kmeans_k21` (baseline) | 64 | 21 | ⏳ from 05_results | — | — | — | — | — |
 
-**genre_ARI breakdown**: vanilla=0.247, multi-modal=0.229, W1=0.094
+† DEC val_loss is KL + reconstruction combined — **not directly comparable** to AE pure-recon val_loss. Use NMI/ARI for cross-model comparison.
+
+**genre_ARI breakdown**: vanilla=0.247, multi-modal=0.229, W1=0.094, **DEC=0.244**
 
 ---
 
@@ -68,6 +70,25 @@ The multi-modal backbone is **not uniformly superior** to vanilla:
 
 **Interpretation:** Modality-specific projection allocates capacity to text/director blocks, slightly reducing fidelity on the trivially-encoded decade signal. This is a **principled trade-off**, not a bug — for downstream tasks that care about content/language similarity, the multi-modal approach is clearly better.
 
+### 🏆 Finding 6 — DEC sharpens cluster boundaries (ARI > NMI improvement pattern)
+
+DEC was initialized from `ae_z64`'s encoder weights and trained for 21 KL+recon epochs:
+
+| | ae_z64 (init) | dec_z64_k21 | gain |
+|---|---:|---:|---:|
+| genre_NMI | 0.328 | **0.332** | +1.2% |
+| genre_ARI | 0.229 | **0.244** | **+6.6%** |
+| lang_NMI  | 0.264 | **0.294** | **+11.4%** |
+| decade_NMI | 0.341 | 0.342 | flat |
+
+**Claim:** DEC's contribution is **cluster compactness, not new structural information**. KL-divergence on soft assignments tightens decision boundaries that AE has already discovered — the larger ARI gain than NMI gain is the diagnostic signature (information content is similar, but the partition is more crisp).
+
+**Validates earlier prediction:** In the methodological observations we noted that vanilla had higher genre_ARI than multi-modal *despite* lower NMI, and conjectured DEC would close the gap. **It did:** DEC's ARI=0.244 essentially ties vanilla's 0.247, while keeping multi-modal's huge lang_NMI advantage. **DEC = best of both worlds.**
+
+**Cluster health:** `total_reinit = 0` across 21 epochs → all 21 KMeans++ centroids survived KL training without collapse. This is non-trivial — DEC implementations frequently see 1–4 cluster collapses requiring re-init.
+
+**Spec criterion (D8/H1):** DEC.NMI > AE.NMI. **PASS** marginally (+1.2%). The richer story is the +6.6% ARI gain at the same information level.
+
 ---
 
 ## Methodological observations
@@ -87,20 +108,20 @@ W1's early stop is a **diagnostic signal**, not just a hyperparameter event: it 
 - vanilla genre_ARI = **0.247** (highest)
 - multi-modal genre_ARI = 0.229
 
-Despite multi-modal winning genre_NMI, vanilla wins genre_ARI. Interpretation: vanilla creates "harder" cluster boundaries that match genre labels more crisply, while multi-modal creates "softer" structure that captures genre information richly but with fuzzier KMeans-partitions. **DEC may close this gap** by explicitly optimizing cluster compactness.
+Despite multi-modal winning genre_NMI, vanilla wins genre_ARI. Interpretation: vanilla creates "harder" cluster boundaries that match genre labels more crisply, while multi-modal creates "softer" structure that captures genre information richly but with fuzzier KMeans-partitions. **DEC closes this gap** (ARI 0.244 vs vanilla's 0.247 — essentially tied) while keeping multi-modal's lang advantage — see Finding 6.
 
 ---
 
-## Open hypotheses (waiting on remaining runs)
+## Hypothesis status
 
-### H1 — DEC will improve genre_NMI over AE
-DEC explicitly optimizes cluster centers via KL divergence on soft assignments. Expected: dec_z64_k21 NMI > ae_z64 NMI (currently 0.328). Possible regression if KL forces structure that conflicts with natural genre overlaps.
+### H1 — DEC will improve genre_NMI over AE ✅ (PASS, marginal)
+**Result:** dec_z64_k21 NMI=0.332 > ae_z64 NMI=0.328 (+1.2%). The honest interpretation is *NMI essentially flat, ARI +6.6%, lang_NMI +11.4%* — DEC contributes cluster compactness, not new latent structure. See Finding 6.
 
 ### H2 — Best deep model > best baseline by ≥10% relative
-Spec success criterion (D9). Need baselines from 05_results to evaluate.
+Spec success criterion (D9). **Pending** baselines from 05_results — evaluate against `pca_kmeans_k21`. Current best deep: dec_z64_k21 genre_NMI=0.332.
 
-### H3 — Best deep NMI > 0.15 absolute floor
-Already validated: ae_z64 NMI = 0.328 ≫ 0.15. **PASS**
+### H3 — Best deep NMI > 0.15 absolute floor ✅ (PASS)
+ae_z64 NMI = 0.328 ≫ 0.15. dec_z64_k21 NMI = 0.332 ≫ 0.15.
 
 ---
 
