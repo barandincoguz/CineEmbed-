@@ -123,7 +123,40 @@
 \clearpage
 
 % Body sections will be added in subsequent tasks.
-\section*{Body sections to be inserted by subsequent tasks}
+% ===== Executive Summary =====
+\section*{Executive Summary}
+\addcontentsline{toc}{section}{Executive Summary}
+
+\noindent\status{complete}\ \textbf{Modeling MVP phase delivered on schedule.} The intermediate phase of the CineEmbed project is on track: all three pre-registered hypotheses (H1, H2, H3) have been validated, six models have been trained and evaluated against three orthogonal label axes, and the deferred work for the final report has been scoped and prioritized.
+
+\begin{itemize}[leftmargin=1.2em, itemsep=2pt, topsep=2pt]
+  \item \textbf{Data engineering:} 564-dimensional feature matrix over 329{,}044 films, organized into seven block-contiguous modalities, frozen at v1.2.
+  \item \textbf{Modeling:} six runs trained spanning three model tiers (non-deep baselines, simple deep, multi-modal deep + DEC fine-tune); evaluation completed against \texttt{primary\_genre}, \texttt{decade\_bin}, and \texttt{lang\_top10}.
+  \item \textbf{Hypotheses:} H1 (DEC > AE on \texttt{genre\_NMI}), H2 (best-deep $\geq 1.10\times$ best-non-deep), H3 (NMI $> 0.15$ floor) all PASS; H2 by an order of magnitude.
+\end{itemize}
+
+\vspace{4pt}
+\begin{headlinebox}
+\noindent\bignumber{$+205\%$} \hfill \begin{minipage}[b]{0.65\linewidth}\raggedleft\small relative gain on \texttt{genre\_NMI} of the best deep model (\texttt{dec\_z64\_k21}: 0.332) over the strongest non-deep baseline (\texttt{kmeans\_raw\_k21}: 0.109). Pre-registered threshold for H2 was $+10\%$.\end{minipage}
+\end{headlinebox}
+
+\vspace{4pt}
+\noindent\textbf{Hypothesis tracker:}
+
+\begin{center}\small
+\rowcolors{2}{rowAlt}{white}
+\begin{tabularx}{\linewidth}{@{}l X r l@{}}
+\toprule
+\textbf{ID} & \textbf{Statement} & \textbf{Result} & \textbf{Status} \\
+\midrule
+H1 & DEC \texttt{genre\_NMI} > AE \texttt{genre\_NMI}              & $0.332 > 0.328$ & \status{complete} PASS \\
+H2 & Best-deep \texttt{genre\_NMI} $\geq 1.10\times$ best-non-deep  & $+205\%$        & \status{complete} PASS \\
+H3 & Best-deep \texttt{genre\_NMI} > 0.15 absolute floor            & $0.332 \gg 0.15$& \status{complete} PASS \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\clearpage
 
 \printbibliography
 
