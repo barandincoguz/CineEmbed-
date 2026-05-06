@@ -323,8 +323,70 @@ def slide_10_bonus(prs):
         left=Inches(8.2), top=Inches(1.95), width=Inches(4.7), height=Inches(5.0),
         font_size=Pt(15),
     )
-def slide_11_plan(prs):        _content_slide(prs, 11, "Slide 11 — plan (stub)")
-def slide_12_close(prs):       _content_slide(prs, 12, "Slide 12 — close (stub)")
+def slide_11_plan(prs):
+    s = _content_slide(prs, 11, "Plan to the Final Report",
+                       "Deferred experiments with target completion windows.")
+    C.add_table(s,
+        header=["Item",                              "Why deferred",                                    "Target"],
+        rows=[
+            ["VAE family (z = 32 / 64 / 128)",       "Probabilistic head not yet trained.",            "2026-06-05"],
+            ["AE z-dim sweep (z = 32, 128)",         "MVP fixed z = 64.",                              "2026-06-05"],
+            ["F1 ablation (no text)",                "Quantify text-block contribution.",              "2026-06-08"],
+            ["F2 ablation (no director profile)",    "Quantify director-block contribution.",          "2026-06-08"],
+            ["DEC k-sweep (9-cell z×k grid)",        "MVP runs only z=64 × k=21.",                     "2026-06-10"],
+            ["W4 (Kendall learned uncertainty)",     "Stretch loss; learnable per-block weights.",     "2026-06-12"],
+            ["Linear probing on frozen latents",     "Held-out classifier evaluation per axis.",       "2026-06-12"],
+            ["5-seed confidence intervals",          "MVP single-seed → CIs needed.",                  "2026-06-14"],
+            ["Reproducibility audit",                "Single deterministic run script.",               "2026-06-15"],
+        ],
+        left=Inches(0.5), top=Inches(1.7), width=Inches(12.333), height=Inches(5.0),
+        col_aligns=["l", "l", "l"],
+    )
+    note = s.shapes.add_textbox(Inches(0.5), Inches(6.75), Inches(12.333), Inches(0.4))
+    tfn = note.text_frame
+    pn = tfn.paragraphs[0]
+    runn = pn.add_run()
+    runn.text = "Final report submission target: 2026-06-16."
+    runn.font.name = theme.Fonts.BODY
+    runn.font.size = Pt(14)
+    runn.font.italic = True
+    runn.font.color.rgb = theme.Colors.SLATE
+
+
+def slide_12_close(prs):
+    s = _content_slide(prs, 12, "Status Summary  ·  Q & A",
+                       "All three pre-registered hypotheses PASS.")
+    C.add_table(s,
+        header=["ID",  "Statement",                                          "Result",            "Status"],
+        rows=[
+            ["H1", "DEC genre_NMI > AE genre_NMI",                           "0.332 > 0.328",     "COMPLETE"],
+            ["H2", "Best-deep ≥ 1.10 × best-non-deep on genre_NMI",          "+205 %",            "COMPLETE"],
+            ["H3", "Best-deep genre_NMI > 0.15 absolute floor",              "0.332 ≫ 0.15",      "COMPLETE"],
+        ],
+        left=Inches(0.5), top=Inches(1.85), width=Inches(12.333), height=Inches(2.4),
+        col_aligns=["l", "l", "l", "l"],
+    )
+    q = s.shapes.add_textbox(Inches(0.5), Inches(4.6), Inches(12.333), Inches(1.2))
+    tfq = q.text_frame
+    tfq.word_wrap = True
+    pq = tfq.paragraphs[0]
+    pq.alignment = PP_ALIGN.CENTER
+    runq = pq.add_run()
+    runq.text = ("Best model: dec_z64_k21  —  genre_NMI = 0.332,  "
+                 "lang_NMI = 0.294,  decade_NMI = 0.342")
+    runq.font.name = theme.Fonts.HEADING
+    runq.font.size = Pt(22)
+    runq.font.color.rgb = theme.Colors.PRIMARY
+
+    foot = s.shapes.add_textbox(Inches(0.5), Inches(6.2), Inches(12.333), Inches(0.5))
+    tff = foot.text_frame
+    pf = tff.paragraphs[0]
+    pf.alignment = PP_ALIGN.CENTER
+    runf = pf.add_run()
+    runf.text = "github.com/barandincoguz/CineEmbed-     ·     Thank you. Questions?"
+    runf.font.name = theme.Fonts.BODY
+    runf.font.size = Pt(16)
+    runf.font.color.rgb = theme.Colors.SLATE
 
 
 BUILDERS = [
