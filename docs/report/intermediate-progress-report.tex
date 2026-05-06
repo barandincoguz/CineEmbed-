@@ -1,0 +1,130 @@
+\documentclass[11pt,a4paper]{article}
+
+% ===== Geometry & typography =====
+\usepackage[a4paper, margin=25mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[scaled=0.92]{helvet}
+\usepackage{microtype}
+
+% ===== Tables, math, figures =====
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath, amssymb}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{etoolbox}
+\usepackage{xparse}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{pgfgantt}
+
+% ===== Bibliography =====
+\usepackage[backend=biber, style=numeric, sorting=none]{biblatex}
+\addbibresource{references.bib}
+
+% ===== Brand colors =====
+\definecolor{brandPrimary}{HTML}{C2410C}
+\definecolor{brandSecondary}{HTML}{2563EB}
+\definecolor{brandAccent}{HTML}{15803D}
+\definecolor{brandAmber}{HTML}{B45309}
+\definecolor{brandSlate}{HTML}{64748B}
+\definecolor{rowAlt}{HTML}{F8FAFC}
+\definecolor{nearBlack}{HTML}{1E293B}
+
+% ===== Hyperref (load late) =====
+\usepackage[colorlinks=true, linkcolor=brandSecondary, urlcolor=brandSecondary, citecolor=brandSecondary]{hyperref}
+\usepackage[capitalise]{cleveref}
+
+% ===== Section heading style =====
+\titleformat{\section}
+  {\sffamily\Large\bfseries\color{brandPrimary}}
+  {\thesection}{0.6em}
+  {}[\vspace{2pt}\hrule height 0.5pt]
+\titleformat{\subsection}
+  {\sffamily\large\bfseries\color{brandSecondary}}
+  {\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}
+  {\sffamily\normalsize\bfseries\color{nearBlack}}
+  {\thesubsubsection}{0.4em}{}
+
+% ===== Headers / footers =====
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{brandSlate} SENG 474 \textbullet{} CineEmbed}
+\fancyhead[R]{\small\sffamily\color{brandSlate} Intermediate Progress Report}
+\fancyfoot[C]{\small\sffamily\color{brandSlate} Page \thepage{} of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% ===== Custom commands =====
+% \status{complete|inprogress|planned|deferred}
+\newcommand{\status}[1]{%
+  \ifstrequal{#1}{complete}{\colorbox{brandAccent}{\textcolor{white}{\sffamily\bfseries\small\,COMPLETE\,}}}{%
+  \ifstrequal{#1}{inprogress}{\colorbox{brandAmber}{\textcolor{white}{\sffamily\bfseries\small\,IN PROGRESS\,}}}{%
+  \ifstrequal{#1}{planned}{\colorbox{brandSecondary}{\textcolor{white}{\sffamily\bfseries\small\,PLANNED\,}}}{%
+  \ifstrequal{#1}{deferred}{\colorbox{brandSlate}{\textcolor{white}{\sffamily\bfseries\small\,DEFERRED\,}}}{}}}}%
+}
+
+% Headline-number callout box
+\newtcolorbox{headlinebox}{%
+  colback=brandPrimary!8!white,
+  colframe=brandPrimary,
+  boxrule=0.6pt,
+  arc=2pt,
+  left=10pt, right=10pt, top=8pt, bottom=8pt,
+}
+
+% Risk callout box
+\newtcolorbox{riskbox}[1]{%
+  colback=brandAmber!6!white,
+  colframe=brandAmber,
+  boxrule=0.6pt,
+  arc=2pt,
+  title={#1},
+  fonttitle=\sffamily\bfseries\small\color{white},
+  coltitle=white,
+  colbacktitle=brandAmber,
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+}
+
+% Evidence prefix
+\newcommand{\evidence}[1]{\textit{\color{brandSlate}\small Evidence: }\small #1}
+
+% Big number on a line (used in headline boxes)
+\newcommand{\bignumber}[1]{{\fontsize{36pt}{42pt}\sffamily\bfseries\color{brandPrimary}#1}}
+
+% ===== Document =====
+\begin{document}
+
+% ----- Title page (no header/footer) -----
+\thispagestyle{empty}
+\vspace*{4cm}
+\begin{center}
+{\sffamily\Huge\bfseries\color{brandPrimary} CineEmbed} \\[0.4cm]
+{\sffamily\Large Multi-Modal Unsupervised Embedding of 329{,}044 Films} \\[1.6cm]
+{\sffamily\large\color{brandSecondary} Intermediate Progress Report \textbullet{} v1.0} \\[2.5cm]
+{\large Ahmet Baran Dincoguz \quad\textbullet\quad Arda Arvas \quad\textbullet\quad Bertan Kaan Kaya} \\[1.0cm]
+{\sffamily\normalsize SENG 474 --- Deep Learning, Spring 2026} \\
+{\sffamily\normalsize TED University} \\[0.6cm]
+{\sffamily\normalsize 2026-05-06} \\[1.5cm]
+{\small\color{brandSlate}Repository: \href{https://github.com/barandincoguz/CineEmbed-}{github.com/barandincoguz/CineEmbed-}}
+\end{center}
+\vfill
+\clearpage
+
+% Body sections will be added in subsequent tasks.
+\section*{Body sections to be inserted by subsequent tasks}
+
+\printbibliography
+
+\end{document}
