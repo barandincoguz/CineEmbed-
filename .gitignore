@@ -34,3 +34,21 @@ data/900_acclaimed_directors_awards.csv
 data/spielberg_awards.csv
 data/Deep_Learning_EDA_ipynb_adlı_not_defterinin_kopyası.ipynb
 data/SENG474_Presentation_Team3.pptx
+
+# LaTeX build artifacts (under docs/report/)
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+~$*
+
+# Stale Office lock files
+~$*.pptx
+~$*.docx
