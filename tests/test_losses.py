@@ -113,6 +113,71 @@ def test_weighted_recon_loss_exclude_blocks(synthetic_decoded_input):
     assert torch.allclose(full - no_dir, expected_dir, atol=1e-5)
 
 
+def test_info_nce_loss_identical_views_lower_than_random():
+    """Identical-views loss must be strictly lower than independent-views loss.
+
+    Note: identical views does NOT drive the loss to 0 — within each view, rows
+    are still independent random Gaussians, so the *negative* pairs (other rows
+    within the batch) contribute non-zero similarity terms. The correct
+    correctness criterion is *relative*: aligning the positives must lower the
+    loss compared to random (z_a, z_b) pairs.
+    """
+    torch.manual_seed(0)
+    z = torch.randn(32, 16)
+    loss_aligned = losses.info_nce_loss(z, z.clone(), temperature=0.5)
+
+    z_a = torch.randn(32, 16)
+    z_b = torch.randn(32, 16)
+    loss_random = losses.info_nce_loss(z_a, z_b, temperature=0.5)
+
+    assert loss_aligned.item() < loss_random.item(), \
+        f"aligned loss {loss_aligned.item():.3f} should be < random loss {loss_random.item():.3f}"
+
+
+def test_info_nce_loss_low_temperature_drives_aligned_to_zero():
+    """At very small temperature, perfectly aligned positives dominate
+    exponentially and the loss collapses toward 0."""
+    torch.manual_seed(0)
+    z = torch.randn(32, 16)
+    loss_lowT = losses.info_nce_loss(z, z.clone(), temperature=0.01)
+    # exp(100) so dominant that loss ≈ 0
+    assert loss_lowT.item() < 0.05
+
+
+def test_info_nce_loss_random_views_in_expected_range():
+    """Independent random views → loss in the [1, log(2B-1)+1] band.
+
+    Theoretical baseline for random partitions is ~log(2B-1); for B=32 that's ~4.14.
+    """
+    torch.manual_seed(0)
+    B = 32
+    z_a = torch.randn(B, 16)
+    z_b = torch.randn(B, 16)
+    loss = losses.info_nce_loss(z_a, z_b, temperature=0.5)
+    assert 1.0 < loss.item() < 6.0  # generous bracket around log(2B-1) ≈ 4.14
+
+
+def test_info_nce_loss_is_symmetric():
+    """Swapping (z_a, z_b) must produce the same loss (symmetric formulation)."""
+    torch.manual_seed(0)
+    z_a = torch.randn(16, 8)
+    z_b = torch.randn(16, 8)
+    loss_ab = losses.info_nce_loss(z_a, z_b, temperature=0.5)
+    loss_ba = losses.info_nce_loss(z_b, z_a, temperature=0.5)
+    assert torch.allclose(loss_ab, loss_ba, atol=1e-5)
+
+
+def test_info_nce_loss_backward_grads_flow():
+    """Gradients must propagate through both views."""
+    torch.manual_seed(0)
+    z_a = torch.randn(8, 4, requires_grad=True)
+    z_b = torch.randn(8, 4, requires_grad=True)
+    loss = losses.info_nce_loss(z_a, z_b, temperature=0.5)
+    loss.backward()
+    assert z_a.grad is not None and z_a.grad.abs().sum() > 0
+    assert z_b.grad is not None and z_b.grad.abs().sum() > 0
+
+
 def test_dec_loss_runs_and_returns_components():
     """DEC loss returns (loss, kl_val, recon_val) and computes batch-wise P/Q."""
     torch.manual_seed(0)

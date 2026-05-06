@@ -130,6 +130,46 @@ class VAEHead(nn.Module):
         return decoded, mu, log_var
 
 
+class ContrastiveHead(nn.Module):
+    """SimCLR-style projection head for self-supervised pretext training.
+
+    See `docs/superpowers/specs/2026-05-06-clustering-improvement-techniques.md`
+    §2.1. Wraps the shared `MultiModalBackbone` with a 2-layer MLP that maps
+    the latent z into a projection space used ONLY for the InfoNCE loss. The
+    projection is discarded after pretext (Chen et al. 2020); downstream
+    AE/DEC heads operate directly on backbone latent z.
+
+    The forward signature accepts an optional `block_mask` so callers can pass
+    different stochastic masks for each augmented view (the augmentation
+    primitive for contrastive learning on heterogeneous data).
+    """
+    def __init__(
+        self,
+        backbone: MultiModalBackbone,
+        projection_dim: int = 128,
+    ):
+        super().__init__()
+        self.backbone = backbone
+        z_dim = backbone.latent_dim
+        # 2-layer MLP: z → z → projection_dim, BN+ReLU between (SimCLR paper).
+        self.projection = nn.Sequential(
+            nn.Linear(z_dim, z_dim),
+            nn.BatchNorm1d(z_dim),
+            nn.ReLU(inplace=True),
+            nn.Linear(z_dim, projection_dim),
+        )
+        self.projection_dim = projection_dim
+
+    def encode(self, blocks: dict[str, torch.Tensor],
+               block_mask: dict[str, float] | None = None) -> torch.Tensor:
+        return self.backbone(blocks, block_mask=block_mask)
+
+    def forward(self, blocks: dict[str, torch.Tensor],
+                block_mask: dict[str, float] | None = None) -> torch.Tensor:
+        z = self.encode(blocks, block_mask=block_mask)
+        return self.projection(z)
+
+
 class DECHead(nn.Module):
     """Deep Embedded Clustering head (spec §4.2.3, D10 batch-wise P)."""
     def __init__(

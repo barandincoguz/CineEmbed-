@@ -77,6 +77,35 @@ def test_dec_head_forward_returns_z_decoded_q(fresh_backbone, synthetic_blocks_d
     assert torch.allclose(row_sums, torch.ones(200), atol=1e-4)
 
 
+def test_contrastive_head_output_shape_and_projection_dim(fresh_backbone, synthetic_blocks_dict):
+    """ContrastiveHead.forward returns (B, projection_dim) — not the latent dim."""
+    head = heads.ContrastiveHead(backbone=fresh_backbone, projection_dim=128)
+    out = head(synthetic_blocks_dict)
+    assert out.shape == (200, 128)
+
+
+def test_contrastive_head_block_mask_zeroes_modality(fresh_backbone, synthetic_blocks_dict):
+    """When block_mask sets a modality to 0, the encoded view must differ from
+    the unmasked one — confirms mask is propagated through to the backbone."""
+    head = heads.ContrastiveHead(backbone=fresh_backbone, projection_dim=64)
+    head.eval()
+    with torch.no_grad():
+        out_full = head(synthetic_blocks_dict)
+        mask = {'text': 0.0}  # drop text block
+        out_masked = head(synthetic_blocks_dict, block_mask=mask)
+    # Outputs must differ — text is the largest modality, masking it changes the latent.
+    assert not torch.allclose(out_full, out_masked, atol=1e-3)
+
+
+def test_contrastive_head_encode_returns_latent_not_projection(fresh_backbone, synthetic_blocks_dict):
+    """The `encode` method returns the backbone latent (z_dim), not the projection."""
+    head = heads.ContrastiveHead(backbone=fresh_backbone, projection_dim=128)
+    head.eval()
+    with torch.no_grad():
+        z = head.encode(synthetic_blocks_dict)
+    assert z.shape == (200, 64)  # backbone latent_dim, not projection_dim
+
+
 def test_dec_head_reinit_collapsed_centers(fresh_backbone, synthetic_blocks_dict):
     """Re-init must replace centers whose cluster-count is below the floor."""
     ae_head = heads.AEHead(

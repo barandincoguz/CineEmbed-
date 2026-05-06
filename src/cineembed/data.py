@@ -179,6 +179,127 @@ def _collate(batch_list, block_slices):
     return {'blocks': _split_into_blocks(X, block_slices), 'has_bio': has_bio}
 
 
+class _ContrastivePairDataset(Dataset):
+    """Yields a single row twice — once per call, the dataset itself returns
+    the unmodified blocks dict; the augmentation (modality dropout) is applied
+    at COLLATE time so each batch gets two stochastic views with their own
+    independent random masks per row.
+
+    Spec: docs/superpowers/specs/2026-05-06-clustering-improvement-techniques.md §2.1.
+
+    Note on design: we apply the dropout in the collate function rather than
+    in __getitem__ because the augmentation needs to be applied as a per-block
+    multiplicative mask on the tensor, and broadcasting that against the (B, d)
+    block tensor is cheaper than per-row masking N times.
+    """
+    def __init__(
+        self,
+        X: torch.Tensor,
+        has_bio: torch.Tensor,
+        indices: np.ndarray | None = None,
+    ):
+        self.X = X                 # NEVER copies (same convention as _BlocksDataset)
+        self.has_bio = has_bio
+        self.indices = None if indices is None else np.asarray(indices, dtype=np.int64)
+
+    def __len__(self):
+        return self.X.shape[0] if self.indices is None else len(self.indices)
+
+    def __getitem__(self, i):
+        real_i = int(self.indices[i]) if self.indices is not None else int(i)
+        return {'X': self.X[real_i], 'has_bio': self.has_bio[real_i]}
+
+
+def _sample_block_mask(
+    block_order: list[str],
+    drop_prob: float,
+    rng: np.random.Generator,
+) -> dict[str, float]:
+    """Sample a per-block 0/1 mask. Each block is dropped independently with
+    probability `drop_prob`. Guarantees at least one block is kept (otherwise
+    the encoder receives all zeros and InfoNCE degenerates).
+    """
+    while True:
+        mask = {b: 0.0 if rng.random() < drop_prob else 1.0 for b in block_order}
+        if any(v == 1.0 for v in mask.values()):
+            return mask
+
+
+def _contrastive_collate(
+    batch_list,
+    block_slices: dict[str, slice],
+    block_order: list[str],
+    drop_prob: float,
+    rng: np.random.Generator,
+):
+    """Collate two augmented views per row, each with its own random block_mask.
+
+    Returns:
+        {
+            'view_a': {'blocks': dict, 'has_bio': tensor, 'block_mask': dict},
+            'view_b': {'blocks': dict, 'has_bio': tensor, 'block_mask': dict},
+        }
+    Each `block_mask` is per-batch (not per-row) — same set of dropped blocks
+    is applied to every row in the view. This is how SimCLR/MoCo apply
+    augmentation on tabular data; per-row masking would shatter the negatives.
+    """
+    X = torch.stack([b['X'] for b in batch_list], dim=0)
+    has_bio = torch.stack([b['has_bio'] for b in batch_list], dim=0)
+    blocks = _split_into_blocks(X, block_slices)
+
+    mask_a = _sample_block_mask(block_order, drop_prob, rng)
+    mask_b = _sample_block_mask(block_order, drop_prob, rng)
+    return {
+        'view_a': {'blocks': blocks, 'has_bio': has_bio, 'block_mask': mask_a},
+        'view_b': {'blocks': blocks, 'has_bio': has_bio, 'block_mask': mask_b},
+    }
+
+
+def make_contrastive_dataloader(
+    X: torch.Tensor,
+    has_bio: torch.Tensor,
+    batch_size: int,
+    *,
+    block_slices: dict[str, slice],
+    block_order: list[str] | None = None,
+    drop_prob: float = 0.3,
+    indices: np.ndarray | None = None,
+    seed: int = 42,
+    num_workers: int = 0,
+) -> DataLoader:
+    """Build a DataLoader that yields paired-view contrastive batches.
+
+    Spec: docs/superpowers/specs/2026-05-06-clustering-improvement-techniques.md §2.1.
+
+    Each batch is a dict with keys 'view_a' and 'view_b'. Each view contains
+    {'blocks': per-block tensors, 'has_bio': bio flag, 'block_mask': per-block
+    keep/drop dict to be passed to backbone(blocks, block_mask=...)}.
+
+    Args:
+        block_slices: per-block column slices (from `get_block_indices`).
+        block_order: explicit block ordering; defaults to BLOCK_ORDER.
+        drop_prob: per-block dropout probability for each view (independent of
+                   the other view). 0.3 means each view drops ~2 of 7 modalities
+                   on expectation. Tune via the contrastive validation curve.
+        seed: rng seed. Use different seeds for train/val loaders.
+    """
+    block_order = list(block_order) if block_order is not None else list(BLOCK_ORDER)
+    rng = np.random.default_rng(seed)
+    dataset = _ContrastivePairDataset(X, has_bio, indices=indices)
+    g = torch.Generator()
+    g.manual_seed(seed)
+    return DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        generator=g,
+        collate_fn=lambda batch: _contrastive_collate(
+            batch, block_slices, block_order, drop_prob, rng,
+        ),
+    )
+
+
 def make_dataloader(
     X: torch.Tensor,
     has_bio: torch.Tensor,

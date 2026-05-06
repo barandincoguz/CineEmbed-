@@ -162,6 +162,45 @@ def dec_loss(
     return loss, float(kl.item()), float(recon.item())
 
 
+def info_nce_loss(
+    z_a: torch.Tensor,
+    z_b: torch.Tensor,
+    temperature: float = 0.5,
+) -> torch.Tensor:
+    """Symmetric InfoNCE over two views (spec §2.1, Chen et al. 2020 SimCLR).
+
+    Treats each row as a positive pair (z_a[i], z_b[i]); all other pairs in the
+    batch are negatives. Symmetric in the sense that the loss is computed
+    a→b and b→a and averaged.
+
+    Args:
+        z_a, z_b: (B, d) — projected representations of two augmented views
+                  of the same B input rows. Inputs are L2-normalized internally.
+        temperature: NT-Xent temperature; SimCLR default 0.5.
+
+    Returns:
+        scalar loss.
+    """
+    z_a = F.normalize(z_a, dim=1)
+    z_b = F.normalize(z_b, dim=1)
+    # Concatenate views: rows 0..B-1 are view-a, B..2B-1 are view-b.
+    # For row i in view-a, the positive is row i in view-b (logical index B+i).
+    z = torch.cat([z_a, z_b], dim=0)               # (2B, d)
+    sim = z @ z.t() / temperature                  # (2B, 2B)
+
+    B = z_a.shape[0]
+    # Mask out self-similarity along the diagonal.
+    diag_mask = torch.eye(2 * B, dtype=torch.bool, device=z.device)
+    sim = sim.masked_fill(diag_mask, float('-inf'))
+
+    # For row i in [0, B), the positive index is B + i (its view-b counterpart).
+    # For row B + i in [B, 2B), the positive index is i (its view-a counterpart).
+    targets = torch.arange(2 * B, device=z.device)
+    targets = (targets + B) % (2 * B)
+
+    return F.cross_entropy(sim, targets)
+
+
 class LearnedWeightedLoss(nn.Module):
     """W4 stretch: Kendall et al. 2018 learned uncertainty weighting (spec §5.4).
 
