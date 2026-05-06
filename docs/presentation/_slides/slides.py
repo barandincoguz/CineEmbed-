@@ -251,9 +251,78 @@ def slide_07_mvp_table(prs):
     runc.font.size = theme.Sizes.CAPTION
     runc.font.italic = True
     runc.font.color.rgb = theme.Colors.SLATE
-def slide_08_headline(prs):    _content_slide(prs, 8, "Slide 8 — headline (stub)")
-def slide_09_topology(prs):    _content_slide(prs, 9, "Slide 9 — topology (stub)")
-def slide_10_bonus(prs):       _content_slide(prs, 10, "Slide 10 — bonus (stub)")
+def slide_08_headline(prs):
+    s = _content_slide(prs, 8, "Headline Result — H2",
+                       "Best deep model vs best non-deep baseline on genre_NMI.")
+    C.add_headline_number(s, big_text="+205 %",
+        caption_text="dec_z64_k21: 0.332     vs     kmeans_raw_k21: 0.109",
+        left=Inches(0.5), top=Inches(1.9), width=Inches(12.333),
+    )
+    strip_top = Inches(5.5)
+    items = [
+        ("+295 %", "DEC vs PCA-KMeans (gNMI)"),
+        ("+287 %", "DEC vs raw-KMeans (gARI)"),
+        ("+213 %", "DEC vs PCA-KMeans (lNMI)"),
+    ]
+    col_w = Inches(4.0)
+    for i, (big, cap_text) in enumerate(items):
+        left = Inches(0.7 + i * 4.1)
+        nb = s.shapes.add_textbox(left, strip_top, col_w, Inches(0.7))
+        tf = nb.text_frame
+        tf.margin_left = tf.margin_right = Emu(0)
+        p = tf.paragraphs[0]
+        p.alignment = PP_ALIGN.CENTER
+        run = p.add_run()
+        run.text = big
+        run.font.name = theme.Fonts.HEADING
+        run.font.size = Pt(40)
+        run.font.color.rgb = theme.Colors.PRIMARY
+        cap = s.shapes.add_textbox(left, strip_top + Inches(0.75), col_w, Inches(0.5))
+        tfc = cap.text_frame
+        tfc.margin_left = tfc.margin_right = Emu(0)
+        pc = tfc.paragraphs[0]
+        pc.alignment = PP_ALIGN.CENTER
+        runc = pc.add_run()
+        runc.text = cap_text
+        runc.font.name = theme.Fonts.BODY
+        runc.font.size = Pt(14)
+        runc.font.color.rgb = theme.Colors.SLATE
+
+
+def slide_09_topology(prs):
+    s = _content_slide(prs, 9, "Latent Topology Evolves",
+                       "vanilla → multi-modal → DEC: blobs → islands → tight islands.")
+    C.add_image(s, theme.FIG_UMAP_DIR + "umap_comparison_genre.png",
+                left=Inches(0.4), top=Inches(1.7), width=Inches(12.5))
+    cap = s.shapes.add_textbox(Inches(0.4), Inches(6.4), Inches(12.5), Inches(0.5))
+    tfc = cap.text_frame
+    pc = tfc.paragraphs[0]
+    pc.alignment = PP_ALIGN.CENTER
+    runc = pc.add_run()
+    runc.text = ("UMAP, 15K subsample, cosine metric. Same projection settings; "
+                 "only the underlying 64-dim latent differs.")
+    runc.font.name = theme.Fonts.BODY
+    runc.font.size = theme.Sizes.CAPTION
+    runc.font.italic = True
+    runc.font.color.rgb = theme.Colors.SLATE
+
+
+def slide_10_bonus(prs):
+    s = _content_slide(prs, 10, "Bonus Finding — Missing-Data Manifold",
+                       "Films with no release date form a coherent latent sub-manifold.")
+    C.add_image(s, theme.FIG_UMAP_DIR + "umap_dec_z64_k21_decade.png",
+                left=Inches(0.5), top=Inches(1.7), width=Inches(7.5))
+    C.add_bullets(s,
+        items=[
+            "~7.4 % of films have no release date (decade_bin = 0).",
+            "These films form an isolated red cluster (upper-right) across all 4 deep architectures.",
+            "DEC compresses them into the cleanest partition.",
+            "Not predicted by H1–H3 — post-hoc interpretability win.",
+            "Practical use: latent-space queries naturally cluster missing-metadata films for triage.",
+        ],
+        left=Inches(8.2), top=Inches(1.95), width=Inches(4.7), height=Inches(5.0),
+        font_size=Pt(15),
+    )
 def slide_11_plan(prs):        _content_slide(prs, 11, "Slide 11 — plan (stub)")
 def slide_12_close(prs):       _content_slide(prs, 12, "Slide 12 — close (stub)")
 
