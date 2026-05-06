@@ -2,8 +2,9 @@
 and adds a fully-built slide.
 
 Order matches the syllabus-aligned narrative for the SENG 474 intermediate
-review: cover, status, goal, course schedule, three completed phases, ablation
-evidence, headline, latent topology, bonus finding, plan to final report, close.
+review: cover, status, goal, course schedule, three completed phases, metrics
+glossary, six-run MVP table, ablation evidence, headline, latent topology,
+bonus finding, plan to final report, close.
 """
 from pptx.util import Inches, Pt, Emu
 from pptx.enum.text import PP_ALIGN
@@ -11,7 +12,7 @@ from pptx.enum.shapes import MSO_SHAPE
 
 from . import theme, components as C
 
-TOTAL = 13
+TOTAL = 14
 
 
 def _new_blank_slide(prs):
@@ -30,6 +31,68 @@ def _content_slide(prs, idx: int, title: str, subtitle: str = ""):
     C.add_footer(s, idx, TOTAL)
     return s
 
+
+# ---------- helpers used by slide_07_metrics ----------
+
+def _add_metric_def_box(slide, *, left, top, width, height,
+                       border_color, accent_color,
+                       abbr, full_name, rows):
+    """Definition card for a single metric (NMI or ARI).
+
+    `rows` is a sequence of (label, value) pairs rendered as bold-label + body
+    lines below the abbreviation header. The box has a colored border, a faint
+    slate fill, and a large colored abbreviation in the upper-left.
+    """
+    box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                                 left, top, width, height)
+    box.adjustments[0] = 0.04
+    box.line.color.rgb = border_color
+    box.line.width = Pt(1.5)
+    box.fill.solid()
+    box.fill.fore_color.rgb = theme.Colors.ROW_ALT
+
+    tb = slide.shapes.add_textbox(left + Inches(0.25), top + Inches(0.15),
+                                  width - Inches(0.5), height - Inches(0.3))
+    tf = tb.text_frame
+    tf.word_wrap = True
+    tf.margin_left = tf.margin_right = Emu(0)
+    tf.margin_top = tf.margin_bottom = Emu(0)
+
+    p = tf.paragraphs[0]
+    p.space_after = Pt(0)
+    run = p.add_run()
+    run.text = abbr
+    run.font.name = theme.Fonts.HEADING
+    run.font.size = Pt(32)
+    run.font.bold = True
+    run.font.color.rgb = accent_color
+
+    p = tf.add_paragraph()
+    p.space_after = Pt(8)
+    run = p.add_run()
+    run.text = full_name
+    run.font.name = theme.Fonts.BODY
+    run.font.size = Pt(15)
+    run.font.italic = True
+    run.font.color.rgb = theme.Colors.SLATE
+
+    for label, value in rows:
+        p = tf.add_paragraph()
+        p.space_after = Pt(3)
+        run = p.add_run()
+        run.text = label + " "
+        run.font.name = theme.Fonts.BODY
+        run.font.size = Pt(13)
+        run.font.bold = True
+        run.font.color.rgb = theme.Colors.NEAR_BLACK
+        run = p.add_run()
+        run.text = value
+        run.font.name = theme.Fonts.BODY
+        run.font.size = Pt(13)
+        run.font.color.rgb = theme.Colors.NEAR_BLACK
+
+
+# ---------- slide builders ----------
 
 def slide_01_title(prs):
     s = _new_blank_slide(prs)
@@ -72,7 +135,7 @@ def slide_01_title(prs):
     tfl.margin_left = tfl.margin_right = Emu(0)
     pl = tfl.paragraphs[0]
     runl = pl.add_run()
-    runl.text = "Intermediate Progress Report  ·  v1.1"
+    runl.text = "Intermediate Progress Report  ·  v1.2"
     runl.font.name = theme.Fonts.BODY
     runl.font.size = Pt(20)
     runl.font.color.rgb = theme.Colors.SECONDARY
@@ -118,7 +181,7 @@ def slide_02_status(prs):
         items=[
             "Six runs trained, evaluated against 3 orthogonal label axes (genre · decade · language).",
             "Best deep model dec_z64_k21 reaches genre_NMI = 0.332, +205 % over best non-deep baseline.",
-            "Three controlled ablations (modality projection · loss weighting · DEC fine-tune) — see slide 8.",
+            "Three controlled ablations (modality projection · loss weighting · DEC fine-tune) — see slide 9.",
             "Bonus finding: films with missing release date form a coherent latent sub-manifold.",
         ],
         left=Inches(0.5), top=Inches(2.25), width=Inches(7.0), height=Inches(3.5),
@@ -189,7 +252,7 @@ def slide_05_data(prs):
         items=[
             "Three sources merged: TMDB, awards records, Wikipedia director bios.",
             "Sparse modalities preserved as one-hot (interpretable).",
-            "Missing release date encoded as binary flag — turned out to be structurally relevant (slide 11).",
+            "Missing release date encoded as binary flag — turned out to be structurally relevant (slide 12).",
             "Director-bio reconstruction loss masked by has_director_bio flag (G2 masking).",
         ],
         left=Inches(0.5), top=Inches(2.25), width=Inches(7.0), height=Inches(4.5),
@@ -227,8 +290,86 @@ def slide_06_arch(prs):
     )
 
 
-def slide_07_mvp_table(prs):
-    s = _content_slide(prs, 7, "Work Completed: Modeling MVP — Six Runs",
+def slide_07_metrics(prs):
+    s = _content_slide(prs, 7, "Metrics — How We Measure Cluster Quality",
+                       "Cluster the 64-dim latent with KMeans (k=21); score the partition against three orthogonal label axes.")
+
+    # Two metric-definition cards, side by side
+    box_top = Inches(1.55)
+    box_h = Inches(2.5)
+    _add_metric_def_box(s,
+        left=Inches(0.5), top=box_top, width=Inches(6.1), height=box_h,
+        border_color=theme.Colors.SECONDARY,
+        accent_color=theme.Colors.SECONDARY,
+        abbr="NMI",
+        full_name="Normalized Mutual Information",
+        rows=[
+            ("Range:",      "0 to 1   (1 = perfect overlap, 0 = independent)"),
+            ("Measures:",   "shared information between partition and labels"),
+            ("Robust to:",  "label permutations (cluster IDs can be relabeled freely)"),
+            ("Best when:",  "the latent encodes axis information richly"),
+        ],
+    )
+    _add_metric_def_box(s,
+        left=Inches(6.7), top=box_top, width=Inches(6.1), height=box_h,
+        border_color=theme.Colors.PRIMARY,
+        accent_color=theme.Colors.PRIMARY,
+        abbr="ARI",
+        full_name="Adjusted Rand Index",
+        rows=[
+            ("Range:",        "−1 to 1   (1 = perfect, 0 = random, < 0 = worse than random)"),
+            ("Measures:",     "partition agreement, adjusted for chance"),
+            ("Sensitive to:", "crisp cluster boundaries — penalizes smearing"),
+            ("Best when:",    "clusters cleanly partition by axis labels"),
+        ],
+    )
+
+    # Per-axis decoder table
+    C.add_table(s,
+        header=["Prefix",      "NMI variant", "ARI variant", "Axis (ground truth)",        "Cardinality"],
+        rows=[
+            ["g  (genre)",     "gNMI",        "gARI",        "primary_genre",               "21"],
+            ["d  (decade)",    "dNMI",        "dARI",        "decade_bin",                  "~12"],
+            ["l  (language)",  "lNMI",        "lARI",        "lang_top10  (top 10 + other)","11"],
+        ],
+        left=Inches(0.5), top=Inches(4.30), width=Inches(12.333), height=Inches(1.55),
+        col_aligns=["l", "l", "l", "l", "r"],
+    )
+
+    # "Why both?" callout band
+    band_top = Inches(6.05)
+    band_bg = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
+                                 Inches(0.5), band_top, Inches(12.333), Inches(1.0))
+    band_bg.line.fill.background()
+    band_bg.fill.solid()
+    band_bg.fill.fore_color.rgb = theme.Colors.ROW_ALT
+
+    band_tb = s.shapes.add_textbox(Inches(0.7), band_top + Inches(0.10),
+                                   Inches(12.0), Inches(0.85))
+    tf = band_tb.text_frame
+    tf.word_wrap = True
+    tf.margin_left = tf.margin_right = Emu(0)
+    tf.margin_top = tf.margin_bottom = Emu(0)
+    p = tf.paragraphs[0]
+    p.alignment = PP_ALIGN.LEFT
+    run = p.add_run()
+    run.text = "Why both NMI and ARI?  "
+    run.font.name = theme.Fonts.BODY
+    run.font.size = Pt(13)
+    run.font.bold = True
+    run.font.color.rgb = theme.Colors.NEAR_BLACK
+    run = p.add_run()
+    run.text = ("NMI alone can be inflated by smearing structure across many small clusters; ARI penalizes "
+                "that. Reporting both lets us tell signal apart from partition crispness — DEC's diagnostic "
+                "signature is ARI gain  >  NMI gain, indicating tighter cluster boundaries rather than new "
+                "structural information.")
+    run.font.name = theme.Fonts.BODY
+    run.font.size = Pt(13)
+    run.font.color.rgb = theme.Colors.NEAR_BLACK
+
+
+def slide_08_mvp_table(prs):
+    s = _content_slide(prs, 8, "Work Completed: Modeling MVP — Six Runs",
                        "Three tiers, six metrics, four different column winners.")
     C.add_status_pill(s, "complete", left=Inches(0.5), top=Inches(1.55),
                       width=Inches(2.0), height=Inches(0.4))
@@ -250,15 +391,15 @@ def slide_07_mvp_table(prs):
     pc = tfc.paragraphs[0]
     runc = pc.add_run()
     runc.text = ("z = 64, KMeans k = 21. No model wins all six metrics — "
-                 "the principled-trade-off result.")
+                 "the principled-trade-off result.   (Metric definitions on slide 7.)")
     runc.font.name = theme.Fonts.BODY
     runc.font.size = theme.Sizes.CAPTION
     runc.font.italic = True
     runc.font.color.rgb = theme.Colors.SLATE
 
 
-def slide_08_ablation(prs):
-    s = _content_slide(prs, 8, "Ablation Evidence — Each Choice Tested in Isolation",
+def slide_09_ablation(prs):
+    s = _content_slide(prs, 9, "Ablation Evidence — Each Choice Tested in Isolation",
                        "Three controlled tests isolate the contribution of each architectural decision.")
     C.add_status_pill(s, "complete", left=Inches(0.5), top=Inches(1.55),
                       width=Inches(2.0), height=Inches(0.4))
@@ -326,8 +467,8 @@ def slide_08_ablation(prs):
     runn.font.color.rgb = theme.Colors.SLATE
 
 
-def slide_09_headline(prs):
-    s = _content_slide(prs, 9, "Headline Result — H2",
+def slide_10_headline(prs):
+    s = _content_slide(prs, 10, "Headline Result — H2",
                        "Best deep model vs best non-deep baseline on genre_NMI.")
     C.add_headline_number(s, big_text="+205 %",
         caption_text="dec_z64_k21: 0.332     vs     kmeans_raw_k21: 0.109",
@@ -364,8 +505,8 @@ def slide_09_headline(prs):
         runc.font.color.rgb = theme.Colors.SLATE
 
 
-def slide_10_topology(prs):
-    s = _content_slide(prs, 10, "Latent Topology Evolves",
+def slide_11_topology(prs):
+    s = _content_slide(prs, 11, "Latent Topology Evolves",
                        "vanilla → multi-modal → DEC: blobs → islands → tight islands.")
     C.add_image(s, theme.FIG_UMAP_DIR + "umap_comparison_genre.png",
                 left=Inches(0.4), top=Inches(1.7), width=Inches(12.5))
@@ -382,8 +523,8 @@ def slide_10_topology(prs):
     runc.font.color.rgb = theme.Colors.SLATE
 
 
-def slide_11_bonus(prs):
-    s = _content_slide(prs, 11, "Bonus Finding — Missing-Data Manifold",
+def slide_12_bonus(prs):
+    s = _content_slide(prs, 12, "Bonus Finding — Missing-Data Manifold",
                        "Films with no release date form a coherent latent sub-manifold.")
     C.add_image(s, theme.FIG_UMAP_DIR + "umap_dec_z64_k21_decade.png",
                 left=Inches(0.5), top=Inches(1.7), width=Inches(7.5))
@@ -400,8 +541,8 @@ def slide_11_bonus(prs):
     )
 
 
-def slide_12_plan(prs):
-    s = _content_slide(prs, 12, "Plan to the Final Report",
+def slide_13_plan(prs):
+    s = _content_slide(prs, 13, "Plan to the Final Report",
                        "Deferred experiments with target completion windows (W13–W15).")
     C.add_table(s,
         header=["Item",                              "Why deferred",                                    "Target"],
@@ -430,8 +571,8 @@ def slide_12_plan(prs):
     runn.font.color.rgb = theme.Colors.SLATE
 
 
-def slide_13_close(prs):
-    s = _content_slide(prs, 13, "Status Summary  ·  Q & A",
+def slide_14_close(prs):
+    s = _content_slide(prs, 14, "Status Summary  ·  Q & A",
                        "All three pre-registered hypotheses PASS.")
     C.add_table(s,
         header=["ID",  "Statement",                                          "Result",            "Status"],
@@ -468,7 +609,7 @@ def slide_13_close(prs):
 
 BUILDERS = [
     slide_01_title, slide_02_status, slide_03_goal, slide_04_schedule,
-    slide_05_data, slide_06_arch, slide_07_mvp_table, slide_08_ablation,
-    slide_09_headline, slide_10_topology, slide_11_bonus, slide_12_plan,
-    slide_13_close,
+    slide_05_data, slide_06_arch, slide_07_metrics, slide_08_mvp_table,
+    slide_09_ablation, slide_10_headline, slide_11_topology, slide_12_bonus,
+    slide_13_plan, slide_14_close,
 ]
