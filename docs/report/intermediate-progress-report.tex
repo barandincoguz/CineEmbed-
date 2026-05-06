@@ -283,7 +283,7 @@ Final report                      & Jun 2026  & \status{planned} \\
 \begin{itemize}[leftmargin=1.2em, itemsep=2pt, topsep=2pt]
 \item \textbf{TMDB} --- 329{,}044 films, basic metadata (title, overview, runtime, language, genres, votes, popularity, release date).
 \item \textbf{Awards records} --- Oscar, BAFTA, Cannes wins and nominations, merged on title and release year, used to compute prior log-counts as the \texttt{awards} block.
-\item \textbf{Wikipedia director bios} --- raw text scraped per credited director, embedded with \texttt{all-MiniLM-L6-v2}, then projected to 64 components via PCA. Coverage is partial: 96.8\% of films lack a Wikipedia bio for any of their credited directors.
+\item \textbf{Wikipedia director bios} --- raw text scraped per credited director, embedded with \texttt{all-MiniLM-L6-v2}~\cite{reimers2019sbert}, then projected to 64 components via PCA. Coverage is partial: 96.8\% of films lack a Wikipedia bio for any of their credited directors.
 \end{itemize}
 
 \noindent Three engineering decisions are worth noting because they shape the modeling phase:
@@ -304,7 +304,7 @@ Final report                      & Jun 2026  & \status{planned} \\
 
 \subsubsection*{Multi-modal backbone}
 
-The encoder applies seven independent \texttt{\_BlockProjection} layers, one per modality, each compressing its block to a fixed projection dimension before concatenation. The 164-dimensional concatenation feeds a shared backbone --- $\mathrm{Linear}(164{\to}128) \to \mathrm{ReLU} \to \mathrm{Dropout}(0.2) \to \mathrm{Linear}(128{\to}64)$ --- yielding the 64-dimensional latent $\mathbf{z}$. \cref{fig:architecture-multimodal} shows the schematic.
+The encoder applies seven independent \texttt{\_BlockProjection} layers, one per modality, each compressing its block to a fixed projection dimension before concatenation~\cite{gorishniy2021tabular}. The 164-dimensional concatenation feeds a shared backbone --- $\mathrm{Linear}(164{\to}128) \to \mathrm{ReLU} \to \mathrm{Dropout}(0.2) \to \mathrm{Linear}(128{\to}64)$ --- yielding the 64-dimensional latent $\mathbf{z}$. \cref{fig:architecture-multimodal} shows the schematic.
 
 \begin{figure}[h]
 \centering
@@ -325,7 +325,7 @@ The clip bounds $[0.1, 10.0]$ are a peer-review-driven safety measure that preve
 
 \noindent\textbf{G2 director-bio masking.} Element-wise multiplication of the \texttt{bio\_pca\_64} reconstruction loss by \texttt{has\_director\_bio} so that bio-less rows contribute zero loss for that sub-block.
 
-\noindent\textbf{DEC fine-tuning.} Soft assignments $q_{ij} = (1 + \lVert z_i - \mu_j \rVert^2)^{-1}$ over $k=21$ centroids initialized via KMeans++ on pre-trained AE latents; auxiliary target $p_{ij} = q_{ij}^2 / \sum_i q_{ij}$ computed per batch (10$\times$ speedup over full-dataset target with no measurable quality regression). Total loss $\gamma \cdot \mathrm{KL}(P\,\|\,Q) + \mathcal{L}_{\mathrm{recon}}$ with $\gamma = 0.1$.
+\noindent\textbf{DEC fine-tuning.} Soft assignments $q_{ij} = (1 + \lVert z_i - \mu_j \rVert^2)^{-1}$ over $k=21$ centroids initialized via KMeans++ on pre-trained AE latents; auxiliary target $p_{ij} = q_{ij}^2 / \sum_i q_{ij}$ computed per batch (10$\times$ speedup over full-dataset target with no measurable quality regression)~\cite{xie2016dec,guo2017idec}. Total loss $\gamma \cdot \mathrm{KL}(P\,\|\,Q) + \mathcal{L}_{\mathrm{recon}}$ with $\gamma = 0.1$.
 
 \noindent\evidence{Implementation in \texttt{src/cineembed/}, design rationale in \texttt{docs/adr/0001-modeling-hybrid-architecture.md} (decisions D1--D10).}
 
@@ -334,7 +334,7 @@ The clip bounds $[0.1, 10.0]$ are a peer-review-driven safety measure that preve
 \subsection{Modeling MVP phase \hfill \status{complete}}
 \label{sec:modeling-mvp}
 
-\noindent Six models were trained and evaluated against three orthogonal label axes (\texttt{primary\_genre}, \texttt{decade\_bin}, \texttt{lang\_top10}). All four deep models share a single training recipe: AdamW ($\mathrm{lr}=10^{-3}$, weight\_decay $=10^{-5}$), early stopping (patience $=10$, $\Delta_{\min} = 10^{-4}$ on val\_loss), 90/10 random split (seed=42), batch size 1024, on a single Colab T4 GPU. Total wallclock for all six runs was approximately four hours.
+\noindent Six models were trained and evaluated against three orthogonal label axes (\texttt{primary\_genre}, \texttt{decade\_bin}, \texttt{lang\_top10}). All four deep models share a single training recipe: AdamW ($\mathrm{lr}=10^{-3}$, weight\_decay $=10^{-5}$), early stopping (patience $=10$, $\Delta_{\min} = 10^{-4}$ on val\_loss), 90/10 random split (seed=42), batch size 1024, on a single Colab T4 GPU. Total wallclock for all six runs was approximately four hours. Implementation in PyTorch~\cite{paszke2019pytorch}; KMeans / NMI / ARI from scikit-learn~\cite{pedregosa2011sklearn}.
 
 \subsubsection*{Three-axis evaluation methodology}
 
@@ -405,7 +405,7 @@ Multi-modal   & \texttt{ae\_z64}           & 0.328 & 0.229 & 0.341 & \textbf{0.2
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.95\linewidth]{../../artifacts/figures/umap/umap_comparison_genre.png}
-\caption{Latent topology comparison (UMAP projection, 15K subsample, cosine metric). Left: \texttt{vanilla\_ae\_z64} (two mega-blobs). Center: multi-modal \texttt{ae\_z64} (dozens of islands). Right: \texttt{dec\_z64\_k21} (tighter atomized islands). All three panels use the same projection settings; only the underlying 64-dim latent differs.}
+\caption{Latent topology comparison (UMAP projection~\cite{mcinnes2018umap}, 15K subsample, cosine metric). Left: \texttt{vanilla\_ae\_z64} (two mega-blobs). Center: multi-modal \texttt{ae\_z64} (dozens of islands). Right: \texttt{dec\_z64\_k21} (tighter atomized islands). All three panels use the same projection settings; only the underlying 64-dim latent differs.}
 \label{fig:umap-comparison}
 \end{figure}
 
