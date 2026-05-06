@@ -269,6 +269,34 @@ Final report                      & Jun 2026  & \status{planned} \\
 
 \clearpage
 
+% ===== 3. Work Completed to Date =====
+\section{Work Completed to Date}
+\label{sec:work-completed}
+
+\noindent Three phases have completed since project kickoff. Each subsection below summarizes the phase scope, the deliverables produced, and the empirical evidence supporting completion.
+
+\subsection{Data engineering phase \hfill \status{complete}}
+\label{sec:data-engineering}
+
+\noindent The team assembled a unified feature matrix from three input sources:
+
+\begin{itemize}[leftmargin=1.2em, itemsep=2pt, topsep=2pt]
+\item \textbf{TMDB} --- 329{,}044 films, basic metadata (title, overview, runtime, language, genres, votes, popularity, release date).
+\item \textbf{Awards records} --- Oscar, BAFTA, Cannes wins and nominations, merged on title and release year, used to compute prior log-counts as the \texttt{awards} block.
+\item \textbf{Wikipedia director bios} --- raw text scraped per credited director, embedded with \texttt{all-MiniLM-L6-v2}, then projected to 64 components via PCA. Coverage is partial: 96.8\% of films lack a Wikipedia bio for any of their credited directors.
+\end{itemize}
+
+\noindent Three engineering decisions are worth noting because they shape the modeling phase:
+\begin{enumerate}[leftmargin=1.4em, itemsep=2pt, topsep=2pt]
+\item Sparse modalities (language, director-language, director-country) preserved as one-hot blocks rather than embedded, to keep them interpretable.
+\item Missing release dates encoded as a binary flag (\texttt{has\_release\_date}) rather than imputed --- this turned out to be structurally relevant (see \cref{sec:modeling-mvp}).
+\item Director-bio reconstruction loss masked by \texttt{has\_director\_bio} (G2 masking) so that 96.8\% of films contribute zero loss for that block, preventing the autoencoder from learning to predict zeros from zeros.
+\end{enumerate}
+
+\noindent\evidence{The frozen 564-dim feature matrix, EDA notebook (\texttt{notebooks/01\_eda.ipynb}), and 21 supporting figures under \texttt{artifacts/figures/}.}
+
+\clearpage
+
 \printbibliography
 
 \end{document}
