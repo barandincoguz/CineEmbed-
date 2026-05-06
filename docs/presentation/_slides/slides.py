@@ -1,5 +1,9 @@
 """One builder function per slide. Each builder accepts a `prs` (Presentation)
-and adds a fully-built slide. Phase 4 ships stubs; Phase 5 fills them in.
+and adds a fully-built slide.
+
+Order matches the syllabus-aligned narrative for the SENG 474 intermediate
+review: cover, status, goal, course schedule, three completed phases, ablation
+evidence, headline, latent topology, bonus finding, plan to final report, close.
 """
 from pptx.util import Inches, Pt, Emu
 from pptx.enum.text import PP_ALIGN
@@ -7,7 +11,7 @@ from pptx.enum.shapes import MSO_SHAPE
 
 from . import theme, components as C
 
-TOTAL = 12
+TOTAL = 13
 
 
 def _new_blank_slide(prs):
@@ -68,7 +72,7 @@ def slide_01_title(prs):
     tfl.margin_left = tfl.margin_right = Emu(0)
     pl = tfl.paragraphs[0]
     runl = pl.add_run()
-    runl.text = "Intermediate Progress Report  ·  v1.0"
+    runl.text = "Intermediate Progress Report  ·  v1.1"
     runl.font.name = theme.Fonts.BODY
     runl.font.size = Pt(20)
     runl.font.color.rgb = theme.Colors.SECONDARY
@@ -114,8 +118,8 @@ def slide_02_status(prs):
         items=[
             "Six runs trained, evaluated against 3 orthogonal label axes (genre · decade · language).",
             "Best deep model dec_z64_k21 reaches genre_NMI = 0.332, +205 % over best non-deep baseline.",
+            "Three controlled ablations (modality projection · loss weighting · DEC fine-tune) — see slide 8.",
             "Bonus finding: films with missing release date form a coherent latent sub-manifold.",
-            "Final-report scope (VAE family, k-sweep, F1/F2 ablations) defined and on schedule.",
         ],
         left=Inches(0.5), top=Inches(2.25), width=Inches(7.0), height=Inches(3.5),
     )
@@ -152,25 +156,27 @@ def slide_03_goal(prs):
         left=Inches(8.2), top=Inches(1.65), width=Inches(4.7), height=Inches(3.6),
         col_aligns=["l", "r", "l"],
     )
+
+
 def slide_04_schedule(prs):
     s = _content_slide(prs, 4, "Schedule & Milestones",
-                       "Three phases complete. Final-report phase ahead.")
+                       "Aligned to the SENG 474 Spring 2026 syllabus (W1–W15, 11/02–20/05).")
     C.add_table(s,
-        header=["Milestone",                                  "Window",   "Status"],
+        header=["Week",     "Date",  "Milestone",                              "Status"],
         rows=[
-            ["Feature matrix v1.2 frozen",                    "Apr 2026", "COMPLETE"],
-            ["Multi-modal architecture finalized",            "Apr 2026", "COMPLETE"],
-            ["Six runs trained and evaluated",                "May 2026", "COMPLETE"],
-            ["Pre-registered hypotheses tested",              "May 2026", "COMPLETE"],
-            ["UMAP latent analysis",                          "May 2026", "COMPLETE"],
-            ["Intermediate progress report",                  "May 2026", "IN PROGRESS"],
-            ["VAE family training (z = 32 / 64 / 128)",       "Jun 2026", "PLANNED"],
-            ["F1 / F2 modality ablations",                    "Jun 2026", "PLANNED"],
-            ["DEC k-sweep (9-cell grid)",                     "Jun 2026", "PLANNED"],
-            ["Final report",                                  "Jun 2026", "PLANNED"],
+            ["W3",          "25/02", "Team formation submitted",               "COMPLETE"],
+            ["W5",          "11/03", "Project proposal / abstract",            "COMPLETE"],
+            ["W7",          "25/03", "Midterm exam (course-wide)",             "COMPLETE"],
+            ["W9–W11",      "—",     "Six runs trained and evaluated",         "COMPLETE"],
+            ["W11",         "22/04", "UMAP latent analysis",                   "COMPLETE"],
+            ["W11",         "22/04", "Intermediate Report Submission",         "COMPLETE"],
+            ["W12–W14",     "—",     "VAE + F1/F2/k-sweep ablations",          "PLANNED"],
+            ["W14",         "13/05", "Project demo (presentation 1)",          "PLANNED"],
+            ["W15",         "20/05", "Project demo (presentation 2)",          "PLANNED"],
+            ["W15",         "20/05", "Final Report + Demo Video",              "PLANNED"],
         ],
         left=Inches(0.5), top=Inches(1.65), width=Inches(12.333), height=Inches(5.2),
-        col_aligns=["l", "l", "l"],
+        col_aligns=["l", "l", "l", "l"],
     )
 
 
@@ -183,7 +189,7 @@ def slide_05_data(prs):
         items=[
             "Three sources merged: TMDB, awards records, Wikipedia director bios.",
             "Sparse modalities preserved as one-hot (interpretable).",
-            "Missing release date encoded as binary flag — turned out to be structurally relevant (slide 10).",
+            "Missing release date encoded as binary flag — turned out to be structurally relevant (slide 11).",
             "Director-bio reconstruction loss masked by has_director_bio flag (G2 masking).",
         ],
         left=Inches(0.5), top=Inches(2.25), width=Inches(7.0), height=Inches(4.5),
@@ -242,7 +248,6 @@ def slide_07_mvp_table(prs):
     cap = s.shapes.add_textbox(Inches(0.5), Inches(6.5), Inches(12.333), Inches(0.4))
     tfc = cap.text_frame
     pc = tfc.paragraphs[0]
-    pc.alignment = PP_ALIGN.CENTER
     runc = pc.add_run()
     runc.text = ("z = 64, KMeans k = 21. No model wins all six metrics — "
                  "the principled-trade-off result.")
@@ -250,8 +255,79 @@ def slide_07_mvp_table(prs):
     runc.font.size = theme.Sizes.CAPTION
     runc.font.italic = True
     runc.font.color.rgb = theme.Colors.SLATE
-def slide_08_headline(prs):
-    s = _content_slide(prs, 8, "Headline Result — H2",
+
+
+def slide_08_ablation(prs):
+    s = _content_slide(prs, 8, "Ablation Evidence — Each Choice Tested in Isolation",
+                       "Three controlled tests isolate the contribution of each architectural decision.")
+    C.add_status_pill(s, "complete", left=Inches(0.5), top=Inches(1.55),
+                      width=Inches(2.0), height=Inches(0.4))
+
+    C.add_table(s,
+        header=["Ablation",            "Controlled test",                            "Best Δ",          "Verdict"],
+        rows=[
+            ["Modality projection", "Vanilla concat-AE  →  multi-modal AE",           "lang_NMI +178 %", "Wins big on language; modest on genre."],
+            ["Loss weighting",      "W1 uniform  →  W2 inverse-variance",             "lang_NMI +277 %", "Critical: W1 collapses high-dim sparse blocks."],
+            ["DEC fine-tuning",     "AE alone  →  AE + 21 KL+recon epochs",           "genre_ARI +6.6 %","Sharpens partitions; ARI gain > NMI gain."],
+        ],
+        left=Inches(0.5), top=Inches(2.20), width=Inches(12.333), height=Inches(2.55),
+        col_aligns=["l", "l", "l", "l"],
+    )
+
+    # Why-it-matters band
+    band_top = Inches(5.0)
+    band_bg = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
+                                 Inches(0.5), band_top, Inches(12.333), Inches(1.45))
+    band_bg.line.fill.background()
+    band_bg.fill.solid()
+    band_bg.fill.fore_color.rgb = theme.Colors.ROW_ALT
+
+    band_title = s.shapes.add_textbox(Inches(0.7), band_top + Inches(0.10),
+                                      Inches(12.0), Inches(0.4))
+    tft = band_title.text_frame
+    tft.margin_left = tft.margin_right = Emu(0)
+    pt = tft.paragraphs[0]
+    runt = pt.add_run()
+    runt.text = "Why ablations matter:"
+    runt.font.name = theme.Fonts.BODY
+    runt.font.size = Pt(15)
+    runt.font.bold = True
+    runt.font.color.rgb = theme.Colors.NEAR_BLACK
+
+    band_body = s.shapes.add_textbox(Inches(0.7), band_top + Inches(0.45),
+                                     Inches(12.0), Inches(0.95))
+    tfb = band_body.text_frame
+    tfb.word_wrap = True
+    tfb.margin_left = tfb.margin_right = Emu(0)
+    pb = tfb.paragraphs[0]
+    runb = pb.add_run()
+    runb.text = ("Each ablation isolates one architectural decision and quantifies its contribution. "
+                 "Without controlled tests, gains from W2 weighting (+99 % on gNMI, +277 % on lNMI) would "
+                 "be conflated with gains from modality projection itself. Diagnostic side-effect: W1 "
+                 "early-stopped at epoch 37 vs W2's 69 — a model-health signal that the optimizer cannot "
+                 "escape modality imbalance under uniform weighting.")
+    runb.font.name = theme.Fonts.BODY
+    runb.font.size = Pt(13)
+    runb.font.color.rgb = theme.Colors.NEAR_BLACK
+
+    # Deferred ablations footer
+    note = s.shapes.add_textbox(Inches(0.5), Inches(6.55), Inches(12.333), Inches(0.4))
+    tfn = note.text_frame
+    tfn.word_wrap = True
+    pn = tfn.paragraphs[0]
+    pn.alignment = PP_ALIGN.LEFT
+    runn = pn.add_run()
+    runn.text = ("Deferred to final report (W12–W14): F1 (no-text) · F2 (no-director-profile) · "
+                 "VAE family (z = 32 / 64 / 128) · AE z-dim sweep · DEC k-sweep (9-cell grid) · "
+                 "W4 (Kendall learned uncertainty).")
+    runn.font.name = theme.Fonts.BODY
+    runn.font.size = Pt(12)
+    runn.font.italic = True
+    runn.font.color.rgb = theme.Colors.SLATE
+
+
+def slide_09_headline(prs):
+    s = _content_slide(prs, 9, "Headline Result — H2",
                        "Best deep model vs best non-deep baseline on genre_NMI.")
     C.add_headline_number(s, big_text="+205 %",
         caption_text="dec_z64_k21: 0.332     vs     kmeans_raw_k21: 0.109",
@@ -288,8 +364,8 @@ def slide_08_headline(prs):
         runc.font.color.rgb = theme.Colors.SLATE
 
 
-def slide_09_topology(prs):
-    s = _content_slide(prs, 9, "Latent Topology Evolves",
+def slide_10_topology(prs):
+    s = _content_slide(prs, 10, "Latent Topology Evolves",
                        "vanilla → multi-modal → DEC: blobs → islands → tight islands.")
     C.add_image(s, theme.FIG_UMAP_DIR + "umap_comparison_genre.png",
                 left=Inches(0.4), top=Inches(1.7), width=Inches(12.5))
@@ -306,8 +382,8 @@ def slide_09_topology(prs):
     runc.font.color.rgb = theme.Colors.SLATE
 
 
-def slide_10_bonus(prs):
-    s = _content_slide(prs, 10, "Bonus Finding — Missing-Data Manifold",
+def slide_11_bonus(prs):
+    s = _content_slide(prs, 11, "Bonus Finding — Missing-Data Manifold",
                        "Films with no release date form a coherent latent sub-manifold.")
     C.add_image(s, theme.FIG_UMAP_DIR + "umap_dec_z64_k21_decade.png",
                 left=Inches(0.5), top=Inches(1.7), width=Inches(7.5))
@@ -322,21 +398,23 @@ def slide_10_bonus(prs):
         left=Inches(8.2), top=Inches(1.95), width=Inches(4.7), height=Inches(5.0),
         font_size=Pt(15),
     )
-def slide_11_plan(prs):
-    s = _content_slide(prs, 11, "Plan to the Final Report",
-                       "Deferred experiments with target completion windows.")
+
+
+def slide_12_plan(prs):
+    s = _content_slide(prs, 12, "Plan to the Final Report",
+                       "Deferred experiments with target completion windows (W13–W15).")
     C.add_table(s,
         header=["Item",                              "Why deferred",                                    "Target"],
         rows=[
-            ["VAE family (z = 32 / 64 / 128)",       "Probabilistic head not yet trained.",            "2026-06-05"],
-            ["AE z-dim sweep (z = 32, 128)",         "MVP fixed z = 64.",                              "2026-06-05"],
-            ["F1 ablation (no text)",                "Quantify text-block contribution.",              "2026-06-08"],
-            ["F2 ablation (no director profile)",    "Quantify director-block contribution.",          "2026-06-08"],
-            ["DEC k-sweep (9-cell z×k grid)",        "MVP runs only z=64 × k=21.",                     "2026-06-10"],
-            ["W4 (Kendall learned uncertainty)",     "Stretch loss; learnable per-block weights.",     "2026-06-12"],
-            ["Linear probing on frozen latents",     "Held-out classifier evaluation per axis.",       "2026-06-12"],
-            ["5-seed confidence intervals",          "MVP single-seed → CIs needed.",                  "2026-06-14"],
-            ["Reproducibility audit",                "Single deterministic run script.",               "2026-06-15"],
+            ["VAE family (z = 32 / 64 / 128)",       "Probabilistic head not yet trained.",            "2026-05-09 (W13)"],
+            ["AE z-dim sweep (z = 32, 128)",         "MVP fixed z = 64.",                              "2026-05-09 (W13)"],
+            ["F1 ablation (no text)",                "Quantify text-block contribution.",              "2026-05-12 (W14)"],
+            ["F2 ablation (no director profile)",    "Quantify director-block contribution.",          "2026-05-12 (W14)"],
+            ["DEC k-sweep (9-cell z×k grid)",        "MVP runs only z=64 × k=21.",                     "2026-05-15 (W14)"],
+            ["W4 (Kendall learned uncertainty)",     "Stretch loss; learnable per-block weights.",     "2026-05-15 (W14)"],
+            ["Linear probing on frozen latents",     "Held-out classifier evaluation per axis.",       "2026-05-16 (W14)"],
+            ["5-seed confidence intervals",          "MVP single-seed → CIs needed.",                  "2026-05-17"],
+            ["Reproducibility audit",                "Single deterministic run script.",               "2026-05-18"],
         ],
         left=Inches(0.5), top=Inches(1.7), width=Inches(12.333), height=Inches(5.0),
         col_aligns=["l", "l", "l"],
@@ -345,15 +423,15 @@ def slide_11_plan(prs):
     tfn = note.text_frame
     pn = tfn.paragraphs[0]
     runn = pn.add_run()
-    runn.text = "Final report submission target: 2026-06-16."
+    runn.text = "Final report submission target: 2026-05-20 (W15) — coincides with Project Demo session 2."
     runn.font.name = theme.Fonts.BODY
     runn.font.size = Pt(14)
     runn.font.italic = True
     runn.font.color.rgb = theme.Colors.SLATE
 
 
-def slide_12_close(prs):
-    s = _content_slide(prs, 12, "Status Summary  ·  Q & A",
+def slide_13_close(prs):
+    s = _content_slide(prs, 13, "Status Summary  ·  Q & A",
                        "All three pre-registered hypotheses PASS.")
     C.add_table(s,
         header=["ID",  "Statement",                                          "Result",            "Status"],
@@ -390,6 +468,7 @@ def slide_12_close(prs):
 
 BUILDERS = [
     slide_01_title, slide_02_status, slide_03_goal, slide_04_schedule,
-    slide_05_data, slide_06_arch, slide_07_mvp_table, slide_08_headline,
-    slide_09_topology, slide_10_bonus, slide_11_plan, slide_12_close,
+    slide_05_data, slide_06_arch, slide_07_mvp_table, slide_08_ablation,
+    slide_09_headline, slide_10_topology, slide_11_bonus, slide_12_plan,
+    slide_13_close,
 ]

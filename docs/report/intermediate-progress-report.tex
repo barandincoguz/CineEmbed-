@@ -214,9 +214,9 @@ Bertan Kaan Kaya     & Director-bio extension, UMAP analysis, presentation deliv
 \section{Schedule and Milestones}
 \label{sec:schedule}
 
-\subsection{Project Timeline}
+\subsection{Course Schedule (SENG 474, Spring 2026, Weeks 1--15)}
 
-\noindent The project is organized into four sequential phases, of which three have completed and one (Final Report) is upcoming. The Gantt chart below shows the planned and actual schedule.
+\noindent The project schedule is anchored to the SENG 474 syllabus, a 15-week semester running from 11/02 to 20/05. Course-mandated project deliverables fall on weeks W3 (team formation), W5 (proposal / abstract), W11 (intermediate report), and W14--W15 (project demo presentations). The Gantt chart below maps the project's internal phases against course weeks.
 
 \begin{center}
 \begin{ganttchart}[
@@ -229,19 +229,20 @@ Bertan Kaan Kaya     & Director-bio extension, UMAP analysis, presentation deliv
   group label font=\sffamily\bfseries\small\color{white},
   milestone/.append style={fill=brandAccent, draw=brandAccent},
   milestone label font=\sffamily\small,
-  x unit=0.85cm,
-  y unit chart=0.6cm,
-]{1}{12}
-  \gantttitle{Apr}{4} \gantttitle{May}{4} \gantttitle{Jun}{4} \\
-  \gantttitlelist{1,...,12}{1} \\
-  \ganttbar{Data engineering}{1}{3} \\
-  \ganttbar{Architecture design}{3}{5} \\
-  \ganttbar{Modeling MVP}{5}{8} \\
-  \ganttbar{Intermediate report}{8}{9} \\
-  \ganttmilestone{MVP delivered}{9} \\
-  \ganttbar[bar/.append style={fill=brandAmber, draw=brandAmber}]{VAE + ablations}{9}{11} \\
-  \ganttbar[bar/.append style={fill=brandAmber, draw=brandAmber}]{Final report}{11}{12} \\
-  \ganttmilestone{Final delivery}{12}
+  x unit=0.65cm,
+  y unit chart=0.55cm,
+]{1}{15}
+  \gantttitle{SENG 474 Spring 2026 --- Week}{15} \\
+  \gantttitlelist{1,...,15}{1} \\
+  \ganttbar{Team \& proposal}{1}{5} \\
+  \ganttmilestone{Proposal (W5)}{5} \\
+  \ganttbar{Data engineering}{4}{7} \\
+  \ganttbar{Architecture design}{6}{9} \\
+  \ganttbar{Modeling MVP}{8}{11} \\
+  \ganttmilestone{Intermediate report (W11)}{11} \\
+  \ganttbar[bar/.append style={fill=brandAmber, draw=brandAmber}]{VAE family + ablations}{11}{14} \\
+  \ganttbar[bar/.append style={fill=brandAmber, draw=brandAmber}]{Final report + demo prep}{13}{15} \\
+  \ganttmilestone{Final demo (W14--15)}{15}
 \end{ganttchart}
 \end{center}
 
@@ -249,20 +250,20 @@ Bertan Kaan Kaya     & Director-bio extension, UMAP analysis, presentation deliv
 
 \begin{center}\small
 \rowcolors{2}{rowAlt}{white}
-\begin{tabular}{@{}l l l@{}}
+\begin{tabular}{@{}c l l l@{}}
 \toprule
-\textbf{Milestone} & \textbf{Target window} & \textbf{Status} \\
+\textbf{Week} & \textbf{Date} & \textbf{Milestone} & \textbf{Status} \\
 \midrule
-Feature matrix v1.2 frozen        & Apr 2026  & \status{complete} \\
-Multi-modal architecture finalized& Apr 2026  & \status{complete} \\
-Six runs trained and evaluated    & May 2026  & \status{complete} \\
-Pre-registered hypotheses tested  & May 2026  & \status{complete} \\
-UMAP latent analysis              & May 2026  & \status{complete} \\
-Intermediate progress report      & May 2026  & \status{inprogress} \\
-VAE family training (z = 32/64/128) & Jun 2026 & \status{planned} \\
-F1 / F2 modality ablations        & Jun 2026  & \status{planned} \\
-DEC k-sweep (9-cell grid)         & Jun 2026  & \status{planned} \\
-Final report                      & Jun 2026  & \status{planned} \\
+W3   & 25/02     & Team formation submitted                  & \status{complete} \\
+W5   & 11/03     & Project proposal / abstract               & \status{complete} \\
+W7   & 25/03     & Midterm exam (course-wide)                & \status{complete} \\
+W9--W11 & ---    & Six runs trained and evaluated            & \status{complete} \\
+W11  & 22/04     & UMAP latent analysis                      & \status{complete} \\
+W11  & 22/04     & \textbf{Intermediate Report Submission}   & \status{complete} \\
+W12--W14 & ---   & VAE family + F1/F2/k-sweep ablations      & \status{planned} \\
+W14  & 13/05     & Project demo (presentation 1)             & \status{planned} \\
+W15  & 20/05     & Project demo (presentation 2)             & \status{planned} \\
+W15  & 20/05     & Final Report + Demo Video                 & \status{planned} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -456,20 +457,20 @@ UMAP analysis writeup & Documenting the latent-topology and missing-data finding
 \toprule
 \textbf{Item} & \textbf{Why deferred} & \textbf{Target} & \textbf{Owner} \\
 \midrule
-VAE family ($z = 32, 64, 128$)        & Probabilistic head implemented but not trained; needed for AE-vs-VAE comparison. & 2026-06-05 & A.B. Dincoguz \\
-AE latent-dim sweep ($z = 32, 128$)   & D2 fixed $z=64$ for the MVP; sweep informs the final hyperparameter discussion.   & 2026-06-05 & A.B. Dincoguz \\
-F1 modality ablation (no text)        & Quantifies the contribution of the 384-dim sentence-embedding block.            & 2026-06-08 & A. Arvas \\
-F2 modality ablation (no director profile) & Quantifies the value of the (sparse, 96.8\%-missing) Wikipedia bio block.    & 2026-06-08 & B.K. Kaya \\
-DEC k-sweep (9-cell grid $z \times k$) & MVP runs only the $z{=}64{\times}k{=}21$ cell.                                   & 2026-06-10 & A.B. Dincoguz \\
-W4 (Kendall learned uncertainty)      & Optional stretch loss; per-block weights as parameters rather than fixed.        & 2026-06-12 & A.B. Dincoguz \\
-Linear probing on frozen latents      & Supplementary evaluation against held-out classifiers per axis.                  & 2026-06-12 & A. Arvas \\
-5-seed confidence intervals           & MVP results are single-seed; CIs needed for the final report's robustness claim. & 2026-06-14 & B.K. Kaya \\
-Full reproducibility audit            & Single deterministic run script that reproduces all numbers from a frozen feature matrix. & 2026-06-15 & A.B. Dincoguz \\
+VAE family ($z = 32, 64, 128$)        & Probabilistic head implemented but not trained; needed for AE-vs-VAE comparison. & 2026-05-09 (W13) & A.B. Dincoguz \\
+AE latent-dim sweep ($z = 32, 128$)   & D2 fixed $z=64$ for the MVP; sweep informs the final hyperparameter discussion.   & 2026-05-09 (W13) & A.B. Dincoguz \\
+F1 modality ablation (no text)        & Quantifies the contribution of the 384-dim sentence-embedding block.            & 2026-05-12 (W14) & A. Arvas \\
+F2 modality ablation (no director profile) & Quantifies the value of the (sparse, 96.8\%-missing) Wikipedia bio block.    & 2026-05-12 (W14) & B.K. Kaya \\
+DEC k-sweep (9-cell grid $z \times k$) & MVP runs only the $z{=}64{\times}k{=}21$ cell.                                   & 2026-05-15 (W14) & A.B. Dincoguz \\
+W4 (Kendall learned uncertainty)      & Optional stretch loss; per-block weights as parameters rather than fixed.        & 2026-05-15 (W14) & A.B. Dincoguz \\
+Linear probing on frozen latents      & Supplementary evaluation against held-out classifiers per axis.                  & 2026-05-16 (W14) & A. Arvas \\
+5-seed confidence intervals           & MVP results are single-seed; CIs needed for the final report's robustness claim. & 2026-05-17       & B.K. Kaya \\
+Full reproducibility audit            & Single deterministic run script that reproduces all numbers from a frozen feature matrix. & 2026-05-18       & A.B. Dincoguz \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent The final report submission target is \textbf{2026-06-16}, leaving one day of buffer for typesetting and integration.
+\noindent The final report submission target is \textbf{2026-05-20 (W15)}, coinciding with the second project-demo session and the Final Report + Demo Video deadline on the syllabus.
 
 \clearpage
 
@@ -486,7 +487,7 @@ With 96.8\% of films missing a Wikipedia director bio, the F2 ablation (no-direc
 \end{riskbox}
 
 \begin{riskbox}{Risk 3 --- Single-seed results may overstate stability}
-MVP results are computed from a single seed (42). The 5-seed CI work is scheduled but if it produces wide intervals, some headline gains may need softer wording. \textbf{Mitigation:} run the 5-seed sweep early (target 2026-06-04, ahead of the 2026-06-14 deadline) so results can be reframed if needed before the final write-up.
+MVP results are computed from a single seed (42). The 5-seed CI work is scheduled but if it produces wide intervals, some headline gains may need softer wording. \textbf{Mitigation:} run the 5-seed sweep ahead of the W14 demo (internal target 2026-05-12) so results can be reframed if needed before the W15 final-report deadline.
 \end{riskbox}
 
 % ===== 7. Deliverables Status =====
@@ -505,8 +506,8 @@ Evaluation results JSON                & \texttt{artifacts/eval/results.json}   
 13 UMAP visualizations                 & \texttt{artifacts/figures/umap/}         & \status{complete} \\
 Findings document                      & \texttt{docs/FINDINGS.md}                & \status{complete} \\
 Architecture decision record (D1--D10) & \texttt{docs/adr/0001-modeling\ldots.md} & \status{complete} \\
-Intermediate progress report (this doc) & \texttt{docs/report/intermediate-progress-report.pdf} & \status{inprogress} \\
-Intermediate presentation deck         & \texttt{docs/presentation/intermediate-progress-presentation.pptx} & \status{inprogress} \\
+Intermediate progress report (this doc) & \texttt{docs/report/intermediate-progress-report.pdf} & \status{complete} \\
+Intermediate presentation deck         & \texttt{docs/presentation/intermediate-progress-presentation.pptx} & \status{complete} \\
 \bottomrule
 \end{tabular}
 \end{center}
