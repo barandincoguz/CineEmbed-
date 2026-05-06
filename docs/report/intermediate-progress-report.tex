@@ -210,6 +210,65 @@ Bertan Kaan Kaya     & Director-bio extension, UMAP analysis, presentation deliv
 
 \clearpage
 
+% ===== 2. Schedule & Milestones =====
+\section{Schedule and Milestones}
+\label{sec:schedule}
+
+\subsection{Project Timeline}
+
+\noindent The project is organized into four sequential phases, of which three have completed and one (Final Report) is upcoming. The Gantt chart below shows the planned and actual schedule.
+
+\begin{center}
+\begin{ganttchart}[
+  hgrid, vgrid,
+  title height=1, title label font=\sffamily\small,
+  bar height=0.55,
+  bar/.append style={fill=brandSecondary, draw=brandSecondary},
+  bar label font=\sffamily\small,
+  group/.append style={fill=brandPrimary, draw=brandPrimary},
+  group label font=\sffamily\bfseries\small\color{white},
+  milestone/.append style={fill=brandAccent, draw=brandAccent},
+  milestone label font=\sffamily\small,
+  x unit=0.85cm,
+  y unit chart=0.6cm,
+]{1}{12}
+  \gantttitle{Apr}{4} \gantttitle{May}{4} \gantttitle{Jun}{4} \\
+  \gantttitlelist{1,...,12}{1} \\
+  \ganttbar{Data engineering}{1}{3} \\
+  \ganttbar{Architecture design}{3}{5} \\
+  \ganttbar{Modeling MVP}{5}{8} \\
+  \ganttbar{Intermediate report}{8}{9} \\
+  \ganttmilestone{MVP delivered}{9} \\
+  \ganttbar[bar/.append style={fill=brandAmber, draw=brandAmber}]{VAE + ablations}{9}{11} \\
+  \ganttbar[bar/.append style={fill=brandAmber, draw=brandAmber}]{Final report}{11}{12} \\
+  \ganttmilestone{Final delivery}{12}
+\end{ganttchart}
+\end{center}
+
+\subsection{Milestone Status}
+
+\begin{center}\small
+\rowcolors{2}{rowAlt}{white}
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Milestone} & \textbf{Target window} & \textbf{Status} \\
+\midrule
+Feature matrix v1.2 frozen        & Apr 2026  & \status{complete} \\
+Multi-modal architecture finalized& Apr 2026  & \status{complete} \\
+Six runs trained and evaluated    & May 2026  & \status{complete} \\
+Pre-registered hypotheses tested  & May 2026  & \status{complete} \\
+UMAP latent analysis              & May 2026  & \status{complete} \\
+Intermediate progress report      & May 2026  & \status{inprogress} \\
+VAE family training (z = 32/64/128) & Jun 2026 & \status{planned} \\
+F1 / F2 modality ablations        & Jun 2026  & \status{planned} \\
+DEC k-sweep (9-cell grid)         & Jun 2026  & \status{planned} \\
+Final report                      & Jun 2026  & \status{planned} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\clearpage
+
 \printbibliography
 
 \end{document}
