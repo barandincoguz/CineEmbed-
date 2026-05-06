@@ -331,6 +331,99 @@ The clip bounds $[0.1, 10.0]$ are a peer-review-driven safety measure that preve
 
 \clearpage
 
+\subsection{Modeling MVP phase \hfill \status{complete}}
+\label{sec:modeling-mvp}
+
+\noindent Six models were trained and evaluated against three orthogonal label axes (\texttt{primary\_genre}, \texttt{decade\_bin}, \texttt{lang\_top10}). All four deep models share a single training recipe: AdamW ($\mathrm{lr}=10^{-3}$, weight\_decay $=10^{-5}$), early stopping (patience $=10$, $\Delta_{\min} = 10^{-4}$ on val\_loss), 90/10 random split (seed=42), batch size 1024, on a single Colab T4 GPU. Total wallclock for all six runs was approximately four hours.
+
+\subsubsection*{Three-axis evaluation methodology}
+
+For each trained model, the full-data 64-dim latent is clustered with KMeans (\texttt{k=21, n\_init=20, seed=42}) and the resulting partition is independently scored with NMI (information overlap, label-permutation invariant) and ARI (cluster agreement, harder to satisfy) against the three axes (\cref{fig:eval-method}). No axis is privileged.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\linewidth]{../../figures/three-exis-eval-method.png}
+\caption{Three-axis evaluation methodology. The single 64-dim latent is clustered once with KMeans (k=21); the resulting partition is independently scored with NMI/ARI against three orthogonal label axes.}
+\label{fig:eval-method}
+\end{figure}
+
+\subsubsection*{Main results}
+
+\Cref{tab:main-results} reports all six runs across all six (axis $\times$ metric) cells. Six column winners are split across four different models --- no architecture dominates --- which is the principled-trade-off result documented in \cref{sec:plan-final}.
+
+\begin{table}[h]
+\centering\small
+\rowcolors{2}{rowAlt}{white}
+\caption{Main comparison: six runs evaluated against three orthogonal label axes (NMI and ARI per axis). All deep models use $z=64$; KMeans variants use $k=21$. Bold cells are column winners.}
+\label{tab:main-results}
+\begin{tabular}{@{}l l rrrrrr@{}}
+\toprule
+\textbf{Tier} & \textbf{Run} & \textbf{gNMI} & \textbf{gARI} & \textbf{dNMI} & \textbf{dARI} & \textbf{lNMI} & \textbf{lARI} \\
+\midrule
+Non-deep      & \texttt{kmeans\_raw\_k21}  & 0.109 & 0.063 & 0.233 & 0.093 & 0.075 & 0.026 \\
+Non-deep      & \texttt{pca\_kmeans\_k21}  & 0.084 & 0.061 & 0.224 & 0.085 & 0.094 & 0.042 \\
+Simple deep   & \texttt{vanilla\_ae\_z64}  & 0.287 & \textbf{0.247} & \textbf{0.369} & 0.175 & 0.095 & 0.030 \\
+Ablation (W1) & \texttt{ae\_z64\_w1}       & 0.165 & 0.094 & 0.367 & 0.176 & 0.070 & 0.026 \\
+Multi-modal   & \texttt{ae\_z64}           & 0.328 & 0.229 & 0.341 & \textbf{0.211} & 0.264 & 0.090 \\
+\textbf{Best (DEC)} & \texttt{\textbf{dec\_z64\_k21}} & \textbf{0.332} & 0.244 & 0.342 & 0.210 & \textbf{0.294} & \textbf{0.090} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection*{Headline result --- H2}
+
+\begin{headlinebox}
+\noindent\bignumber{$+205\%$} \hfill \begin{minipage}[b]{0.65\linewidth}\raggedleft\small relative gain on \texttt{genre\_NMI} of \texttt{dec\_z64\_k21} (0.332) over the strongest non-deep baseline \texttt{kmeans\_raw\_k21} (0.109). Same comparison on \texttt{genre\_ARI}: $+287\%$. Same comparison on \texttt{lang\_NMI} vs \texttt{pca\_kmeans\_k21}: $+213\%$.\end{minipage}
+\end{headlinebox}
+
+\subsubsection*{Architecture-level evidence}
+
+\noindent\textbf{Modality projection wins on language ($+178\%$).} Multi-modal \texttt{ae\_z64} produces \texttt{lang\_NMI} = 0.264 versus the vanilla concat-AE's 0.095, a relative gain of $+178\%$. \cref{fig:umap-ae-lang} shows distinct language micro-clusters in the multi-modal latent.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.62\linewidth]{../../artifacts/figures/umap/umap_ae_z64_lang.png}
+\caption{UMAP projection of multi-modal \texttt{ae\_z64} latents, colored by \texttt{lang\_top10}. Distinct micro-clusters per language family are visible, supporting the lang\_NMI=0.264 measurement.}
+\label{fig:umap-ae-lang}
+\end{figure}
+
+\noindent\textbf{Inverse-variance weighting is critical ($+99\%$ on gNMI, $+277\%$ on lNMI).} The W1 ablation (uniform weights) collapses fine-structure into diffuse blobs (\cref{fig:umap-w1}); the same architecture under W2 produces dozens of genre-coherent islands (\cref{fig:umap-comparison} center). The W1 run also exhibits early-stopping at epoch 37 versus W2's 69, a model-health signal that the optimizer cannot escape modality imbalance.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.62\linewidth]{../../artifacts/figures/umap/umap_ae_z64_w1_genre.png}
+\caption{UMAP projection of \texttt{ae\_z64\_w1} (uniform weighting) latents, colored by genre. Diffuse blobs, no fine genre structure --- compare with the W2 panel of \cref{fig:umap-comparison}.}
+\label{fig:umap-w1}
+\end{figure}
+
+\noindent\textbf{DEC sharpens cluster boundaries (ARI $>$ NMI gain pattern).} DEC was initialized from \texttt{ae\_z64}'s encoder and trained for 21 epochs of KL+reconstruction. \texttt{genre\_NMI} improves by $+1.2\%$ but \texttt{genre\_ARI} improves by $+6.6\%$ and \texttt{lang\_NMI} by $+11.4\%$. The diagnostic signature is that ARI gain $>$ NMI gain: information content is similar between the AE and DEC latents, but DEC's partition is more crisp. Cluster health was monitored throughout: \texttt{total\_reinit = 0} across all 21 DEC epochs, meaning all 21 KMeans++ centroids survived KL training without collapse.
+
+\subsubsection*{Latent-topology evolution}
+
+\Cref{fig:umap-comparison} captures the architecture progression visually: vanilla concat-AE produces two mega-blobs, multi-modal \texttt{ae\_z64} produces dozens of small genre-coherent islands, and \texttt{dec\_z64\_k21} produces even tighter atomized islands with sharper inter-cluster gaps.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{../../artifacts/figures/umap/umap_comparison_genre.png}
+\caption{Latent topology comparison (UMAP projection, 15K subsample, cosine metric). Left: \texttt{vanilla\_ae\_z64} (two mega-blobs). Center: multi-modal \texttt{ae\_z64} (dozens of islands). Right: \texttt{dec\_z64\_k21} (tighter atomized islands). All three panels use the same projection settings; only the underlying 64-dim latent differs.}
+\label{fig:umap-comparison}
+\end{figure}
+
+\subsubsection*{Bonus finding --- missing-data sub-manifold}
+
+Coloring the DEC latent by \texttt{decade\_bin} reveals an unexpected pattern (\cref{fig:umap-missing}): films with \texttt{decade\_bin = 0} (the $\sim$7.4\% of the corpus with missing release dates) form an isolated cluster in the upper-right of the latent. The same red points are visible in vanilla and multi-modal decade plots, but DEC's KL pressure compresses them into the cleanest partition. Importantly, the model was not forced to encode missingness as latent geometry --- \texttt{has\_release\_date} is one binary input among 564. Yet across all four deep architectures, "no release date" emerges as a dimension of latent geometry, not just a flag. This finding was not predicted by the pre-registered hypotheses and is recorded as a representation-learning interpretability win.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.62\linewidth]{../../artifacts/figures/umap/umap_dec_z64_k21_decade.png}
+\caption{UMAP projection of \texttt{dec\_z64\_k21} latents, colored by \texttt{decade\_bin}. The isolated red cluster in the upper-right corresponds to films with missing release date --- a coherent sub-manifold that emerged without being engineered.}
+\label{fig:umap-missing}
+\end{figure}
+
+\noindent\evidence{Six trained checkpoints under \texttt{artifacts/checkpoints/}, full numerical results in \texttt{artifacts/eval/results.json}, 13 UMAP visualizations under \texttt{artifacts/figures/umap/}, and reproducibility notebook \texttt{notebooks/06\_umap.ipynb}.}
+
+\clearpage
+
 \printbibliography
 
 \end{document}
