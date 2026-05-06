@@ -4,7 +4,7 @@ All functions take a `slide` and return the shape they added (so callers can
 tweak position if needed). Keep this module purely cosmetic — no business
 content lives here.
 """
-from typing import Sequence
+from typing import Optional, Sequence
 from pptx.util import Inches, Pt, Emu
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
@@ -125,8 +125,11 @@ def add_status_pill(slide, status: str, left, top, width=Inches(1.4), height=Inc
 
 def add_headline_number(slide, big_text: str, caption_text: str,
                         left=Inches(0.5), top=Inches(2.0),
-                        width=Inches(12.333), height=Inches(3.5)):
-    """Big primary-color number with smaller slate caption underneath."""
+                        width=Inches(12.333)):
+    """Big primary-color number with smaller slate caption underneath.
+
+    The number occupies a fixed 2.6 inch tall band; the caption sits 0.8 inch below it.
+    """
     big = slide.shapes.add_textbox(left, top, width, Inches(2.6))
     tf = big.text_frame
     tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = Emu(0)
@@ -186,7 +189,7 @@ def add_bullets(slide, items: Sequence[str],
 def add_table(slide, header: Sequence[str], rows: Sequence[Sequence[str]],
               left, top, width, height,
               header_fill=None, alt_row_fill=None,
-              col_aligns: Sequence[str] = None):
+              col_aligns: Optional[Sequence[str]] = None):
     """Booktabs-style table: header fill + alternating row shading, no internal grid look."""
     header_fill = header_fill or theme.Colors.HEADER_FILL
     alt_row_fill = alt_row_fill or theme.Colors.ROW_ALT
