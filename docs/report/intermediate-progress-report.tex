@@ -158,6 +158,58 @@ H3 & Best-deep \texttt{genre\_NMI} > 0.15 absolute floor            & $0.332 \gg
 
 \clearpage
 
+% ===== 1. Project Overview =====
+\section{Project Overview}
+\label{sec:overview}
+
+\subsection{Goal}
+The CineEmbed project trains unsupervised 64-dimensional representations of movie metadata via multi-modal autoencoder and Deep Embedded Clustering (DEC) architectures, with the objective of demonstrating that the learned latent geometry recovers three orthogonal label axes --- primary genre, decade, and original language --- substantially better than non-deep KMeans baselines.
+
+\subsection{Scope}
+The dataset is a corpus of 329{,}044 films assembled from TMDB metadata, awards records (Oscar / BAFTA / Cannes), and Wikipedia-derived director biographies. The feature matrix has 564 dimensions organized into seven block-contiguous modalities:
+
+\begin{center}\small
+\rowcolors{2}{rowAlt}{white}
+\begin{tabular}{@{}l r p{8.4cm}@{}}
+\toprule
+\textbf{Modality block} & \textbf{Dim} & \textbf{Contents} \\
+\midrule
+\texttt{numerical} & 6   & log\_popularity, log\_vote\_count, runtime\_norm, vote\_average\_norm, has\_vote, has\_engagement \\
+\texttt{genre}     & 22  & 21-way one-hot + \texttt{has\_genre} flag \\
+\texttt{language}  & 31  & top-30 original\_language one-hot + flag (sparse: $\sim$99\% zero per row) \\
+\texttt{decade}    & 2   & decade\_norm + has\_release\_date \\
+\texttt{awards}    & 6   & log-counts of prior Oscar / BAFTA / Cannes wins and nominations \\
+\texttt{text}      & 384 & \texttt{all-MiniLM-L6-v2} sentence embeddings of overview + title \\
+\texttt{director}  & 113 & bio\_pca\_64 + has\_director\_bio + dir\_lang\_30 + dir\_country\_18 + has\_director\_lang \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent See \cref{fig:multilingual-coverage} for the long-tailed language distribution that motivates the language block's sparsity-aware treatment.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.78\linewidth]{../../artifacts/figures/multilingual_coverage.png}
+\caption{Multilingual coverage of the 329{,}044-film corpus. Top-3 languages dominate; the long tail is what motivates the modality-specific projection design (\cref{sec:work-completed}).}
+\label{fig:multilingual-coverage}
+\end{figure}
+
+\subsection{Team and Responsibilities}
+\begin{center}\small
+\rowcolors{2}{rowAlt}{white}
+\begin{tabular}{@{}l p{10cm}@{}}
+\toprule
+\textbf{Member} & \textbf{Primary responsibility} \\
+\midrule
+Ahmet Baran Dincoguz & Architecture design, modeling pipeline, evaluation, repository ownership \\
+Arda Arvas           & Data engineering, awards merge, feature blocks \\
+Bertan Kaan Kaya     & Director-bio extension, UMAP analysis, presentation deliverables \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\clearpage
+
 \printbibliography
 
 \end{document}
