@@ -424,6 +424,55 @@ Coloring the DEC latent by \texttt{decade\_bin} reveals an unexpected pattern (\
 
 \clearpage
 
+% ===== 4. Work In Progress =====
+\section{Work In Progress}
+\label{sec:in-progress}
+
+\noindent Two workstreams are active during the intermediate-report window:
+
+\begin{center}\small
+\rowcolors{2}{rowAlt}{white}
+\begin{tabular}{@{}l p{7.5cm} l@{}}
+\toprule
+\textbf{Workstream} & \textbf{Description} & \textbf{Status} \\
+\midrule
+This document       & Compiling the intermediate progress report (LaTeX), the source-of-truth tables, and the presentation deck. & \status{inprogress} \\
+UMAP analysis writeup & Documenting the latent-topology and missing-data findings (\cref{sec:modeling-mvp}) for inclusion in the final report's interpretability section. & \status{inprogress} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Both are expected to complete by 2026-05-09.
+
+% ===== 5. Plan to Final Report =====
+\section{Plan to the Final Report}
+\label{sec:plan-final}
+
+\noindent The intermediate phase deliberately scopes the modeling MVP to the strongest set of empirical claims achievable within the timeline. The following items are deferred to the final report; each has an owner and a target completion window.
+
+\begin{center}\small
+\rowcolors{2}{rowAlt}{white}
+\begin{tabular}{@{}l p{6.0cm} l l@{}}
+\toprule
+\textbf{Item} & \textbf{Why deferred} & \textbf{Target} & \textbf{Owner} \\
+\midrule
+VAE family ($z = 32, 64, 128$)        & Probabilistic head implemented but not trained; needed for AE-vs-VAE comparison. & 2026-06-05 & A.B. Dincoguz \\
+AE latent-dim sweep ($z = 32, 128$)   & D2 fixed $z=64$ for the MVP; sweep informs the final hyperparameter discussion.   & 2026-06-05 & A.B. Dincoguz \\
+F1 modality ablation (no text)        & Quantifies the contribution of the 384-dim sentence-embedding block.            & 2026-06-08 & A. Arvas \\
+F2 modality ablation (no director profile) & Quantifies the value of the (sparse, 96.8\%-missing) Wikipedia bio block.    & 2026-06-08 & B.K. Kaya \\
+DEC k-sweep (9-cell grid $z \times k$) & MVP runs only the $z{=}64{\times}k{=}21$ cell.                                   & 2026-06-10 & A.B. Dincoguz \\
+W4 (Kendall learned uncertainty)      & Optional stretch loss; per-block weights as parameters rather than fixed.        & 2026-06-12 & A.B. Dincoguz \\
+Linear probing on frozen latents      & Supplementary evaluation against held-out classifiers per axis.                  & 2026-06-12 & A. Arvas \\
+5-seed confidence intervals           & MVP results are single-seed; CIs needed for the final report's robustness claim. & 2026-06-14 & B.K. Kaya \\
+Full reproducibility audit            & Single deterministic run script that reproduces all numbers from a frozen feature matrix. & 2026-06-15 & A.B. Dincoguz \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The final report submission target is \textbf{2026-06-16}, leaving one day of buffer for typesetting and integration.
+
+\clearpage
+
 \printbibliography
 
 \end{document}
