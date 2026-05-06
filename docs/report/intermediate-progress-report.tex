@@ -513,6 +513,58 @@ Intermediate presentation deck         & \texttt{docs/presentation/intermediate-
 
 \clearpage
 
-\printbibliography
+% ===== Appendix A — Per-run results =====
+\appendix
+\section{Per-Run Numerical Results}
+\label{app:results}
+
+\noindent Reproduced verbatim from \texttt{artifacts/eval/results.json} at 3-decimal precision.
+
+\begin{center}\small
+\rowcolors{2}{rowAlt}{white}
+\begin{tabular}{@{}l rrrrrr rr@{}}
+\toprule
+\textbf{Run} & \textbf{gNMI} & \textbf{gARI} & \textbf{dNMI} & \textbf{dARI} & \textbf{lNMI} & \textbf{lARI} & \textbf{epochs} & \textbf{val\_loss} \\
+\midrule
+\texttt{vanilla\_ae\_z64} & 0.287 & 0.247 & 0.369 & 0.175 & 0.095 & 0.030 & 58 & 0.013 \\
+\texttt{ae\_z64}          & 0.328 & 0.229 & 0.341 & 0.211 & 0.264 & 0.090 & 69 & 0.021 \\
+\texttt{ae\_z64\_w1}      & 0.165 & 0.094 & 0.367 & 0.176 & 0.070 & 0.026 & 37 & 0.045 \\
+\texttt{dec\_z64\_k21}    & 0.332 & 0.244 & 0.342 & 0.210 & 0.294 & 0.090 & 21 & 0.127 \\
+\texttt{kmeans\_raw\_k21} & 0.109 & 0.063 & 0.233 & 0.093 & 0.075 & 0.026 & --- & --- \\
+\texttt{pca\_kmeans\_k21} & 0.084 & 0.061 & 0.224 & 0.085 & 0.094 & 0.042 & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The DEC \texttt{val\_loss} of 0.127 combines reconstruction and KL terms and is not directly comparable to the AE pure-reconstruction val\_loss values.
+
+% ===== Appendix B — Decision log summary =====
+\section{Decision Log Summary}
+\label{app:decisions}
+
+\noindent The complete decision rationale is in \texttt{docs/adr/0001-modeling-hybrid-architecture.md}. One-line summaries:
+
+\begin{center}\small
+\rowcolors{2}{rowAlt}{white}
+\begin{tabular}{@{}l p{11cm}@{}}
+\toprule
+\textbf{ID} & \textbf{Decision} \\
+\midrule
+D1  & Hybrid C-structure $\times$ D-architecture: modality-specific projections + shared backbone. \\
+D2  & Latent dim $z=64$ for the MVP ($z=32$ and $z=128$ deferred to the final report). \\
+D3  & W2 inverse-variance weighting + W1 ablation; W4 deferred as optional stretch. \\
+D4  & G2 director-bio masking (96.8\% of films lack a Wikipedia bio). \\
+D5  & Per-model notebooks plus a shared \texttt{src/cineembed} package. \\
+D6  & Tier-2 evaluation: 3-axis NMI/ARI as core; linear probing deferred. \\
+D7  & L4 ground truth: three-axis (genre, decade, language) labels. \\
+D8  & DEC $k=21$; k-sweep deferred. \\
+D9  & Peer-review fixes: 3 baselines, weight clipping, $\beta$ warmup, relative criteria. \\
+D10 & Batch-wise DEC $P$ target rather than full-dataset (~10$\times$ speedup, no quality regression). \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ===== References =====
+\printbibliography[heading=bibintoc, title={References}]
 
 \end{document}
