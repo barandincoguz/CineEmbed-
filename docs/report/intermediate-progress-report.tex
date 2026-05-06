@@ -473,6 +473,46 @@ Full reproducibility audit            & Single deterministic run script that rep
 
 \clearpage
 
+% ===== 6. Risks and Mitigation =====
+\section{Risks and Mitigation}
+\label{sec:risks}
+
+\begin{riskbox}{Risk 1 --- Compute budget for the deferred VAE / k-sweep workload}
+The deferred experiments add roughly 9 additional training runs (3 VAE-z plus 6 DEC-k cells beyond the MVP). At the MVP's observed wallclock of $\sim$40 minutes per deep run, this is 6 GPU-hours --- within Colab's free-tier daily quota but tight. \textbf{Mitigation:} batch experiments overnight and use checkpointing so any single run can be resumed if Colab disconnects.
+\end{riskbox}
+
+\begin{riskbox}{Risk 2 --- Director-bio coverage limits F2 ablation interpretability}
+With 96.8\% of films missing a Wikipedia director bio, the F2 ablation (no-director-profile) tests removal of a block that is mostly already masked away by G2. The expected effect size is small. \textbf{Mitigation:} explicitly report the $\sim$3.2\% sub-population effect size separately and document the limitation in the final-report results section.
+\end{riskbox}
+
+\begin{riskbox}{Risk 3 --- Single-seed results may overstate stability}
+MVP results are computed from a single seed (42). The 5-seed CI work is scheduled but if it produces wide intervals, some headline gains may need softer wording. \textbf{Mitigation:} run the 5-seed sweep early (target 2026-06-04, ahead of the 2026-06-14 deadline) so results can be reframed if needed before the final write-up.
+\end{riskbox}
+
+% ===== 7. Deliverables Status =====
+\section{Deliverables Status}
+\label{sec:deliverables}
+
+\begin{center}\small
+\rowcolors{2}{rowAlt}{white}
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Deliverable} & \textbf{Location} & \textbf{Status} \\
+\midrule
+Frozen 564-dim feature matrix v1.2     & \texttt{artifacts/features/}             & \status{complete} \\
+Six trained model checkpoints          & \texttt{artifacts/checkpoints/}          & \status{complete} \\
+Evaluation results JSON                & \texttt{artifacts/eval/results.json}     & \status{complete} \\
+13 UMAP visualizations                 & \texttt{artifacts/figures/umap/}         & \status{complete} \\
+Findings document                      & \texttt{docs/FINDINGS.md}                & \status{complete} \\
+Architecture decision record (D1--D10) & \texttt{docs/adr/0001-modeling\ldots.md} & \status{complete} \\
+Intermediate progress report (this doc) & \texttt{docs/report/intermediate-progress-report.pdf} & \status{inprogress} \\
+Intermediate presentation deck         & \texttt{docs/presentation/intermediate-progress-presentation.pptx} & \status{inprogress} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\clearpage
+
 \printbibliography
 
 \end{document}
