@@ -297,6 +297,40 @@ Final report                      & Jun 2026  & \status{planned} \\
 
 \clearpage
 
+\subsection{Architecture design phase \hfill \status{complete}}
+\label{sec:architecture-design}
+
+\noindent The team specified and implemented three model heads (deterministic AE, VAE, DEC) on a shared multi-modal backbone. The MVP uses AE and DEC; VAE is implemented but its training is deferred to the final report.
+
+\subsubsection*{Multi-modal backbone}
+
+The encoder applies seven independent \texttt{\_BlockProjection} layers, one per modality, each compressing its block to a fixed projection dimension before concatenation. The 164-dimensional concatenation feeds a shared backbone --- $\mathrm{Linear}(164{\to}128) \to \mathrm{ReLU} \to \mathrm{Dropout}(0.2) \to \mathrm{Linear}(128{\to}64)$ --- yielding the 64-dimensional latent $\mathbf{z}$. \cref{fig:architecture-multimodal} shows the schematic.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.95\linewidth]{../../figures/architecture_multimodal.png}
+\caption{Multi-modal backbone. Seven modality-specific projection blocks reduce each feature group to its proj\_dim; the resulting 164-dim concatenation feeds a shared backbone with a 64-dim bottleneck. Decoder heads mirror the input structure.}
+\label{fig:architecture-multimodal}
+\end{figure}
+
+\subsubsection*{Loss functions}
+
+\noindent\textbf{W2 inverse-variance weighting (canonical).} Per-block reconstruction losses are reweighted by the inverse of each block's variance, with clipping for numerical stability:
+\[
+\mathcal{L}_{\mathrm{W2}} = \sum_{b=1}^{7} w_b \cdot \mathrm{MSE}(X_b, \hat{X}_b), \qquad w_b = \mathrm{clip}\!\left(\tfrac{1}{\mathrm{Var}(X_b)},\, 0.1,\, 10.0\right).
+\]
+The clip bounds $[0.1, 10.0]$ are a peer-review-driven safety measure that prevents the language block (with very low average variance) from dominating early training.
+
+\noindent\textbf{W1 (ablation).} Uniform weights $w_b = 1$ for all blocks. Identical architecture and training schedule as W2. This run isolates the contribution of inverse-variance weighting from modality projection.
+
+\noindent\textbf{G2 director-bio masking.} Element-wise multiplication of the \texttt{bio\_pca\_64} reconstruction loss by \texttt{has\_director\_bio} so that bio-less rows contribute zero loss for that sub-block.
+
+\noindent\textbf{DEC fine-tuning.} Soft assignments $q_{ij} = (1 + \lVert z_i - \mu_j \rVert^2)^{-1}$ over $k=21$ centroids initialized via KMeans++ on pre-trained AE latents; auxiliary target $p_{ij} = q_{ij}^2 / \sum_i q_{ij}$ computed per batch (10$\times$ speedup over full-dataset target with no measurable quality regression). Total loss $\gamma \cdot \mathrm{KL}(P\,\|\,Q) + \mathcal{L}_{\mathrm{recon}}$ with $\gamma = 0.1$.
+
+\noindent\evidence{Implementation in \texttt{src/cineembed/}, design rationale in \texttt{docs/adr/0001-modeling-hybrid-architecture.md} (decisions D1--D10).}
+
+\clearpage
+
 \printbibliography
 
 \end{document}
