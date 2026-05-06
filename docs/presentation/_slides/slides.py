@@ -1,9 +1,8 @@
 """One builder function per slide. Each builder accepts a `prs` (Presentation)
 and adds a fully-built slide. Phase 4 ships stubs; Phase 5 fills them in.
 """
-from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 
 from . import theme, components as C
