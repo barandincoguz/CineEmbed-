@@ -153,10 +153,104 @@ def slide_03_goal(prs):
         left=Inches(8.2), top=Inches(1.65), width=Inches(4.7), height=Inches(3.6),
         col_aligns=["l", "r", "l"],
     )
-def slide_04_schedule(prs):    _content_slide(prs, 4, "Slide 4 — schedule (stub)")
-def slide_05_data(prs):        _content_slide(prs, 5, "Slide 5 — data (stub)")
-def slide_06_arch(prs):        _content_slide(prs, 6, "Slide 6 — architecture (stub)")
-def slide_07_mvp_table(prs):   _content_slide(prs, 7, "Slide 7 — MVP table (stub)")
+def slide_04_schedule(prs):
+    s = _content_slide(prs, 4, "Schedule & Milestones",
+                       "Three phases complete. Final-report phase ahead.")
+    C.add_table(s,
+        header=["Milestone",                                  "Window",   "Status"],
+        rows=[
+            ["Feature matrix v1.2 frozen",                    "Apr 2026", "COMPLETE"],
+            ["Multi-modal architecture finalized",            "Apr 2026", "COMPLETE"],
+            ["Six runs trained and evaluated",                "May 2026", "COMPLETE"],
+            ["Pre-registered hypotheses tested",              "May 2026", "COMPLETE"],
+            ["UMAP latent analysis",                          "May 2026", "COMPLETE"],
+            ["Intermediate progress report",                  "May 2026", "IN PROGRESS"],
+            ["VAE family training (z = 32 / 64 / 128)",       "Jun 2026", "PLANNED"],
+            ["F1 / F2 modality ablations",                    "Jun 2026", "PLANNED"],
+            ["DEC k-sweep (9-cell grid)",                     "Jun 2026", "PLANNED"],
+            ["Final report",                                  "Jun 2026", "PLANNED"],
+        ],
+        left=Inches(0.5), top=Inches(1.65), width=Inches(12.333), height=Inches(5.2),
+        col_aligns=["l", "l", "l"],
+    )
+
+
+def slide_05_data(prs):
+    s = _content_slide(prs, 5, "Work Completed: Data Engineering",
+                       "564-dim feature matrix, 7 modality blocks, frozen v1.2.")
+    C.add_status_pill(s, "complete", left=Inches(0.5), top=Inches(1.55),
+                      width=Inches(2.0), height=Inches(0.4))
+    C.add_bullets(s,
+        items=[
+            "Three sources merged: TMDB, awards records, Wikipedia director bios.",
+            "Sparse modalities preserved as one-hot (interpretable).",
+            "Missing release date encoded as binary flag — turned out to be structurally relevant (slide 10).",
+            "Director-bio reconstruction loss masked by has_director_bio flag (G2 masking).",
+        ],
+        left=Inches(0.5), top=Inches(2.25), width=Inches(7.0), height=Inches(4.5),
+    )
+    C.add_image(s, theme.FIG_EDA_DIR + "multilingual_coverage.png",
+                left=Inches(7.7), top=Inches(2.05), width=Inches(5.2))
+    cap = s.shapes.add_textbox(Inches(7.7), Inches(6.4), Inches(5.2), Inches(0.4))
+    tfc = cap.text_frame
+    pc = tfc.paragraphs[0]
+    pc.alignment = PP_ALIGN.CENTER
+    runc = pc.add_run()
+    runc.text = "Multilingual coverage — long tail motivates sparsity-aware design."
+    runc.font.name = theme.Fonts.BODY
+    runc.font.size = theme.Sizes.CAPTION
+    runc.font.italic = True
+    runc.font.color.rgb = theme.Colors.SLATE
+
+
+def slide_06_arch(prs):
+    s = _content_slide(prs, 6, "Work Completed: Architecture Design",
+                       "Multi-modal backbone, W2 inverse-variance loss, G2 bio masking, DEC head.")
+    C.add_status_pill(s, "complete", left=Inches(0.5), top=Inches(1.55),
+                      width=Inches(2.0), height=Inches(0.4))
+    C.add_image(s, theme.FIG_DIAGRAM_DIR + "architecture_multimodal.png",
+                left=Inches(0.6), top=Inches(2.1), width=Inches(8.5))
+    C.add_bullets(s,
+        items=[
+            "7 modality projections → concat (164-dim) → backbone → z=64.",
+            "W2: per-block inverse-variance weighting (clipped to [0.1, 10]).",
+            "G2: mask bio reconstruction loss by has_director_bio.",
+            "DEC head: Student-t soft assignment, k=21, γ=0.1 on KL.",
+        ],
+        left=Inches(9.4), top=Inches(2.25), width=Inches(3.5), height=Inches(4.5),
+        font_size=Pt(15),
+    )
+
+
+def slide_07_mvp_table(prs):
+    s = _content_slide(prs, 7, "Work Completed: Modeling MVP — Six Runs",
+                       "Three tiers, six metrics, four different column winners.")
+    C.add_status_pill(s, "complete", left=Inches(0.5), top=Inches(1.55),
+                      width=Inches(2.0), height=Inches(0.4))
+    C.add_table(s,
+        header=["Run",                "gNMI", "gARI", "dNMI", "dARI", "lNMI", "lARI"],
+        rows=[
+            ["kmeans_raw_k21",         "0.109","0.063","0.233","0.093","0.075","0.026"],
+            ["pca_kmeans_k21",         "0.084","0.061","0.224","0.085","0.094","0.042"],
+            ["vanilla_ae_z64",         "0.287","0.247","0.369","0.175","0.095","0.030"],
+            ["ae_z64_w1 (W1 ablation)","0.165","0.094","0.367","0.176","0.070","0.026"],
+            ["ae_z64",                 "0.328","0.229","0.341","0.211","0.264","0.090"],
+            ["dec_z64_k21 (BEST)",     "0.332","0.244","0.342","0.210","0.294","0.090"],
+        ],
+        left=Inches(0.5), top=Inches(2.25), width=Inches(12.333), height=Inches(4.0),
+        col_aligns=["l", "r", "r", "r", "r", "r", "r"],
+    )
+    cap = s.shapes.add_textbox(Inches(0.5), Inches(6.5), Inches(12.333), Inches(0.4))
+    tfc = cap.text_frame
+    pc = tfc.paragraphs[0]
+    pc.alignment = PP_ALIGN.CENTER
+    runc = pc.add_run()
+    runc.text = ("z = 64, KMeans k = 21. No model wins all six metrics — "
+                 "the principled-trade-off result.")
+    runc.font.name = theme.Fonts.BODY
+    runc.font.size = theme.Sizes.CAPTION
+    runc.font.italic = True
+    runc.font.color.rgb = theme.Colors.SLATE
 def slide_08_headline(prs):    _content_slide(prs, 8, "Slide 8 — headline (stub)")
 def slide_09_topology(prs):    _content_slide(prs, 9, "Slide 9 — topology (stub)")
 def slide_10_bonus(prs):       _content_slide(prs, 10, "Slide 10 — bonus (stub)")
