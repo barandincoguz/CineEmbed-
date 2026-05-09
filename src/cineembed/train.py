@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import time
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 import torch
 import torch.nn as nn
@@ -27,6 +27,7 @@ def train_model(
     checkpoint_path: str | Path | None = None,
     extra_params: list[nn.Parameter] | None = None,
     seed: int = 42,
+    wandb_run: Any | None = None,
 ) -> dict:
     """Generic training loop.
 
@@ -38,11 +39,21 @@ def train_model(
                  accepts only (model, batch), epoch is omitted.
         extra_params: optional extra parameters to pass to the optimizer (e.g.,
                       learned-uncertainty log_sigmas in W4 stretch).
+        wandb_run: optional W&B run object from `wandb_integration.wandb_run(...)`.
+                   When provided, train/val loss + lr are logged each epoch.
+                   When None, no logging — keeps notebooks/tests offline-safe.
 
     Returns:
         history dict with 'train_loss' and 'val_loss' lists.
     """
     import inspect
+
+    # Optional wandb logger — keeps wandb dep optional and side-effects local
+    try:
+        from .wandb_integration import log_epoch as _log_epoch
+    except ImportError:  # pragma: no cover — defensive only
+        def _log_epoch(*args, **kwargs):  # type: ignore[no-redef]
+            pass
     torch.manual_seed(seed)
     model = model.to(device)
     params = list(model.parameters()) + (list(extra_params) if extra_params else [])
@@ -108,6 +119,16 @@ def train_model(
         print(f"[{time.strftime('%H:%M:%S')}] epoch {epoch+1:3d}/{n_epochs} | "
               f"train={train_avg:.4f} val={val_avg:.4f} {_marker} "
               f"(best={best_val:.4f}) | {_epoch_elapsed:.1f}s")
+
+        # ─── W&B per-epoch logging (no-op if wandb_run is None) ───
+        _log_epoch(
+            wandb_run,
+            epoch=epoch,
+            train_loss=train_avg,
+            val_loss=val_avg,
+            lr=optimizer.param_groups[0]['lr'],
+            extra={'epoch_seconds': _epoch_elapsed, 'best_val': best_val},
+        )
         if improved:
             best_val = val_avg
             epochs_no_improve = 0
