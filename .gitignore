@@ -52,3 +52,8 @@ data/SENG474_Presentation_Team3.pptx
 # Stale Office lock files
 ~$*.pptx
 ~$*.docx
+
+# W&B local cache (offline runs, sweep state)
+wandb/
+.wandb/
+wandb-*.log

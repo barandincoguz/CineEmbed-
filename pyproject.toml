@@ -21,6 +21,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "pytest-cov>=4.1"]
+wandb = ["wandb>=0.16"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
