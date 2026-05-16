@@ -9,6 +9,9 @@ artifacts/feature_matrix.npz
 artifacts/feature_matrix_raw.npz
 artifacts/movies_eda_final.csv
 
+# Inference index — regenerable via scripts/build_index.py (~80 MB npy + ~80 MB parquet per backbone)
+artifacts/inference/
+
 # (Earlier version blocked all of artifacts/ — switched to file-level
 # blocks so checkpoints + figures + results JSON travel with the repo.)
 

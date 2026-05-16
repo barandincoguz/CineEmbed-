@@ -22,6 +22,12 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "pytest-cov>=4.1"]
 wandb = ["wandb>=0.16"]
+demo = [
+    "pyarrow>=15",      # parquet engine for films table
+    "fastapi>=0.110",   # web app backend
+    "uvicorn[standard]>=0.27",
+    "pydantic>=2.6",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

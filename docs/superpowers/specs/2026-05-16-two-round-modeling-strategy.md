@@ -1,10 +1,54 @@
 # Two-Round Modeling Strategy — Design Spec
 
 **Date:** 2026-05-16
-**Status:** APPROVED
+**Status:** APPROVED — Round 1 executed, results below; Round 2 plan revised
 **Supersedes the run grid in:** `docs/archive/specs/2026-05-04-modeling-design.md` (D2/D6/D8)
 **Cross-ref:** ADR `0001-modeling-hybrid-architecture.md` D13;
 `docs/superpowers/specs/2026-05-06-clustering-improvement-techniques.md`
+
+## Amendment — 2026-05-17 — Round 1 outcomes + Round 2 retargeting
+
+**Round 1 result.** The 9-row architecture comparison at z=64 produced an
+**unexpected outcome**: every contrastive-pretext-initialized fine-tune
+underperformed the cold-start MVP baselines by a wide margin
+(`geo_NMI`: contrastive+DEC 0.107–0.181 vs MVP `ae_z64` 0.309 vs MVP `dec_z64_k21` 0.323).
+VAE z=64 also underperformed (geo_NMI=0.127), likely posterior collapse.
+
+**Root cause (Phase 1 + Round 1 failure mode).** The SimCLR-style modality-dropout
+contrastive pretext creates encoder invariance to dropped block content. Because
+the genre block is itself a modality block subject to dropout, the encoder
+learned genre-invariant representations — directly opposite to the downstream
+clustering objective on `primary_genre`. The augmentation primitive structurally
+conflicts with the task. We retain this as a documented negative result.
+
+**Demo-backbone selection criterion change.** A retrieval evaluation
+(`genre@5` over 500 random queries, plus an eyeball top-5 on 10 well-known
+titles, see `scripts/build_index.py --retrieval-eval --eyeball`) revealed that
+the NMI champion `dec_z64_k21` suffers **angular collapse**: every in-cluster
+pair has cosine ≈ 1.000, so top-N retrieval ranks within a cluster are
+effectively random tie-breaks. The smoother AE manifold gives genuinely
+graded cosine neighbours.
+
+| Backbone | geo_NMI | `genre@5` | Eyeball verdict |
+|---|---:|---:|---|
+| `dec_z64_k21` | 0.323 | 0.557 | Tied at cos=1.000, random order |
+| **`ae_z64`** | 0.309 | **0.714** | Coherent Nolan / Pixar / Studio Ghibli groupings |
+
+**Decision:** the demo backbone is **`ae_z64`** (chosen by `genre@5`, not NMI).
+See `2026-05-16-web-app-demo-design.md` amendment of the same date.
+
+**Round 2 retargeting.** Because the demo-deployed family is now AE, the
+Round 2 z-sweep is re-aimed at `ae_z32` and `ae_z128` (cold-start AE, no
+contrastive prereq). This is a strict simplification — original Round 2 plan
+required either fresh contrastive pretext at z=32/128 (would have been ~50 min
+Colab plus pretext-fragility risk) or just VAE z-sweep (only if VAE had won
+Round 1, which it did not). Cold-start AE z-sweep is ~20 min Colab.
+
+| Phase | Original (2026-05-16) | Revised (2026-05-17) | Rationale |
+|---|---|---|---|
+| Round 2 winner family | "highest geo_NMI of Round 1" | AE (highest `genre@5`) | Selection metric realigned to demo task |
+| Round 2 runs | depends on winner; up to 2 new contrastive + 2 fine-tune | `ae_z32` cold-start, `ae_z128` cold-start | Cheaper, no failed pretext to recover from |
+| Compute | up to ~50 min Colab | ~20 min Colab | T4-pod-day budget halved |
 
 ---
 

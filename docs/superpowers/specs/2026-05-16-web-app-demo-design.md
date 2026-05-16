@@ -6,6 +6,40 @@
 **Cross-ref:** ADR `0001-modeling-hybrid-architecture.md` D14;
 `docs/superpowers/specs/2026-05-16-two-round-modeling-strategy.md`
 
+## Amendment — 2026-05-17 — Demo backbone selected
+
+The demo backbone is **`artifacts/models/ae_z64.pt`** (multi-modal AE at z=64,
+KMeans-evaluated geo_NMI=0.309). This is **not** the highest-NMI model: the
+NMI champion `dec_z64_k21` (geo_NMI=0.323) was disqualified on the basis of a
+retrieval-task evaluation introduced after Round 1.
+
+**Selection criterion: `genre@5` retrieval quality, not clustering NMI.**
+
+| Backbone | geo_NMI | `genre@5` mean | `genre@5` median | Notes |
+|---|---:|---:|---:|---|
+| `dec_z64_k21` | **0.323** | 0.557 | 0.600 | Angular collapse — all in-cluster pairs cos≈1.000 |
+| **`ae_z64`** | 0.309 | **0.714** | **0.800** | Smooth manifold; coherent eyeball top-5 |
+
+Root cause: DEC's clustering objective pulls intra-cluster vectors to the same
+direction (cluster centroid). Cosine ranking inside a cluster degenerates to a
+random tie-break. AE's reconstruction objective preserves a smooth latent
+manifold whose angular gradient is what cosine top-k actually needs.
+
+**Eyeball confirmation** (10 well-known queries, `--eyeball` mode of
+`scripts/build_index.py`): AE gave a coherent Inception → Interstellar/Dunkirk
+Nolan grouping, Toy Story → Pixar+WALL·E animation grouping, Spirited Away →
+Princess Mononoke/Kiki Studio Ghibli grouping. DEC returned tied-at-1.000
+randomly-ordered same-cluster films for every query.
+
+**Implication for Round 2:** the z-sweep now runs in the AE family (`ae_z32`,
+`ae_z128`), not the DEC family — see `2026-05-16-two-round-modeling-strategy.md`
+amendment of the same date.
+
+**Implication for the report:** the AE-vs-DEC retrieval divergence is itself a
+finding — "clustering NMI does not predict recommender quality; intra-cluster
+angular collapse penalises cosine retrieval even when NMI is highest". This
+goes into the report's analysis section.
+
 ---
 
 ## 1. Motivation
@@ -122,25 +156,55 @@ GET /api/films/random?n=12
 
 ### 3.1 Pre-compute step (`scripts/build_index.py`)
 
-**Contract:** backbone-agnostic. The Round-2 winner is identified by name in
-the script's CLI args; the script:
+**Contract:** backbone-agnostic. Selects via `--model-type {ae,dec,vae,backbone}`
+and rebuilds the matching head shape before extracting the backbone. The script:
 
 1. Loads `artifacts/feature_matrix.npz` (329044, 564).
-2. Instantiates the named backbone class with the stored
-   `model_config.json` hyperparameters.
-3. Loads `state_dict` from `artifacts/models/<winner>.pt`.
-4. Encodes all 329k rows in batches (no gradient).
+2. Builds a fresh `MultiModalBackbone` + the matching head (AE/DEC/VAE) with the
+   stored hyperparameters (`--latent-dim`, `--hidden-dim`, `--n-clusters`).
+3. Loads `state_dict` from the supplied checkpoint into the head, then extracts
+   `head.backbone`.
+4. Encodes all 329k rows in batches (no gradient, CPU is ≤1s wall-clock).
 5. L2-normalizes each row of the resulting (329044, 64) latent.
-6. Saves `artifacts/inference/embeddings.npy` — float32 (329044, 64) ≈ 80 MB.
-7. Joins on `movies_eda_final.csv` to materialize id/title/year/genres/lang
-   and saves `artifacts/inference/films.parquet`.
+6. Saves `<out>/embeddings.npy` — float32 (329044, 64) ≈ 80 MB.
+7. Joins on `movies_eda_final.csv` to materialize
+   id/title/year/director/genres/overview/popularity/vote_*/runtime/lang
+   and saves `<out>/films.parquet`.
+8. Optionally (`--retrieval-eval`) reports `genre@k` mean / median / std on a
+   random query subset and a random-pair-cosine sanity histogram (mean / std /
+   range) — both written into `<out>/manifest.json` along with the
+   checkpoint SHA-256.
+9. Optionally (`--eyeball`) prints top-5 similar films for a curated set of
+   well-known query titles, also persisted to the manifest.
 
 ```bash
+# Demo backbone — chosen by genre@5, not NMI (see amendment)
 python scripts/build_index.py \
-  --checkpoint artifacts/models/<winner>.pt \
-  --features artifacts/feature_matrix.npz \
-  --movies-csv data/movies_eda_final.csv \
-  --out artifacts/inference/
+  --checkpoint artifacts/models/ae_z64.pt \
+  --model-type ae \
+  --out artifacts/inference/ae_z64/ \
+  --retrieval-eval --eyeball
+```
+
+**Manifest schema** (`<out>/manifest.json`):
+
+```json
+{
+  "schema_version": 1,
+  "created_unix_seconds": 1778968093,
+  "checkpoint": "artifacts/models/ae_z64.pt",
+  "checkpoint_sha256_32": "e7326ef3...",
+  "model_type": "ae",
+  "latent_dim": 64,
+  "hidden_dim": 128,
+  "n_clusters": null,
+  "n_films": 329044,
+  "embedding_dim": 64,
+  "normalization": "L2",
+  "distance_metric": "cosine (dot product after L2 normalization)",
+  "retrieval": { "k": 5, "genre_at_k_mean": 0.714, "...": "..." },
+  "eyeball":  [ { "query": "Inception", "neighbors": [ ... ] }, ... ]
+}
 ```
 
 ### 3.2 Runtime cosine search
