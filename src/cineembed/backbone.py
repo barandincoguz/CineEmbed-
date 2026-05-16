@@ -76,22 +76,29 @@ class MultiModalBackbone(nn.Module):
     def forward(
         self,
         blocks: dict[str, torch.Tensor],
-        block_mask: dict[str, float] | None = None,
+        block_mask: dict[str, torch.Tensor | float] | None = None,
     ) -> torch.Tensor:
         """Forward pass.
 
         Args:
             blocks: per-block input tensors.
-            block_mask: optional dict {block_name: 0.0 or 1.0}. A value of 0.0 zeros
-                that block's projected output before concatenation, simulating
-                "modality removed" for ablation studies (F1/F2 in spec §8.3.2).
+            block_mask: optional dict {block_name: mask}. Mask can be a float (0.0 or 1.0)
+                for per-batch masking, or a Tensor of shape (B, 1) for per-row masking.
+                A value of 0.0 zeros that block's projected output before concatenation.
                 Missing keys default to 1.0 (kept).
         """
         projected = []
         for b in self.block_order:
             p = self.projections[b](blocks[b])
-            if block_mask is not None and block_mask.get(b, 1.0) == 0.0:
-                p = torch.zeros_like(p)
+            if block_mask is not None:
+                m = block_mask.get(b, 1.0)
+                if isinstance(m, torch.Tensor):
+                    # Per-row masking: m has shape (B, 1) or (B, projection_dim)
+                    # Broadcast multiplication zero out rows where m=0
+                    p = p * m
+                elif m == 0.0:
+                    # Per-batch masking: zero out entire block
+                    p = torch.zeros_like(p)
             projected.append(p)
         h = torch.cat(projected, dim=1)
         return self.backbone(h)

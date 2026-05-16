@@ -57,3 +57,10 @@ data/SENG474_Presentation_Team3.pptx
 wandb/
 .wandb/
 wandb-*.log
+
+# claude-mem / agent tool context dumps (auto-emitted)
+AGENTS.md
+
+# Stray copies of files already under data/ — root-level duplicates
+/Deep_Learning_EDA_ipynb_adlı_not_defterinin_kopyası.ipynb
+/SENG474_Presentation_Team3.pptx

@@ -61,10 +61,20 @@ def make_contrastive_dataloader(X, has_bio, batch_size, *,
 **Expected payoff:** 5–12% NMI lift after 30–60 epochs of pretext, before any AE/DEC fine-tune. Confirmed in 2024–2025 deep-clustering literature (TCSS, SCAN family, sgSDC).
 
 **Hyperparameters:**
-- `temperature = 0.5` (SimCLR default)
+- `temperature ∈ {0.1, 0.5}` — sweep both. Default 0.1 (heterogeneous tabular
+  signal is denser than natural-image embeddings, so lower temperature sharpens
+  the contrastive objective more effectively); SimCLR default 0.5 included as
+  baseline. **Amendment 2026-05-16:** original spec specified 0.5 only; default
+  changed to 0.1 after follow-on research, sweep retains 0.5 as comparison.
 - `projection_dim = 128` (2× latent_dim is the SimCLR rule of thumb)
 - `drop_prob = 0.3` per modality (each view drops ~2 of 7 modalities on expectation)
 - `batch_size = 1024` to keep enough negatives per batch
+- **Masking granularity: per-row.** Each row in a batch gets independent block
+  masks (shape `(B, 1)` per block). Original implementation used per-batch
+  scalar masks ("shatters negatives" concern); per-row prevents batch-level
+  co-adaptation and gives stronger negatives. Backbone forward accepts either
+  scalar `float` (legacy F1/F2 ablation) or `Tensor (B,1)` (contrastive views).
+  **Amendment 2026-05-16:** added; original spec was silent on granularity.
 
 ### 2.2 Per-axis k-sweep evaluation
 

@@ -210,19 +210,32 @@ class _ContrastivePairDataset(Dataset):
         return {'X': self.X[real_i], 'has_bio': self.has_bio[real_i]}
 
 
-def _sample_block_mask(
+def _sample_block_mask_batch(
+    n: int,
     block_order: list[str],
     drop_prob: float,
     rng: np.random.Generator,
-) -> dict[str, float]:
-    """Sample a per-block 0/1 mask. Each block is dropped independently with
-    probability `drop_prob`. Guarantees at least one block is kept (otherwise
-    the encoder receives all zeros and InfoNCE degenerates).
+) -> dict[str, torch.Tensor]:
+    """Sample per-row 0/1 masks of shape (n, 1) for each block.
+
+    Guarantees that every row has at least one block kept (otherwise the encoder
+    receives all zeros and the InfoNCE loss becomes degenerate).
     """
-    while True:
-        mask = {b: 0.0 if rng.random() < drop_prob else 1.0 for b in block_order}
-        if any(v == 1.0 for v in mask.values()):
-            return mask
+    # (n, n_blocks)
+    probs = rng.random((n, len(block_order)))
+    mask_np = (probs >= drop_prob).astype(np.float32)
+
+    # Re-sample rows where all blocks were dropped
+    all_dropped = (mask_np.sum(axis=1) == 0)
+    if all_dropped.any():
+        for idx in np.where(all_dropped)[0]:
+            # Keep at least one random block for this row
+            mask_np[idx, rng.integers(0, len(block_order))] = 1.0
+
+    return {
+        b: torch.from_numpy(mask_np[:, i : i + 1])
+        for i, b in enumerate(block_order)
+    }
 
 
 def _contrastive_collate(
@@ -232,23 +245,23 @@ def _contrastive_collate(
     drop_prob: float,
     rng: np.random.Generator,
 ):
-    """Collate two augmented views per row, each with its own random block_mask.
+    """Collate two augmented views per row, each with its own per-row random block_mask.
 
     Returns:
         {
             'view_a': {'blocks': dict, 'has_bio': tensor, 'block_mask': dict},
             'view_b': {'blocks': dict, 'has_bio': tensor, 'block_mask': dict},
         }
-    Each `block_mask` is per-batch (not per-row) — same set of dropped blocks
-    is applied to every row in the view. This is how SimCLR/MoCo apply
-    augmentation on tabular data; per-row masking would shatter the negatives.
+    Each `block_mask` contains (B, 1) tensors. This provides per-row stochastic
+    augmentation, preventing the model from co-adapting to a batch-wide mask.
     """
     X = torch.stack([b['X'] for b in batch_list], dim=0)
     has_bio = torch.stack([b['has_bio'] for b in batch_list], dim=0)
     blocks = _split_into_blocks(X, block_slices)
+    n = X.shape[0]
 
-    mask_a = _sample_block_mask(block_order, drop_prob, rng)
-    mask_b = _sample_block_mask(block_order, drop_prob, rng)
+    mask_a = _sample_block_mask_batch(n, block_order, drop_prob, rng)
+    mask_b = _sample_block_mask_batch(n, block_order, drop_prob, rng)
     return {
         'view_a': {'blocks': blocks, 'has_bio': has_bio, 'block_mask': mask_a},
         'view_b': {'blocks': blocks, 'has_bio': has_bio, 'block_mask': mask_b},

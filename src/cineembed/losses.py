@@ -165,7 +165,7 @@ def dec_loss(
 def info_nce_loss(
     z_a: torch.Tensor,
     z_b: torch.Tensor,
-    temperature: float = 0.5,
+    temperature: float = 0.1,
 ) -> torch.Tensor:
     """Symmetric InfoNCE over two views (spec §2.1, Chen et al. 2020 SimCLR).
 
@@ -176,7 +176,12 @@ def info_nce_loss(
     Args:
         z_a, z_b: (B, d) — projected representations of two augmented views
                   of the same B input rows. Inputs are L2-normalized internally.
-        temperature: NT-Xent temperature; SimCLR default 0.5.
+        temperature: NT-Xent temperature. Default 0.1 (lower than SimCLR's 0.5
+                     for natural images). Lower temperatures sharpen the
+                     contrastive signal — appropriate for heterogeneous tabular
+                     data where the latent geometry is denser and modality
+                     dropout produces less radical view differences than image
+                     augmentations. Sweep {0.1, 0.5} in Phase 1 (spec §2.1).
 
     Returns:
         scalar loss.

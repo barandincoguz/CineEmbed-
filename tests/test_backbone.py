@@ -54,16 +54,39 @@ def test_backbone_supports_different_latent_dims(synthetic_blocks_dict):
         assert z.shape == (200, z_dim)
 
 
-def test_backbone_block_mask_zeros_modality(synthetic_blocks_dict):
-    """F1/F2 ablation: block_mask={'text': 0.0} → text projection contribution removed."""
+def test_backbone_per_batch_block_mask(synthetic_blocks_dict):
+    """F1/F2 ablation: block_mask={'text': 0.0} → entire text block zeroed for batch."""
     torch.manual_seed(42)
     model = backbone.MultiModalBackbone(
         block_dims=BLOCK_DIMS, proj_dims=PROJ_DIMS, hidden_dim=128, latent_dim=64,
     )
+    model.eval()
     z_full = model(synthetic_blocks_dict)
+    
     mask_no_text = {b: 1.0 for b in BLOCK_DIMS}
     mask_no_text['text'] = 0.0
     z_no_text = model(synthetic_blocks_dict, block_mask=mask_no_text)
-    # Ablating text MUST change the output
-    assert not torch.allclose(z_full, z_no_text), \
-        "block_mask={text: 0.0} should change z; backbone isn't honoring the mask"
+    
+    assert not torch.allclose(z_full, z_no_text), "Entire batch should change"
+
+
+def test_backbone_per_row_block_mask(synthetic_blocks_dict):
+    """Ensure that (B, 1) tensor masks correctly zero out individual rows per block."""
+    torch.manual_seed(42)
+    model = backbone.MultiModalBackbone(
+        block_dims=BLOCK_DIMS, proj_dims=PROJ_DIMS, hidden_dim=128, latent_dim=64,
+    )
+    model.eval()  # Disable Dropout for deterministic comparison
+    B = 200
+    # Create a mask that zeros out the 'text' block only for the first row
+    text_mask = torch.ones((B, 1))
+    text_mask[0, 0] = 0.0
+    
+    mask = {b: 1.0 for b in BLOCK_DIMS}
+    mask['text'] = text_mask
+    
+    z_full = model(synthetic_blocks_dict)
+    z_masked = model(synthetic_blocks_dict, block_mask=mask)
+    
+    assert not torch.allclose(z_full[0], z_masked[0]), "Row 0 should be different"
+    assert torch.allclose(z_full[1:], z_masked[1:]), "Other rows should be identical"

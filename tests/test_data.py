@@ -65,12 +65,13 @@ def test_make_dataloader_yields_blocks_and_has_bio(synthetic_feature_matrix, blo
 
 
 def test_contrastive_dataloader_yields_two_views(synthetic_feature_matrix, block_slices):
-    """Each batch must contain view_a and view_b dicts with proper shapes."""
+    """Each batch must contain view_a and view_b dicts with proper shapes and per-row masks."""
     X = torch.from_numpy(synthetic_feature_matrix).float()
     has_bio = X[:, sum(block_slices[b].stop - block_slices[b].start for b in
                        ['numerical', 'genre', 'language', 'decade', 'awards', 'text']) + 64]
+    batch_size = 16
     loader = data.make_contrastive_dataloader(
-        X, has_bio, batch_size=16, block_slices=block_slices,
+        X, has_bio, batch_size=batch_size, block_slices=block_slices,
         drop_prob=0.3, seed=42,
     )
     batch = next(iter(loader))
@@ -79,29 +80,31 @@ def test_contrastive_dataloader_yields_two_views(synthetic_feature_matrix, block
         assert 'blocks' in view
         assert 'has_bio' in view
         assert 'block_mask' in view
-        assert view['blocks']['numerical'].shape == (16, 6)
-        assert view['blocks']['text'].shape == (16, 384)
-    # Mask values are 0.0 or 1.0
+        assert view['blocks']['numerical'].shape == (batch_size, 6)
+        assert view['blocks']['text'].shape == (batch_size, 384)
+    # Mask values are (B, 1) tensors containing 0.0 or 1.0
     for view in (batch['view_a'], batch['view_b']):
         for v in view['block_mask'].values():
-            assert v in (0.0, 1.0)
-    # The two views' masks should usually differ (with drop_prob=0.3, P(same)≈low).
-    # Not a hard assertion (RNG can collide); just sanity-check structure.
+            assert isinstance(v, torch.Tensor)
+            assert v.shape == (batch_size, 1)
+            assert torch.all((v == 0.0) | (v == 1.0))
 
 
 def test_contrastive_dataloader_keeps_at_least_one_block(synthetic_feature_matrix, block_slices):
-    """Sanity: with drop_prob=0.99, every batch must still have ≥1 block kept
-    (the rejection-sample loop in _sample_block_mask should guarantee this)."""
+    """Sanity: with drop_prob=0.99, every row must still have ≥1 block kept
+    (the _sample_block_mask_batch should guarantee this per-row)."""
     X = torch.from_numpy(synthetic_feature_matrix).float()
     has_bio = torch.zeros(X.shape[0])
     loader = data.make_contrastive_dataloader(
         X, has_bio, batch_size=8, block_slices=block_slices,
         drop_prob=0.99, seed=123,
     )
-    # Iterate a few batches and verify each view has ≥1 kept block
+    # Iterate a few batches and verify each row in each view has ≥1 kept block
     for i, batch in enumerate(loader):
         if i >= 5:
             break
         for view in (batch['view_a'], batch['view_b']):
-            kept = sum(v for v in view['block_mask'].values())
-            assert kept >= 1.0, f"view has all blocks dropped: {view['block_mask']}"
+            # stack masks to (B, n_blocks)
+            masks = torch.cat(list(view['block_mask'].values()), dim=1)
+            kept_per_row = masks.sum(dim=1)
+            assert torch.all(kept_per_row >= 1.0), f"some rows have all blocks dropped: {kept_per_row}"
