@@ -150,10 +150,31 @@ def train_model(
 
 
 def _move_batch_to_device(batch: dict, device: str) -> dict:
-    return {
-        'blocks': {b: t.to(device) for b, t in batch['blocks'].items()},
-        'has_bio': batch['has_bio'].to(device),
+    """Move a batch dict to `device`.
+
+    Two layouts are supported:
+      - Flat:        {'blocks': {block: tensor}, 'has_bio': tensor}
+      - Contrastive: {'view_a': <flat>, 'view_b': <flat>} where each view may
+                     additionally carry 'block_mask': {block: tensor}. Used by
+                     `make_contrastive_dataloader` for InfoNCE pretext training
+                     (spec 2026-05-06 §2.1).
+    """
+    if 'view_a' in batch and 'view_b' in batch:
+        return {
+            'view_a': _move_view_to_device(batch['view_a'], device),
+            'view_b': _move_view_to_device(batch['view_b'], device),
+        }
+    return _move_view_to_device(batch, device)
+
+
+def _move_view_to_device(view: dict, device: str) -> dict:
+    out = {
+        'blocks': {b: t.to(device) for b, t in view['blocks'].items()},
+        'has_bio': view['has_bio'].to(device),
     }
+    if 'block_mask' in view:
+        out['block_mask'] = {b: t.to(device) for b, t in view['block_mask'].items()}
+    return out
 
 
 def _save_checkpoint(
