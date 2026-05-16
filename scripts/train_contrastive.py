@@ -1,9 +1,11 @@
 """Phase 1 contrastive pretext training (spec 2026-05-06 §2.1).
 
 Pre-trains MultiModalBackbone via SimCLR-style InfoNCE on stochastic
-modality-dropout views. After pretext, encodes the full dataset with the
-backbone (projection head discarded per Chen et al. 2020), then runs
-KMeans + GMM and reports per-axis NMI / ARI / AMI versus the MVP baseline.
+modality-dropout views. After pretext the backbone is saved (projection
+head discarded per Chen et al. 2020), then encodes the full dataset and
+reports per-axis NMI / ARI / AMI versus the MVP baseline. Everything is
+logged into a SINGLE W&B run (training curves + final eval + backbone
+artifact + UMAP image).
 
 Usage (local):
     python scripts/train_contrastive.py \
@@ -14,13 +16,15 @@ Usage (local):
 Usage (Colab):
     !python /content/cineembed-repo/scripts/train_contrastive.py \
         --artifacts /content/drive/MyDrive/CineEmbed/artifacts \
-        --device cuda --epochs 60 --wandb-project cineembed
+        --device cuda --epochs 60 \
+        --wandb-project cineembed --wandb-group phase-1-sweep
 
 Outputs (under <artifacts>/models/<run-name>/):
     pretext_backbone.pt    # backbone state_dict, ready for AE/DEC fine-tune
     pretext_full.pt        # backbone + projection state_dict (for resume)
     history.json           # train/val loss curves
     eval.json              # post-pretext NMI/ARI/AMI on KMeans + GMM
+    umap.png               # (optional, --umap) UMAP plot colored by genre
 """
 from __future__ import annotations
 
@@ -32,7 +36,6 @@ from pathlib import Path
 import numpy as np
 import torch
 
-# Allow running as `python scripts/train_contrastive.py` from repo root.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'src'))
 
 from cineembed import data as cdata
@@ -46,6 +49,7 @@ from cineembed.eval import (
     evaluate_run,
     evaluate_run_per_axis_k,
     multilabel_macro_nmi,
+    umap_plot,
 )
 
 
@@ -78,7 +82,18 @@ def _build_args() -> argparse.Namespace:
     # wandb
     p.add_argument('--wandb-project', type=str, default=None,
                    help='If set, log to this W&B project. Else offline-safe no-op.')
+    p.add_argument('--wandb-entity', type=str, default=None,
+                   help='W&B team/user. None = default from netrc.')
+    p.add_argument('--wandb-group', type=str, default=None,
+                   help='W&B run group (e.g. "phase-1-sweep") to compare runs.')
     p.add_argument('--wandb-tags', type=str, nargs='*', default=['contrastive', 'phase-1'])
+    p.add_argument('--wandb-mode', type=str, default=None,
+                   choices=['online', 'offline', 'disabled', 'shared'],
+                   help='Override W&B mode. None = read WANDB_MODE env or default online.')
+
+    # Diagnostics
+    p.add_argument('--umap', action='store_true',
+                   help='After eval, render a UMAP plot and log it to W&B.')
 
     return p.parse_args()
 
@@ -117,6 +132,81 @@ def _encode_all(model: ContrastiveHead, X: torch.Tensor, has_bio: torch.Tensor,
     return np.concatenate(chunks, axis=0)
 
 
+def _do_eval(model, X, has_bio, block_slices, batch_size, device, artifacts, seed):
+    """Encode + run all clustering metrics. Returns a nested dict and the
+    latent matrix z (kept for optional UMAP)."""
+    print('[eval] encoding all rows with backbone...')
+    z = _encode_all(model, X, has_bio, block_slices, batch_size, device)
+    print(f'[eval] z={z.shape}  computing clustering metrics...')
+
+    labels = cdata.get_labels(artifacts / 'movies_eda_final.csv')
+    kmeans_assign = cluster_assignments_kmeans(z, k=21, seed=seed)
+    gmm_assign = cluster_assignments_gmm(z, k=21, seed=seed)
+
+    eval_out = {
+        'kmeans_k21':        evaluate_run(kmeans_assign, labels),
+        'gmm_k21':           evaluate_run(gmm_assign, labels),
+        'per_axis_k_kmeans': evaluate_run_per_axis_k(z, labels, seed=seed),
+    }
+
+    # Multi-label macro-NMI on the genre block columns (excluding has_genre flag).
+    g = block_slices['genre']
+    genre_onehot = X[:, g.start:g.start + 21].numpy().astype(np.float32)
+    eval_out['multilabel_genre_macro_nmi_kmeans'] = multilabel_macro_nmi(
+        kmeans_assign, genre_onehot, metric='nmi',
+    )
+    return eval_out, z, labels
+
+
+def _print_eval_summary(eval_out: dict) -> None:
+    km = eval_out['kmeans_k21']
+    gm = eval_out['gmm_k21']
+    pa = eval_out.get('per_axis_k_kmeans', {})
+    print('=' * 60)
+    print(f"[eval] KMeans  k=21    g={km['genre_nmi']:.3f}  d={km['decade_nmi']:.3f}  l={km['lang_nmi']:.3f}")
+    print(f"[eval] GMM     k=21    g={gm['genre_nmi']:.3f}  d={gm['decade_nmi']:.3f}  l={gm['lang_nmi']:.3f}")
+    if pa:
+        print(f"[eval] per-axis-k       g={pa.get('genre_nmi_k21',0):.3f}  "
+              f"d={pa.get('decade_nmi_k12',0):.3f}  l={pa.get('lang_nmi_k11',0):.3f}")
+    print(f"[eval] MVP baseline     g=0.332 (dec_z64_k21 genre_nmi)")
+    print('=' * 60)
+
+
+def _push_eval_to_wandb(run, eval_out, out_dir, run_name):
+    """Push every metric block to the same run with stable key prefixes, plus
+    the backbone checkpoint as a versioned artifact."""
+    from cineembed.wandb_integration import log_eval, log_artifact
+
+    # log_eval auto-computes geo_nmi when (genre, decade, lang) NMI keys present.
+    log_eval(run, eval_out['kmeans_k21'],         prefix='km_')
+    log_eval(run, eval_out['gmm_k21'],            prefix='gmm_', add_geo_nmi=False)
+
+    pa = eval_out.get('per_axis_k_kmeans', {})
+    if pa:
+        log_eval(run, pa, prefix='axis_', add_geo_nmi=False)
+
+    ml = eval_out.get('multilabel_genre_macro_nmi_kmeans', {})
+    if isinstance(ml, dict) and 'macro_nmi' in ml:
+        run.log({'km_multilabel_macro_nmi': float(ml['macro_nmi'])})
+
+    # Headline number (geo NMI) is logged by log_eval above with prefix km_;
+    # also write to run.summary so it surfaces on the project's run-list.
+    km = eval_out['kmeans_k21']
+    run.summary['headline_km_genre_nmi'] = float(km['genre_nmi'])
+    if all(k in km for k in ('genre_nmi', 'decade_nmi', 'lang_nmi')):
+        prod = max(km['genre_nmi'] * km['decade_nmi'] * km['lang_nmi'], 0.0)
+        run.summary['headline_km_geo_nmi'] = prod ** (1/3) if prod > 0 else 0.0
+
+    # Version the backbone checkpoint as an artifact so downstream
+    # AE/DEC fine-tune notebooks can `wandb.use_artifact(...)`.
+    backbone_path = out_dir / 'pretext_backbone.pt'
+    if backbone_path.exists():
+        log_artifact(run, backbone_path,
+                     name=f'pretext_backbone__{run_name}',
+                     type='model',
+                     description='Backbone-only state_dict after contrastive pretext.')
+
+
 def main():
     args = _build_args()
     device = _resolve_device(args.device)
@@ -130,15 +220,15 @@ def main():
     print(f"[setup] out_dir={out_dir}")
     print(f"[setup] device={device}")
     print(f"[setup] tau={args.tau}  drop_prob={args.drop_prob}  proj_dim={args.proj_dim}")
+    if args.wandb_project:
+        print(f"[setup] wandb project={args.wandb_project}  group={args.wandb_group}")
 
     # ── data ────────────────────────────────────────────────────────────────
     X, feature_names = cdata.load_feature_matrix(artifacts / 'feature_matrix.npz')
     block_slices = cdata.get_block_indices(feature_names)
-    # has_director_bio sits at offset 64 in the director block (after 64 PCA dims).
     has_bio = X[:, block_slices['director'].start + 64].clone()
     block_dims = {b: (slc.stop - slc.start) for b, slc in block_slices.items()}
     print(f"[data] X={tuple(X.shape)}  has_bio_sum={int(has_bio.sum())}")
-    print(f"[data] block_dims={block_dims}")
 
     train_idx, val_idx = cdata.train_val_split(len(X), val_frac=args.val_frac, seed=args.seed)
     train_loader = cdata.make_contrastive_dataloader(
@@ -159,14 +249,12 @@ def main():
         latent_dim=args.latent_dim,
     )
     model = ContrastiveHead(backbone=backbone, projection_dim=args.proj_dim)
-
-    # ── train ───────────────────────────────────────────────────────────────
     loss_fn = _build_contrastive_loss(args.tau)
 
-    wandb_ctx = None
+    # ── W&B context (no-op if --wandb-project not set) ──────────────────────
     if args.wandb_project:
-        from cineembed.wandb_integration import wandb_run
-        wandb_ctx = wandb_run(
+        from cineembed.wandb_integration import wandb_run as _wandb_run
+        wandb_ctx = _wandb_run(
             config={
                 'phase': 'contrastive-pretext',
                 'tau': args.tau, 'drop_prob': args.drop_prob,
@@ -177,80 +265,62 @@ def main():
             },
             run_name=args.run_name,
             project=args.wandb_project,
+            entity=args.wandb_entity,
+            group=args.wandb_group,
             tags=list(args.wandb_tags),
+            mode=args.wandb_mode,
             notes='Spec 2026-05-06 §2.1 contrastive pretext (per-row block-mask, SimCLR-style).',
         )
-
-    if wandb_ctx is not None:
-        with wandb_ctx as run:
-            history = train_model(
-                model=model, loss_fn=loss_fn,
-                train_loader=train_loader, val_loader=val_loader,
-                n_epochs=args.epochs, lr=args.lr, weight_decay=args.weight_decay,
-                early_stop_patience=args.patience,
-                checkpoint_path=out_dir / 'pretext_full.pt',
-                device=device, seed=args.seed, wandb_run=run,
-            )
     else:
+        from contextlib import nullcontext
+        wandb_ctx = nullcontext(None)
+
+    with wandb_ctx as run:
+        # ── train (logs per-epoch loss into `run`) ──────────────────────────
         history = train_model(
             model=model, loss_fn=loss_fn,
             train_loader=train_loader, val_loader=val_loader,
             n_epochs=args.epochs, lr=args.lr, weight_decay=args.weight_decay,
             early_stop_patience=args.patience,
             checkpoint_path=out_dir / 'pretext_full.pt',
-            device=device, seed=args.seed,
+            device=device, seed=args.seed, wandb_run=run,
         )
 
-    # Save the backbone alone — that is what downstream AE/DEC heads will load.
-    torch.save(model.backbone.state_dict(), out_dir / 'pretext_backbone.pt')
-    with open(out_dir / 'history.json', 'w') as f:
-        json.dump(history, f, indent=2)
-    print(f"[ckpt] saved backbone -> {out_dir / 'pretext_backbone.pt'}")
+        # Backbone-only checkpoint is what AE/DEC fine-tune loads.
+        torch.save(model.backbone.state_dict(), out_dir / 'pretext_backbone.pt')
+        with open(out_dir / 'history.json', 'w') as f:
+            json.dump(history, f, indent=2)
+        print(f"[ckpt] saved backbone -> {out_dir / 'pretext_backbone.pt'}")
 
-    # ── eval (backbone latent, projection discarded per Chen 2020) ──────────
-    print('[eval] encoding all rows with backbone…')
-    z = _encode_all(model, X, has_bio, block_slices, args.batch_size, device)
+        # ── eval (still inside the wandb context so metrics share the run) ──
+        eval_out, z, labels = _do_eval(
+            model, X, has_bio, block_slices, args.batch_size, device,
+            artifacts, args.seed,
+        )
+        with open(out_dir / 'eval.json', 'w') as f:
+            json.dump(eval_out, f, indent=2)
+        _print_eval_summary(eval_out)
 
-    print(f'[eval] z={z.shape}  computing clustering metrics…')
-    labels = cdata.get_labels(artifacts / 'movies_eda_final.csv')
+        if run is not None:
+            _push_eval_to_wandb(run, eval_out, out_dir, args.run_name)
 
-    kmeans_assign = cluster_assignments_kmeans(z, k=21, seed=args.seed)
-    gmm_assign = cluster_assignments_gmm(z, k=21, seed=args.seed)
+        # ── optional UMAP visual ────────────────────────────────────────────
+        if args.umap:
+            umap_path = out_dir / 'umap.png'
+            try:
+                print('[eval] rendering UMAP (this is slow)...')
+                umap_plot(z, labels['primary_genre'],
+                          title=f'Contrastive pretext: {args.run_name}',
+                          savepath=str(umap_path))
+                if run is not None:
+                    from cineembed.wandb_integration import log_image
+                    log_image(run, str(umap_path), key='umap_genre')
+                print(f'[eval] umap -> {umap_path}')
+            except Exception as e:
+                print(f'[eval] UMAP skipped: {e!r}')
 
-    eval_out = {
-        'kmeans_k21':       evaluate_run(kmeans_assign, labels),
-        'gmm_k21':          evaluate_run(gmm_assign, labels),
-        'per_axis_k_kmeans': evaluate_run_per_axis_k(z, labels, seed=args.seed),
-    }
-
-    # Multi-label macro-NMI on the genre block columns (excluding has_genre flag).
-    g = block_slices['genre']
-    genre_onehot = X[:, g.start:g.start + 21].numpy().astype(np.float32)
-    eval_out['multilabel_genre_macro_nmi_kmeans'] = multilabel_macro_nmi(
-        kmeans_assign, genre_onehot, metric='nmi',
-    )
-
-    with open(out_dir / 'eval.json', 'w') as f:
-        json.dump(eval_out, f, indent=2)
-
-    # Summary print — focus on the headline number to compare with MVP baseline.
-    km = eval_out['kmeans_k21']
-    gm = eval_out['gmm_k21']
-    print('=' * 60)
-    print(f"[eval] KMeans k=21    g={km['genre_nmi']:.3f}  d={km['decade_nmi']:.3f}  l={km['lang_nmi']:.3f}")
-    print(f"[eval] GMM    k=21    g={gm['genre_nmi']:.3f}  d={gm['decade_nmi']:.3f}  l={gm['lang_nmi']:.3f}")
-    print(f"[eval] MVP baseline    g=0.332 (dec_z64_k21 genre_nmi)")
-    print('=' * 60)
-
-    if wandb_ctx is not None:
-        # wandb log already done in the with-block — append the eval as a final
-        # run.summary update by re-opening the run lightly.
-        from cineembed.wandb_integration import wandb_run as _wr, log_eval
-        with _wr(config={'phase': 'contrastive-eval'},
-                 run_name=args.run_name + '_eval',
-                 project=args.wandb_project,
-                 tags=list(args.wandb_tags) + ['eval-only']) as run:
-            log_eval(run, eval_out.get('kmeans_k21', {}))
+        if run is not None:
+            print(f"[wandb] run URL: {run.url}")
 
 
 if __name__ == '__main__':
