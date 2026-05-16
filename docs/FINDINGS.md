@@ -1,7 +1,24 @@
 # CineEmbed — Empirical Findings (Living Document)
 
 > **Updated continuously** as new runs complete. Source of truth for raporda kullanılacak claims.
-> Last updated: 2026-05-05 (MVP complete — 6/6 runs done, all 3 hypotheses validated)
+> Last updated: 2026-05-16 (Phase 1 contrastive sweep running; Round 1 / Round 2 staged)
+
+## Composite selection metric
+
+Round-1 architecture comparison is ranked by the geometric mean across the
+three label axes:
+
+```
+geo_NMI = (gNMI · dNMI · lNMI)^(1/3)
+```
+
+Penalizes models that win one axis and tank another. The winner by `geo_NMI`
+becomes the only architecture re-trained at z={32, 128} in Round 2.
+See `docs/superpowers/specs/2026-05-16-two-round-modeling-strategy.md`.
+
+---
+
+## Phase 0 — MVP results
 
 ## 🎯 MVP status: COMPLETE ✅
 
@@ -203,18 +220,76 @@ ae_z64 NMI = 0.328 ≫ 0.15. dec_z64_k21 NMI = 0.332 ≫ 0.15.
 
 ---
 
-## Deferred for final report (NOT in MVP)
+## Phase 1 — Contrastive sweep results
 
-- VAE family (z=32, 64, 128) — not yet trained
-- AE additional dims (z=32, 128)
-- F1 ablation (no text) — to test text contribution
-- F2 ablation (no director_profile) — to test bio coverage value
-- DEC k-sweep (z×k = 9 runs total, MVP has only z=64×k=21)
-- W4 (Kendall learned uncertainty) — optional stretch
-- Linear probing on z=64 frozen latents
-- All 27 UMAP figures (only 3 baseline + 9 best-of-each in main report)
+Status: 🔄 running on Colab, wandb group `phase-1-sweep`. 3 configs (one done,
+two queued at the time of writing). All three use the same backbone, 30-epoch
+InfoNCE pretext, per-row block masking, batch size 1024, projection_dim=128.
 
-See `docs/PROGRESS.md` "Path to final report" section for the full deferred list and run sequence.
+| Run | tau | drop_prob | km_gNMI | gmm_gNMI | per_axis_gNMI | geo_NMI | wandb_url |
+|---|---:|---:|---:|---:|---:|---:|---|
+| `contrastive_tau0p1_drop0p3` | 0.1 | 0.30 | _pending_ | _pending_ | _pending_ | _pending_ | _pending_ |
+| `contrastive_tau0p5_drop0p3` | 0.5 | 0.30 | _pending_ | _pending_ | _pending_ | _pending_ | _pending_ |
+| `contrastive_tau0p1_drop0p4` | 0.1 | 0.40 | _pending_ | _pending_ | _pending_ | _pending_ | _pending_ |
+
+Winner of Phase 1 feeds Round 1 as `best of phase-1-sweep` and seeds the
+`contrastive_pretext + DEC` hero run.
+
+---
+
+## Round 1 — Architecture comparison @ z=64
+
+Selection by `geo_NMI = (gNMI · dNMI · lNMI)^(1/3)`. Winner advances to Round 2.
+
+| Tier | Run | gNMI | dNMI | lNMI | geo_NMI | Status |
+|---|---|---:|---:|---:|---:|---|
+| Non-deep baseline | `kmeans_raw_k21` | 0.109 | 0.233 | 0.075 | 0.124 | ✅ MVP |
+| Non-deep baseline | `pca_kmeans_k21` | 0.084 | 0.224 | 0.094 | 0.119 | ✅ MVP |
+| Simple deep | `vanilla_ae_z64` | 0.287 | 0.369 | 0.095 | 0.211 | ✅ MVP |
+| Ablation (W1) | `ae_z64_w1` | 0.165 | 0.367 | 0.070 | 0.154 | ✅ MVP |
+| Multi-modal deep | `ae_z64` | 0.328 | 0.341 | 0.264 | 0.310 | ✅ MVP |
+| Deep + DEC | `dec_z64_k21` | **0.332** | 0.342 | **0.294** | **0.322** | ✅ MVP |
+| VAE | `vae_z64` | _pending_ | _pending_ | _pending_ | _pending_ | ⏸ pending |
+| Best contrastive | best of `phase-1-sweep` | _pending_ | _pending_ | _pending_ | _pending_ | ⏸ pending |
+| HERO | `contrastive_pretext + DEC` | _pending_ | _pending_ | _pending_ | _pending_ | ⏸ pending |
+
+The MVP `geo_NMI` values are computed from existing `artifacts/eval/results.json`.
+`dec_z64_k21` currently leads at `geo_NMI ≈ 0.322` — the Round-1 bar to beat.
+
+---
+
+## Round 2 — Z-dim sensitivity on winner
+
+Architecture = Round-1 winner. Single training each at z={32, 128}.
+z=64 row carries over from Round 1.
+
+| z | gNMI | dNMI | lNMI | geo_NMI | Status |
+|---:|---:|---:|---:|---:|---|
+| 32 | _pending_ | _pending_ | _pending_ | _pending_ | ⏸ pending |
+| 64 | _pending_ | _pending_ | _pending_ | _pending_ | ⏸ pending (winner carry-over) |
+| 128 | _pending_ | _pending_ | _pending_ | _pending_ | ⏸ pending |
+
+---
+
+## Explicit scope cuts (justified future work)
+
+The original 21-22 run ablation matrix from `2026-05-04-modeling-design.md` is
+superseded by the two-round strategy (ADR D13). The following are intentionally
+skipped from the final report's main results and listed as future work:
+
+| Skipped | Rationale |
+|---|---|
+| `ae_z32`, `ae_z128` | Covered by Round-2 z-sweep on the winning architecture. |
+| `ae_z64_no_text` (F1) | Modality ablation. Deferred to future work; bandwidth bound. |
+| `ae_z64_no_director` (F2) | Modality ablation. Deferred to future work; bandwidth bound. |
+| `ae_z64_w4` (Kendall learned weighting) | W2 vs W1 already validated at +99% (genre) / +277% (lang). Marginal expected gain over W2. |
+| `dec_z32_*`, `dec_z64_k10/30`, `dec_z128_*` | k=21 won MVP at z=64; full k-grid is future work. |
+| `vae_z32`, `vae_z128` | Only run if `vae_z64` wins Round 1. |
+| Linear probing on all z=64 models | Free latents on the winner are sufficient for the demo; full probing future work. |
+| 27 UMAP figures | Report uses ~12 (best-of-each per axis + 3 baseline). |
+
+Total new training compute: 2 (Round 1) + 2 (Round 2) = 4 runs (~50 min Colab),
+plus the 3 Phase 1 contrastive runs.
 
 ---
 

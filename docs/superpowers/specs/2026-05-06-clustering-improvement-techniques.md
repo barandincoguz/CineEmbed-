@@ -183,12 +183,16 @@ def multilabel_macro_nmi(cluster_ids: np.ndarray,
 
 ## 4. Acceptance
 
-- [ ] All new functions have docstrings referencing this spec.
-- [ ] `pytest -q` passes with 100% pass rate including new tests.
-- [ ] No deprecation warnings from sklearn/torch.
-- [ ] No existing test breaks (additive-only contract).
-- [ ] Type-checks clean under the project's existing Pyright config (modulo the known python-pptx/sklearn stub limitations the team has already accepted).
-- [ ] Imports follow existing style (`from __future__ import annotations`, type hints, docstring spec-cross-refs).
+- [x] All new functions have docstrings referencing this spec.
+- [x] `pytest -q` passes with 100% pass rate including new tests.
+- [x] No deprecation warnings from sklearn/torch.
+- [x] No existing test breaks (additive-only contract).
+- [x] Type-checks clean under the project's existing Pyright config (modulo the known python-pptx/sklearn stub limitations the team has already accepted).
+- [x] Imports follow existing style (`from __future__ import annotations`, type hints, docstring spec-cross-refs).
+
+**Status 2026-05-16:** All acceptance items met as of commit 8097685. Phase 1
+contrastive sweep launched 2026-05-16 (commit 5fa95ff) on Colab; results land
+in wandb group `phase-1-sweep`.
 
 ## 5. Out-of-scope (explicit non-goals for this sprint)
 
@@ -196,3 +200,8 @@ def multilabel_macro_nmi(cluster_ids: np.ndarray,
 - Updating `intermediate-progress-report.tex`, `slides.py`, or any other report/PPTX content.
 - Modifying `artifacts/eval/results.json`. Stays as the canonical record of the MVP's six pre-registered runs.
 - Modifying `train.py`. The new contrastive loop reuses `train_model` via the existing `loss_fn` callable interface.
+
+**Amendment 2026-05-16:** Out-of-scope item 1 ("Not running these techniques on
+production data") is superseded — the Phase 1 sweep is currently running 3
+contrastive configs on the production feature matrix (Colab, wandb group
+`phase-1-sweep`).

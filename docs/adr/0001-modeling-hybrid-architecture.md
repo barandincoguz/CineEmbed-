@@ -1,6 +1,6 @@
 # ADR 0001 — CineEmbed Modeling Phase: Hybrid Multi-Modal Architecture
 
-**Status:** Brainstorming in progress (2026-05-04)
+**Status:** Active (D1–D14 locked; last updated 2026-05-16)
 **Authors:** Baran Dinçoğuz (with Claude)
 **Course:** SENG 474 — Deep Learning · TED University · Spring 2026
 **Team:** Baran Dinçoğuz, Arda Arvas, Kaan Kaya
@@ -415,9 +415,157 @@ After D1-D9 decisions:
 
 ---
 
-## Lessons learned (to be filled in post-implementation)
+### 2026-05-06 D11 — Clustering-improvement techniques landed
 
-_TBD — append once models trained and evaluated._
+**Trigger:** Post-MVP feasibility audit identified five established techniques
+that could push numbers higher with bounded engineering effort.
+
+**Decision:** Land five additive techniques in a single sprint, no breaking
+changes to existing APIs. Cross-ref:
+`docs/superpowers/specs/2026-05-06-clustering-improvement-techniques.md`
+(commit `8097685`).
+
+1. **InfoNCE contrastive pretext** (§2.1) — `info_nce_loss`,
+   `ContrastiveHead`, `ContrastivePairDataset`, `make_contrastive_dataloader`.
+   The existing `MultiModalBackbone.forward(blocks, block_mask)` already
+   accepts modality dropout, which is the natural augmentation primitive.
+2. **Per-axis k-sweep evaluation** (§2.2) — `evaluate_run_per_axis_k`:
+   axis-matched k per label axis (decade k=12, lang k=11). Stops penalizing
+   non-genre axes for partition-cardinality mismatch.
+3. **Soft / non-KMeans clustering** (§2.3) — `cluster_assignments_gmm`,
+   `cluster_assignments_spectral`, `cluster_assignments_hdbscan`.
+4. **AMI keys** (§2.4) — `*_ami` added to `evaluate_run` output for
+   chance-adjusted reporting alongside NMI (Vinh et al. 2016).
+5. **Multi-label macro-NMI** (§2.5) — `multilabel_macro_nmi` over the genre
+   block; per-genre breakdown serves as a diagnostic.
+
+**Acceptance:** All 68 tests pass. No existing public API breaks.
+
+---
+
+### 2026-05-16 D12 — Per-row block masking + InfoNCE τ=0.1 default
+
+**Trigger:** Follow-on review of the contrastive-pretext implementation
+before launching Phase 1 on Colab.
+
+**Decision (two amendments to D11 / spec §2.1):**
+
+**(1) Masking granularity: per-row, not per-batch.**
+
+Original implementation used a single scalar mask per batch ("shatters
+negatives" concern when every row in a view shares the same dropped modalities).
+The backbone forward is amended to accept either:
+- legacy scalar `float` (F1/F2 ablation paths), or
+- `Tensor (B, 1)` per-row mask (contrastive views).
+
+Per-row masking prevents batch-level co-adaptation and produces stronger
+negatives within each batch — each row in a view has its own independent
+dropout pattern.
+
+**(2) InfoNCE temperature default τ=0.5 → τ=0.1.**
+
+SimCLR's natural-image default of τ=0.5 is calibrated for image-embedding
+geometry. Heterogeneous tabular signal here is denser than natural-image
+embeddings — a lower temperature sharpens the contrastive objective more
+effectively. The Phase 1 sweep retains τ=0.5 as a comparison run, but the
+spec's documented default is now τ=0.1.
+
+**Implementation:** commit `20472d4`. Spec amended inline.
+
+---
+
+### 2026-05-16 D13 — Two-round modeling strategy supersedes exhaustive ablation
+
+**Trigger:** Wall-clock budget audit with four working days to deadline; the
+21-22 run matrix from D2/D6/D8 is not feasible alongside the web-app pivot
+(D14).
+
+**Decision:** Replace the exhaustive ablation grid with a two-round strategy
+producing the same headline narrative at ~20% of the compute. Cross-ref
+`docs/superpowers/specs/2026-05-16-two-round-modeling-strategy.md`.
+
+**Selection metric (locked):**
+
+```
+geo_NMI = (gNMI · dNMI · lNMI)^(1/3)
+```
+
+Geometric mean across the three label axes — penalizes a model that wins one
+axis and tanks another.
+
+**Round 1 — architecture comparison @ z=64 (~30 min Colab, 9 rows):**
+6 MVP carry-over runs + 3 new (`vae_z64`, best of `phase-1-sweep`,
+`contrastive_pretext + DEC`).
+
+**Round 2 — z-sweep on the Round-1 winner only (~20 min Colab):**
+Winner re-trained at z=32 and z=128 → 3-row z-dim sensitivity sub-table.
+
+**Explicit scope cuts (justified as future work in the final report):**
+- `ae_z32`, `ae_z128` — covered by Round-2 winner z-sweep.
+- `ae_z64_no_text` (F1), `ae_z64_no_director` (F2) — modality ablation, deferred.
+- `ae_z64_w4` — Kendall learned weighting, marginal expected gain over W2.
+- `dec_z32_*`, `dec_z64_k10/30`, `dec_z128_*` — k=21 won MVP; k-grid deferred.
+- `vae_z32`, `vae_z128` — only run if VAE wins Round 1.
+
+Total new training compute = 2 (Round 1) + 2 (Round 2) = 4 runs (~50 min Colab),
+plus the 3 Phase 1 contrastive runs.
+
+---
+
+### 2026-05-16 D14 — Project deliverable pivot to web app demo
+
+**Trigger:** SENG 474 final deliverable clarification — a working demo
+significantly outweighs a more thorough report at the course-grade margin.
+
+**Decision:** Final deliverable is a **working web app**, not just a report.
+Cross-ref `docs/superpowers/specs/2026-05-16-web-app-demo-design.md`.
+
+- **Backend:** FastAPI REST. Endpoints:
+  - `GET /api/films/search?q=...` → list (id, title, year)
+  - `GET /api/films/{id}/similar?top=N` → top-N nearest neighbours
+  - `GET /api/films/random?n=...` → random films (UI cold start)
+- **Inference:** cosine similarity over L2-normalized 64-dim latents
+  (Round-2 winner). 329k × 64 = ~80 MB float32 in RAM. <10 ms per query
+  via numpy matmul + topk. No FAISS.
+- **Pre-compute (`scripts/build_index.py`):** backbone-agnostic; reads the
+  winner's `state_dict`, encodes all 329k rows, L2-normalizes, saves
+  `artifacts/inference/embeddings.npy` + `artifacts/inference/films.parquet`.
+- **Frontend:** minimal static HTML/JS. Search box, top-N selector
+  (2/5/10), result cards. Posters DEFERRED — TMDb on-demand via the `id`
+  column in `movies_eda_final.csv` is an open decision.
+- **Deployment:** `uvicorn cineembed.api:app --reload` on localhost:8000;
+  static served from `/static/` mount.
+- **Report tier:** "half-academic" — between bare demo and full ablation
+  paper. Deadline 2026-05-20.
+
+This re-prioritizes the remaining work order to: (1) finish models, (2)
+inference pipeline + REST API, (3) frontend UI, (4) posters & polish.
+
+---
+
+## Lessons learned (MVP, 2026-05-05; expanded as Phase 1 / Round 1 land)
+
+Concise empirical takeaways from the 6 MVP runs (full detail in `docs/FINDINGS.md`):
+
+- **Decade is the easy axis.** All three architectures (vanilla, multi-modal,
+  W1) recover decade at NMI ≈ 0.34–0.37. Year-correlated patterns are ordinal
+  and single-valued — KMeans gets there for free.
+- **W2 inverse-variance weighting is critical.** W1 (uniform) loses -50% genre
+  / -73% language NMI vs W2. Asymmetric collapse: small blocks (decade) survive
+  uniform weighting because StandardScaler already normalized them; large
+  high-dim blocks (text 384, language 31) lose all gradient signal.
+- **Missing release_date forms a coherent sub-manifold.** Not predicted by
+  H1–H3. UMAP shows `decade_bin = 0` films isolated as a cluster across all
+  four architectures; DEC compresses them most explicitly. A representation-
+  learning interpretability win that emerged post-hoc.
+- **Multi-modal architecture beats vanilla concat.** +178% lang_NMI, +14%
+  genre_NMI; trade-off: -7.6% decade_NMI. Modality-specific projection
+  allocates capacity to text/director blocks at slight cost on the trivially-
+  encoded decade signal.
+- **No single architecture wins all axes.** Vanilla wins decade_NMI +
+  genre_ARI; multi-modal wins decade_ARI; DEC wins genre_NMI + lang_NMI +
+  lang_ARI. This non-uniformity is the principled-trade-off story and the
+  motivation for the `geo_NMI` composite metric (D13).
 
 
 ## Constraints (locked)
