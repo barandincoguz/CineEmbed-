@@ -7,7 +7,8 @@ Every model run × every metric in one place. Updated 2026-05-17.
 - MVP runs: `artifacts/eval/results.json` + `artifacts/models/dec_z64_k21/eval.json` (re-eval of MVP DEC, 2026-05-17).
 - Phase 1: `artifacts/models/contrastive_*/eval.json`.
 - Round 1: `artifacts/models/{vae_z64,dec_z64_k21_from_contrastive_*}/eval.json`.
-- Retrieval: `artifacts/inference/{ae_z64,dec_z64_k21}/manifest.json`.
+- Retrieval: `artifacts/inference/{ae_z32,ae_z64,ae_z128,dec_z64_k21}/manifest.json`.
+- Round 2 sweep eval: per-variant `artifacts/models/ae_z{32,128}/eval.json` (Drive on Colab account B; downloaded to local `artifacts/` 2026-05-17 post-z=128).
 
 **Conventions:**
 
@@ -32,20 +33,25 @@ Sorted by `geo_NMI` descending within each phase. Demo-relevant numbers in
 
 ### Round 2 — AE z-sweep (2026-05-17, wandb group `round-2`)
 
-Cold-start AE at z={32, 128}; identical recipe to MVP `ae_z64` except for
+Cold-start AE at z={32, 64 (carry-over), 128}; identical recipe except for
 `latent_dim`. `hidden_dim=128` held constant across z. See
 `12-z-sweep-ae-z32-discovery.md` for the full narrative — Round 2 produced
-the second methodological surprise of the project: z=32 beat z=64 on the
-demo-relevant retrieval metric.
+the second methodological surprise of the project: a **U-curve** in z,
+with the demo-optimal point at **z=32**.
 
-| Run | latent_dim | Method | gNMI | dNMI | lNMI | geo_NMI | **genre@5 mean** | genre@5 median | Notes |
-|---|---:|---|---:|---:|---:|---:|---:|---:|---|
-| **`ae_z32`** | 32 | KMeans k=21 | **0.334** | 0.295 | 0.216 | 0.277 | **0.723** | (pending) | Round 2 winner on retrieval; +1.3% genre@5 vs ae_z64, +1.8% gNMI |
-| `ae_z64` (MVP carry-over) | 64 | KMeans k=21 | 0.328 | 0.341 | 0.264 | 0.309 | 0.714 | 0.800 | previous demo backbone |
-| `ae_z128` | 128 | — | (pending) | | | | (pending) | | training in progress |
+| Run | latent_dim | Method | gNMI | dNMI | lNMI | geo_NMI | **genre@5 mean** | genre@5 median | pair_cos_std | dim_std_min | best_val_loss | Notes |
+|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| **`ae_z32`** | 32 | KMeans k=21 | **0.334** | 0.295 | 0.216 | 0.277 | **0.723** | 1.000 | 0.301 | 0.117 | 0.0223 | **Round 2 winner**; best gNMI; cleanest dim utilisation |
+| `ae_z64` (MVP carry-over) | 64 | KMeans k=21 | 0.328 | 0.341 | 0.264 | 0.309 | 0.715 | 0.800 | 0.299 | 0.062 | ~0.024 | balanced allocation; best `geo_NMI`/dNMI/lNMI |
+| `ae_z128` | 128 | KMeans k=21 | 0.273 | 0.275 | 0.272 | 0.274 | 0.722 | 0.800 | 0.289 | **0.025** | 0.0237 | over-parameterised; near-dead dim (std=0.025); gNMI collapses 6pt |
 
-Provisional demo-backbone decision: swap from `ae_z64` to `ae_z32` once
-ae_z128 confirms. See `12-z-sweep-ae-z32-discovery.md` §8 for the criterion.
+**Demo-backbone decision (locked):** swap from `ae_z64` to `ae_z32`. The
+z=128 result confirmed the U-curve — its `genre@5` (0.722) ties z=32
+within noise, but its `gNMI` collapses (-6.1 pts), `dim_std_min` drops
+to near-dead, and `pair_cos_std` narrows (the angular-collapse precursor).
+ae_z32 wins by Occam tiebreaker on `genre@5` and clearly on every other
+informative axis. See `12-z-sweep-ae-z32-discovery.md` §9 for the full
+sweet-spot analysis.
 
 ### Phase 0 — MVP runs (May 5-9)
 
@@ -139,5 +145,8 @@ analysis and eyeball comparison.
 - Round 1 numbers from `dec_z64_k21_from_contrastive_*/eval.json` and
   `vae_z64/eval.json` written by `notebooks/07_round1_finetune.ipynb`
   (commit `276f47d`).
-- Retrieval numbers from `artifacts/inference/{ae_z64,dec_z64_k21}/manifest.json`
+- Retrieval numbers from `artifacts/inference/{ae_z32,ae_z64,ae_z128,dec_z64_k21}/manifest.json`
   written by `scripts/build_index.py` (commit `1e06a41`).
+- Round 2 z-sweep results from `notebooks/08_round2_ae_zsweep.ipynb`
+  output cells (2026-05-17 run on Colab account B, group `round-2`,
+  W&B offline-mode pending sync).

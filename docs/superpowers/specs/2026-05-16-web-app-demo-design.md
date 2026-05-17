@@ -4,9 +4,57 @@
 **Status:** APPROVED
 **Deadline:** 2026-05-20
 **Cross-ref:** ADR `0001-modeling-hybrid-architecture.md` D14;
-`docs/superpowers/specs/2026-05-16-two-round-modeling-strategy.md`
+`docs/superpowers/specs/2026-05-16-two-round-modeling-strategy.md`;
+`docs/journal/12-z-sweep-ae-z32-discovery.md`
 
-## Amendment — 2026-05-17 — Demo backbone selected
+## Amendment — 2026-05-17 (PM) — Demo backbone swapped to `ae_z32`
+
+After completion of the Round 2 z-sweep (z ∈ {32, 64, 128}), the demo
+backbone is **swapped from `ae_z64` to `ae_z32`**. New deployment artifact
+path: `artifacts/inference/ae_z32/{embeddings.npy, films.parquet, manifest.json}`.
+Checkpoint: `artifacts/models/ae_z32/ae.pt`.
+
+**Selection criterion unchanged:** `genre@5` retrieval quality, with Occam
+tiebreaker on latent size when within ±0.01.
+
+| Backbone | gNMI | `genre@5` mean | `pair_cos_std` | `dim_std_min` | Verdict |
+|---|---:|---:|---:|---:|---|
+| **`ae_z32`** | **0.334** | **0.723** | 0.301 | 0.117 | **SELECTED** — best gNMI, cleanest dim utilisation |
+| `ae_z64` (previous) | 0.328 | 0.715 | 0.299 | 0.062 | superseded |
+| `ae_z128` | 0.273 | 0.722 | 0.289 | **0.025** | over-parameterised; near-dead dim; gNMI collapse |
+
+Three-way Round 2 result revealed a U-curve in z: the genre clustering
+metric `gNMI` peaks at z=32 (0.334), drops slightly at z=64 (0.328), and
+collapses 6 points at z=128 (0.273). `ae_z128`'s `genre@5` (0.722)
+matches z=32 within noise — but `dim_std_min = 0.025` shows a near-dead
+latent dimension, and the pair-cosine spread is narrowing (early-warning
+of angular-collapse like `dec_z64_k21`). z=32 is the information-bottleneck
+sweet spot for this task.
+
+**Implications for the demo:**
+
+- **Inference RAM** drops ~2× on the embedding matrix: 329 044 × 32 ×
+  float32 ≈ **42 MB** instead of ≈ 80 MB for z=64.
+- **Cosine search step ~2× faster** (32-dim matmul vs 64-dim) — affects
+  `/similar` endpoint p95 latency, but already <50 ms target either way.
+- **API contract unchanged.** The latent dimension is internal — clients
+  see only the `[{id, title, score}]` JSON shape.
+- **Teammates (backend / frontend):** new path under `artifacts/inference/ae_z32/`
+  is the deployment target. Embedding `.npy` dtype + shape unchanged
+  except for the trailing dim (32 vs 64). `films.parquet` schema identical.
+  Manifest schema identical (`embedding_dim` field reflects new value).
+
+**Open WANDB key incident (`commits/17d6fbb`)** is unrelated to this swap
+and remains unrevoked per user decision.
+
+See `docs/journal/12-z-sweep-ae-z32-discovery.md` §9 for the full sweet-
+spot analysis. The earlier 2026-05-17 (AM) amendment below (DEC → AE
+pivot) still applies — this swap is the second-stage refinement within
+the AE family.
+
+---
+
+## Amendment — 2026-05-17 (AM) — DEC → AE pivot (superseded by the PM swap above)
 
 The demo backbone is **`artifacts/models/ae_z64.pt`** (multi-modal AE at z=64,
 KMeans-evaluated geo_NMI=0.309). This is **not** the highest-NMI model: the

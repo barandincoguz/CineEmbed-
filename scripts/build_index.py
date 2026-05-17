@@ -14,16 +14,27 @@ Outputs (under <out>/):
                      angular-spread sanity, film count)
 
 Usage (local CPU is fast enough — ~5-8 min for 329k films):
+
+    # Demo backbone (Round 2 winner, z=32 — D15 in ADR 0001):
     python scripts/build_index.py \
-        --checkpoint artifacts/models/dec_z64_k21.pt \
-        --model-type dec --n-clusters 21 \
-        --out artifacts/inference/dec_z64_k21/ \
+        --checkpoint artifacts/models/ae_z32/ae.pt \
+        --model-type ae \
+        --out artifacts/inference/ae_z32/ \
         --retrieval-eval --eyeball
 
+    # MVP carry-over for comparison:
     python scripts/build_index.py \
         --checkpoint artifacts/models/ae_z64.pt \
         --model-type ae \
         --out artifacts/inference/ae_z64/ \
+        --retrieval-eval --eyeball
+
+    # DEC (disqualified — angular collapse; kept for reproducibility of the
+    # 2026-05-17 AM "NMI ≠ retrieval" finding):
+    python scripts/build_index.py \
+        --checkpoint artifacts/models/dec_z64_k21.pt \
+        --model-type dec --n-clusters 21 \
+        --out artifacts/inference/dec_z64_k21/ \
         --retrieval-eval --eyeball
 
 The retrieval metrics (genre@k) and the eyeball table are the relevant signals

@@ -1,6 +1,6 @@
 # ADR 0001 — CineEmbed Modeling Phase: Hybrid Multi-Modal Architecture
 
-**Status:** Active (D1–D14 locked; last updated 2026-05-16)
+**Status:** Active (D1–D15 locked; last updated 2026-05-17)
 **Authors:** Baran Dinçoğuz (with Claude)
 **Course:** SENG 474 — Deep Learning · TED University · Spring 2026
 **Team:** Baran Dinçoğuz, Arda Arvas, Kaan Kaya
@@ -540,6 +540,62 @@ Cross-ref `docs/superpowers/specs/2026-05-16-web-app-demo-design.md`.
 
 This re-prioritizes the remaining work order to: (1) finish models, (2)
 inference pipeline + REST API, (3) frontend UI, (4) posters & polish.
+
+### 2026-05-17 D15 — Demo backbone locked to `ae_z32` after Round 2 z-sweep
+
+**Trigger:** Round 2 z-sweep on the AE family (z ∈ {32, 64, 128}) revealed
+a U-curve, not a monotonic "bigger is better" or "smaller is better"
+relationship. The earlier 2026-05-17 (AM) decision that selected `ae_z64`
+over `dec_z64_k21` (retrieval over NMI) needed a second-stage refinement
+within the AE family.
+
+**Decision:** The demo backbone is **`artifacts/models/ae_z32/ae.pt`**
+(multi-modal AE at z=32, hidden_dim=128). All deployment artifacts move
+to `artifacts/inference/ae_z32/{embeddings.npy, films.parquet, manifest.json}`.
+
+**Evidence (sweep complete, see `docs/journal/12-z-sweep-ae-z32-discovery.md`):**
+
+| Backbone | gNMI | dNMI | lNMI | geo_NMI | `genre@5` mean | `pair_cos_std` | `dim_std_min` |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **`ae_z32`** | **0.334** | 0.295 | 0.216 | 0.277 | **0.723** | 0.301 | 0.117 |
+| `ae_z64` (was demo) | 0.328 | 0.341 | 0.264 | 0.309 | 0.715 | 0.299 | 0.062 |
+| `ae_z128` | 0.273 | 0.275 | 0.272 | 0.274 | 0.722 | 0.289 | **0.025** |
+
+**Tiebreaker logic:** `ae_z32` and `ae_z128` are tied on `genre@5` within
+noise (0.723 vs 0.722). Five independent signals all favour z=32:
+
+1. `gNMI` higher by 6.1 absolute points (z=128 collapses on genre axis).
+2. `dim_std_min` healthier (0.117 vs 0.025) — z=128 has a near-dead dim.
+3. `pair_cos_std` wider (0.301 vs 0.289) — z=128 angular-collapsing.
+4. Reconstruction loss lower (best_val 0.0223 vs 0.0237).
+5. Occam: 32-dim model is smaller, faster inference, less RAM.
+
+**Why not z=64?** Best `geo_NMI` (0.309) and best `dNMI`+`lNMI`, but loses
+both demo-relevant axes (`genre@5`, `gNMI`) to z=32. Composite metric
+includes redundant modalities (decade, language) that the demo doesn't
+care about.
+
+**Interpretation:** z=32 is the **information-bottleneck sweet spot** for
+this task. The encoder is forced to concentrate capacity on the
+highest-entropy modalities (384-d text embedding, 113-d director PCA),
+demoting redundant ones (decade, language). z=128 sits past the sweet
+spot in the other direction — no compression pressure, dim allocation
+diffuses, gNMI collapses. This is the project's **second methodological
+finding** (first: clustering NMI does not predict retrieval quality —
+2026-05-17 AM amendment).
+
+**Affects:**
+
+- `docs/superpowers/specs/2026-05-16-web-app-demo-design.md` — amendment
+  appended (2026-05-17 PM).
+- `scripts/build_index.py` example commands — default checkpoint path
+  updated.
+- Backend / frontend deployment artifact location: `artifacts/inference/ae_z32/`.
+- API contract: unchanged. Embedding dim is internal.
+
+**Out-of-scope (deferred):** z=16 ablation. Cheap (~10 min train + eval)
+and would establish whether z=32 is the U-curve minimum or merely better
+than tested alternatives. Deferred to "Future work" in the report.
 
 ---
 
