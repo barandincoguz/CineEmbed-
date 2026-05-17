@@ -22,14 +22,15 @@ Start here if you have time:
 
 1. **`00-context-and-goals.md`** — project goals, scope, key constraints.
 2. **`10-results-table.md`** — every run, every metric, in one place.
-3. **`07-retrieval-vs-nmi-discovery.md`** — the key methodological finding.
-4. **`06-negative-results.md`** — what failed and why.
-5. **`08-scope-cuts-future-work.md`** — what we explicitly skipped.
+3. **`07-retrieval-vs-nmi-discovery.md`** — first methodological finding (NMI ≠ retrieval).
+4. **`12-z-sweep-ae-z32-discovery.md`** — second methodological finding (z-sweep U-curve; demo backbone locked at `ae_z32` per ADR D15).
+5. **`06-negative-results.md`** — what failed and why.
+6. **`08-scope-cuts-future-work.md`** — what we explicitly skipped.
 
-If you only have five minutes: read `07` and `10`.
+If you only have five minutes: read `07`, `12`, and `10`.
 
 If you're picking up the project to extend it: read `00` then jump to the
-phase you need (`01` MVP, `04` Phase 1, `05` Round 1).
+phase you need (`01` MVP, `04` Phase 1, `05` Round 1, `12` Round 2).
 
 ## File index
 
@@ -47,7 +48,7 @@ phase you need (`01` MVP, `04` Phase 1, `05` Round 1).
 | `09-operational-incidents.md` | WANDB key leak, sweep idempotency, GPU quota, GMM singular cov | ops |
 | `10-results-table.md` | Every run × every metric in one table | data |
 | `11-metrics-deep-dive.md` | Every metric: rationale, math, where used, why we trusted/distrusted it | reference |
-| `12-z-sweep-ae-z32-discovery.md` | Round 2 finding: ae_z32 beats ae_z64 on retrieval | analysis |
+| `12-z-sweep-ae-z32-discovery.md` | Round 2 finding (final): U-curve in z; `ae_z32` locked as demo backbone (ADR D15) | analysis |
 
 ## Naming convention
 
@@ -67,6 +68,9 @@ If you add a model run, a sweep, or a meaningful experimental result:
 
 ## Generated
 
-Initial population: 2026-05-17, drawn from the conversation log + git history
-on `feature/wandb-integration` through commit `1e06a41` (build_index +
-ae_z64 selection).
+- **Initial population:** 2026-05-17 (AM), drawn from the conversation log + git
+  history on `feature/wandb-integration` through commit `1e06a41` (build_index
+  + initial `ae_z64` selection).
+- **Round 2 finalization:** 2026-05-17 (PM), commit `ddb6cbd` — file 12 §1
+  headline, §9, §11 rewritten with three-way U-curve result; file 10 Round 2
+  sub-table extended; demo backbone re-locked at `ae_z32` per ADR D15.
