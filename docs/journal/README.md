@@ -47,6 +47,7 @@ phase you need (`01` MVP, `04` Phase 1, `05` Round 1).
 | `09-operational-incidents.md` | WANDB key leak, sweep idempotency, GPU quota, GMM singular cov | ops |
 | `10-results-table.md` | Every run × every metric in one table | data |
 | `11-metrics-deep-dive.md` | Every metric: rationale, math, where used, why we trusted/distrusted it | reference |
+| `12-z-sweep-ae-z32-discovery.md` | Round 2 finding: ae_z32 beats ae_z64 on retrieval | analysis |
 
 ## Naming convention
 

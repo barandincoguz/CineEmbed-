@@ -30,6 +30,23 @@ Every model run × every metric in one place. Updated 2026-05-17.
 Sorted by `geo_NMI` descending within each phase. Demo-relevant numbers in
 **bold**.
 
+### Round 2 — AE z-sweep (2026-05-17, wandb group `round-2`)
+
+Cold-start AE at z={32, 128}; identical recipe to MVP `ae_z64` except for
+`latent_dim`. `hidden_dim=128` held constant across z. See
+`12-z-sweep-ae-z32-discovery.md` for the full narrative — Round 2 produced
+the second methodological surprise of the project: z=32 beat z=64 on the
+demo-relevant retrieval metric.
+
+| Run | latent_dim | Method | gNMI | dNMI | lNMI | geo_NMI | **genre@5 mean** | genre@5 median | Notes |
+|---|---:|---|---:|---:|---:|---:|---:|---:|---|
+| **`ae_z32`** | 32 | KMeans k=21 | **0.334** | 0.295 | 0.216 | 0.277 | **0.723** | (pending) | Round 2 winner on retrieval; +1.3% genre@5 vs ae_z64, +1.8% gNMI |
+| `ae_z64` (MVP carry-over) | 64 | KMeans k=21 | 0.328 | 0.341 | 0.264 | 0.309 | 0.714 | 0.800 | previous demo backbone |
+| `ae_z128` | 128 | — | (pending) | | | | (pending) | | training in progress |
+
+Provisional demo-backbone decision: swap from `ae_z64` to `ae_z32` once
+ae_z128 confirms. See `12-z-sweep-ae-z32-discovery.md` §8 for the criterion.
+
 ### Phase 0 — MVP runs (May 5-9)
 
 | Run | Method | gNMI | dNMI | lNMI | geo_NMI | gARI | dARI | lARI | genre@5 | Notes |
