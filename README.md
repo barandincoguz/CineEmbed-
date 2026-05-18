@@ -9,6 +9,31 @@ final web-app demo for cosine-similarity recommendations.
 
 ---
 
+## Demo — 5-line setup
+
+```bash
+# 1. Install Python deps
+pip install -e ".[demo]"
+
+# 2. Install frontend deps
+cd frontend && pnpm install && cd ..
+
+# 3. Set TMDb API key (optional but recommended)
+cp .env.example .env
+# edit .env: TMDB_API_KEY=your_v3_key_from_themoviedb.org
+
+# 4. Launch
+bash scripts/dev-up.sh
+
+# 5. Open browser
+open http://localhost:3000
+```
+
+See `docs/demo-script.md` for the presentation flow and known-good
+query list.
+
+---
+
 ## Quick start
 
 ```bash
