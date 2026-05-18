@@ -34,6 +34,7 @@ INFERENCE_DIR = REPO_ROOT / "artifacts" / "inference"
 BACKBONES_JSON = REPO_ROOT / "artifacts" / "backbones.json"
 TMDB_CACHE_DIR = REPO_ROOT / "artifacts" / "cache" / "tmdb"
 CLUSTER_OVERRIDE_PATH = INFERENCE_DIR / "cluster_names_override.json"
+GALLERY_PATH = INFERENCE_DIR / "gallery.json"
 
 BackboneId = Literal["ae_z32", "ae_z64", "ae_z128"]
 
@@ -343,3 +344,10 @@ async def cluster_detail(
         films=films,
         total=c["size"],
     )
+
+
+@app.get("/api/gallery")
+def gallery() -> dict:
+    if not GALLERY_PATH.exists():
+        raise HTTPException(503, detail="gallery.json not built; run scripts/build_gallery.py")
+    return json.loads(GALLERY_PATH.read_text())
