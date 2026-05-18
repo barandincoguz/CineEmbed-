@@ -110,6 +110,11 @@ def _build_args() -> argparse.Namespace:
     p.add_argument('--eyeball', action='store_true',
                    help='Print top-5 similar for a curated set of well-known queries.')
 
+    p.add_argument('--cluster-only', action='store_true',
+                   help='Skip encode, only run KMeans on existing embeddings.npy')
+    p.add_argument('--with-clusters', action='store_true',
+                   help='After encode, also run KMeans and write cluster_labels.npy + cluster_meta.json')
+
     return p.parse_args()
 
 
@@ -363,6 +368,28 @@ def _eyeball_top5(z_norm: np.ndarray, films_df: pd.DataFrame,
     return rows
 
 
+def _run_clustering(out_dir: Path, k: int = 21) -> None:
+    """KMeans pass on the embeddings.npy at <out_dir>, write cluster_labels.npy +
+    cluster_meta.json next to it.  Used by both --cluster-only and --with-clusters.
+    """
+    from sklearn.cluster import MiniBatchKMeans
+    from cineembed.cluster_naming import auto_name_clusters
+
+    print(f'[cluster] running MiniBatchKMeans k={k} on existing embeddings...')
+    embs = np.load(out_dir / 'embeddings.npy')
+    km = MiniBatchKMeans(n_clusters=k, batch_size=4096, n_init="auto", random_state=42)
+    labels = km.fit_predict(embs).astype(np.uint8)
+    np.save(out_dir / 'cluster_labels.npy', labels)
+    print(f'[cluster] wrote cluster_labels.npy ({labels.shape}, {labels.dtype})')
+
+    print('[cluster] computing cluster_meta.json (auto-naming)...')
+    films_master = pd.read_parquet(Path('artifacts/inference/films_master.parquet'))
+    meta = auto_name_clusters(labels, films_master, k=k)
+    with open(out_dir / 'cluster_meta.json', 'w') as f:
+        json.dump(meta, f, indent=2, ensure_ascii=False)
+    print(f'[cluster] wrote cluster_meta.json ({k} clusters)')
+
+
 def main():
     args = _build_args()
     device = _resolve_device(args.device)
@@ -370,6 +397,12 @@ def main():
     artifacts = args.artifacts.resolve()
     out_dir = args.out.resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── --cluster-only: skip encode, only run KMeans on existing embeddings ───
+    if args.cluster_only:
+        print(f'[setup] cluster-only mode — using existing {out_dir / "embeddings.npy"}')
+        _run_clustering(out_dir, k=21)
+        return
 
     t0 = time.time()
     print(f'[setup] checkpoint   = {args.checkpoint}')
@@ -439,6 +472,10 @@ def main():
     eyeball = None
     if args.eyeball:
         eyeball = _eyeball_top5(z_norm, films_df, EYEBALL_QUERIES, k=5)
+
+    # ── optional clustering pass ────────────────────────────────────────────
+    if args.with_clusters:
+        _run_clustering(out_dir, k=21)
 
     # ── manifest ────────────────────────────────────────────────────────────
     manifest = {
