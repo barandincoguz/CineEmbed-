@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Sidebar } from "@/components/sidebar";
@@ -16,8 +15,6 @@ export default function HomePage() {
   const filmIdParam = params.get("film");
   const filmId = filmIdParam && /^\d+$/.test(filmIdParam) ? Number(filmIdParam) : null;
   const backbone = ((params.get("backbone") ?? "ae_z32") as BackboneId);
-
-  const [activeNav, setActiveNav] = useState("search");
 
   const { data: film, isLoading: filmLoading } = useQuery({
     queryKey: ["film", filmId, backbone],
@@ -35,7 +32,7 @@ export default function HomePage() {
   return (
     <div className="flex min-h-screen" style={{ background: "#f8f9fb" }}>
       {/* Sidebar */}
-      <Sidebar activeNav={activeNav} onNavChange={setActiveNav} />
+      <Sidebar />
 
       {/* Main content */}
       <main className="flex-1 flex flex-col min-h-screen" style={{ marginLeft: 220 }}>
