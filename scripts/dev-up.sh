@@ -35,7 +35,9 @@ python -m uvicorn cineembed.api:app --port 8000 --reload --reload-dir src &
 API_PID=$!
 
 echo "[dev-up] starting Next.js on :3000"
-(cd frontend && pnpm dev) &
+# Direct binary bypasses pnpm 11's interactive sharp build-script gate.
+# node_modules are populated once via the README's `pnpm install` step.
+(cd frontend && ./node_modules/.bin/next dev) &
 WEB_PID=$!
 
 echo ""
