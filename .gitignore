@@ -70,3 +70,9 @@ AGENTS.md
 
 # brainstorm visual companion
 .superpowers/
+
+# secrets (.env already listed above)
+frontend/.env.local
+# tmdb runtime cache (gitignored, regenerable)
+artifacts/cache/tmdb/
+
