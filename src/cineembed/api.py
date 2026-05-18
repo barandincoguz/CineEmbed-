@@ -9,7 +9,7 @@ import os
 from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, cast
 
 import numpy as np
 import pandas as pd
@@ -18,6 +18,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from cineembed.api_models import (
     Backbone,
+    Cluster,
+    ClusterDetail,
     Film,
     HealthResponse,
     Neighbor,
@@ -269,3 +271,75 @@ async def similar(
         film_payload = _row_to_film(i, backbone, with_tmdb_blob=blob_by_id.get(film_id_int))
         out.append(Neighbor(**film_payload.model_dump(), cosine=float(cosines[i])))
     return out
+
+
+def _cluster_top_n_rows(backbone: str, k: int, n: int) -> list[int]:
+    """Return up to n row indices in cluster k, sorted by popularity DESC."""
+    assert state.films is not None
+    labels = state.cluster_labels[backbone]
+    mask = labels == k
+    rows = np.where(mask)[0]
+    if len(rows) == 0:
+        return []
+    pops_raw = cast(pd.Series, pd.to_numeric(state.films["popularity"].iloc[rows], errors="coerce"))
+    pops = pops_raw.fillna(0)
+    order = np.argsort(-np.asarray(pops.values), kind="stable")
+    return rows[order[:n]].tolist()
+
+
+@app.get("/api/clusters", response_model=list[Cluster])
+def clusters(backbone: BackboneId = "ae_z32") -> list[Cluster]:
+    meta = state.cluster_meta[backbone]
+    out: list[Cluster] = []
+    for c in meta:
+        preview_rows = _cluster_top_n_rows(backbone, c["id"], 4)
+        preview = [_row_to_film(r, backbone) for r in preview_rows]
+        out.append(
+            Cluster(
+                id=c["id"],
+                name=c["name"],
+                size=c["size"],
+                top_genres=c["topGenres"],
+                modal_decade=c["modalDecade"],
+                preview_films=preview,
+            )
+        )
+    return out
+
+
+@app.get("/api/clusters/{k}", response_model=ClusterDetail)
+async def cluster_detail(
+    k: Annotated[int, PathParam(ge=0, le=20)],
+    backbone: BackboneId = "ae_z32",
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+) -> ClusterDetail:
+    meta_list = state.cluster_meta[backbone]
+    c = next((c for c in meta_list if c["id"] == k), None)
+    if c is None:
+        raise HTTPException(404, detail="cluster not found")
+    rows = _cluster_top_n_rows(backbone, k, limit)
+
+    enrich_ids = [int(state.row_to_id[r]) for r in rows[:5]]
+    if state.tmdb:
+        blobs = await asyncio.gather(
+            *(state.tmdb.get_enrichment(fid) for fid in enrich_ids),
+            return_exceptions=False,
+        )
+    else:
+        blobs = [None] * len(enrich_ids)
+    blob_by_id = dict(zip(enrich_ids, blobs))
+
+    films = [
+        _row_to_film(r, backbone, with_tmdb_blob=blob_by_id.get(int(state.row_to_id[r])))
+        for r in rows
+    ]
+    return ClusterDetail(
+        id=c["id"],
+        name=c["name"],
+        size=c["size"],
+        top_genres=c["topGenres"],
+        modal_decade=c["modalDecade"],
+        preview_films=films[:4],
+        films=films,
+        total=c["size"],
+    )
