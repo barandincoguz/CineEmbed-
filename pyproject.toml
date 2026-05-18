@@ -23,10 +23,15 @@ dependencies = [
 dev = ["pytest>=8.0", "pytest-cov>=4.1"]
 wandb = ["wandb>=0.16"]
 demo = [
-    "pyarrow>=15",      # parquet engine for films table
-    "fastapi>=0.110",   # web app backend
+    "pyarrow>=15",
+    "fastapi>=0.110",
     "uvicorn[standard]>=0.27",
     "pydantic>=2.6",
+    "rapidfuzz>=3.0",
+    "httpx>=0.27",
+    "pycountry>=23.12",
+    "aiolimiter>=1.1",
+    "scikit-learn>=1.4",
 ]
 
 [tool.setuptools.packages.find]
