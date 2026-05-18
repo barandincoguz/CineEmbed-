@@ -14,7 +14,7 @@ class FilmSearcher:
     def __init__(self, films: pd.DataFrame):
         # Required columns: id, title, popularity
         self._df = films
-        self._titles_lower = films["title"].astype(str).str.lower().tolist()
+        self._titles_lower = films["title"].fillna("").astype(str).str.lower().tolist()
         # pd.to_numeric is typed as a union (Series | scalar); the Series-input
         # branch always returns a Series, so cast for the type checker.
         pop_series = cast(pd.Series, pd.to_numeric(films["popularity"], errors="coerce"))

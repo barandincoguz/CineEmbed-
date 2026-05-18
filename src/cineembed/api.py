@@ -1,0 +1,205 @@
+"""CineEmbed FastAPI sidecar — see docs/superpowers/specs/2026-05-18-frontend-backend-integration-design.md"""
+
+from __future__ import annotations
+
+import json
+import logging
+import os
+from contextlib import asynccontextmanager
+from pathlib import Path
+from typing import Annotated, Literal
+
+import numpy as np
+import pandas as pd
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+
+from cineembed.api_models import (
+    Backbone,
+    Film,
+    HealthResponse,
+)
+from cineembed.search import FilmSearcher
+from cineembed.tmdb import TMDbClient, make_backdrop_url, make_poster_url
+
+log = logging.getLogger(__name__)
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+INFERENCE_DIR = REPO_ROOT / "artifacts" / "inference"
+BACKBONES_JSON = REPO_ROOT / "artifacts" / "backbones.json"
+TMDB_CACHE_DIR = REPO_ROOT / "artifacts" / "cache" / "tmdb"
+CLUSTER_OVERRIDE_PATH = INFERENCE_DIR / "cluster_names_override.json"
+
+BackboneId = Literal["ae_z32", "ae_z64", "ae_z128"]
+
+
+class AppState:
+    """Holds boot-loaded artifacts for the lifetime of the process."""
+
+    def __init__(self) -> None:
+        self.films: pd.DataFrame | None = None
+        self.id_to_row: dict[int, int] = {}
+        self.row_to_id: list[int] = []
+        self.embeddings: dict[str, np.ndarray] = {}
+        self.cluster_labels: dict[str, np.ndarray] = {}
+        self.cluster_meta: dict[str, list[dict]] = {}
+        self.backbones_meta: list[dict] = []
+        self.searcher: FilmSearcher | None = None
+        self.tmdb: TMDbClient | None = None
+
+
+state = AppState()
+
+
+def _load_cluster_meta(backbone: str, overrides: dict) -> list[dict]:
+    raw = json.loads((INFERENCE_DIR / backbone / "cluster_meta.json").read_text())
+    bb_overrides = overrides.get(backbone, {})
+    for c in raw:
+        key = str(c["id"])
+        if key in bb_overrides:
+            c["name"] = bb_overrides[key]
+    return raw
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    """Boot sequence per spec §14.2."""
+    log.info("[boot] loading backbones metadata")
+    state.backbones_meta = json.loads(BACKBONES_JSON.read_text())
+
+    log.info("[boot] loading films_master.parquet")
+    state.films = pd.read_parquet(INFERENCE_DIR / "films_master.parquet", engine="pyarrow")
+
+    log.info("[boot] building id_to_row map")
+    state.row_to_id = state.films["id"].astype(int).tolist()
+    state.id_to_row = {fid: i for i, fid in enumerate(state.row_to_id)}
+
+    log.info("[boot] loading cluster name overrides")
+    overrides = (
+        json.loads(CLUSTER_OVERRIDE_PATH.read_text()) if CLUSTER_OVERRIDE_PATH.exists() else {}
+    )
+
+    for bb in ("ae_z32", "ae_z64", "ae_z128"):
+        log.info("[boot] loading %s embeddings (mmap)", bb)
+        state.embeddings[bb] = np.load(INFERENCE_DIR / bb / "embeddings.npy", mmap_mode="r")
+        log.info("[boot] loading %s cluster_labels", bb)
+        state.cluster_labels[bb] = np.load(INFERENCE_DIR / bb / "cluster_labels.npy")
+        state.cluster_meta[bb] = _load_cluster_meta(bb, overrides)
+
+    log.info("[boot] prewarming ae_z32 (one matmul to page-cache)")
+    _ = state.embeddings["ae_z32"] @ state.embeddings["ae_z32"][0]
+
+    log.info("[boot] building searcher")
+    state.searcher = FilmSearcher(state.films)
+
+    log.info("[boot] tmdb client")
+    state.tmdb = TMDbClient(
+        api_key=os.environ.get("TMDB_API_KEY"),
+        cache_dir=TMDB_CACHE_DIR,
+    )
+
+    log.info("[boot] ready")
+    yield
+    log.info("[shutdown] closing tmdb client")
+    if state.tmdb:
+        await state.tmdb.aclose()
+
+
+app = FastAPI(title="CineEmbed API", version="1.0", lifespan=lifespan)
+
+_origins = os.environ.get("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in _origins.split(",")],
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/api/health", response_model=HealthResponse)
+def health() -> HealthResponse:
+    return HealthResponse(
+        status="ok",
+        backbones_loaded=list(state.embeddings.keys()),
+        films=len(state.films) if state.films is not None else 0,
+        tmdb_key_configured=bool(state.tmdb and state.tmdb.key_configured),
+    )
+
+
+@app.get("/api/backbones", response_model=list[Backbone])
+def backbones() -> list[Backbone]:
+    return [Backbone(**b) for b in state.backbones_meta]
+
+
+@app.get("/api/films/search", response_model=list[Film])
+def search_films(
+    q: Annotated[str, Query(min_length=1, max_length=200)],
+    backbone: BackboneId = "ae_z32",
+    limit: Annotated[int, Query(ge=1, le=50)] = 10,
+) -> list[Film]:
+    """Returns Film[] with TMDb-lazy fields null (call /films/{id} to enrich)."""
+    if state.searcher is None:
+        raise HTTPException(503, detail="searcher not loaded")
+    hits = state.searcher.search(q, limit=limit)
+    return [_row_to_film(h["row_idx"], backbone) for h in hits]
+
+
+def _row_to_film(row_idx: int, backbone: str, with_tmdb_blob=None) -> Film:
+    """Convert a films_master row to a Film payload."""
+    assert state.films is not None
+    r = state.films.iloc[row_idx]
+    cluster = int(state.cluster_labels[backbone][row_idx])
+    year_val = r["year"]
+    year = int(year_val) if pd.notna(year_val) else None
+
+    poster_url = None
+    backdrop_url = None
+    tagline = None
+    style: list[str] = []
+    plot: list[str] = []
+    status: Literal["ok", "missing"] = "missing"
+    if with_tmdb_blob is not None:
+        from cineembed.keywords import split_keywords
+
+        poster_url = make_poster_url(with_tmdb_blob.poster_path)
+        backdrop_url = make_backdrop_url(with_tmdb_blob.backdrop_path)
+        tagline = with_tmdb_blob.tagline
+        style, plot = split_keywords(with_tmdb_blob.keyword_names)
+        status = "ok"
+
+    country = str(r["country"]) if pd.notna(r["country"]) else None
+    genres_val = r["genres"]
+    genres = list(genres_val) if genres_val is not None else []
+    return Film(
+        id=int(r["id"]),
+        title=str(r["title"]),
+        year=year,
+        rating=float(r["vote_average"]),
+        votes=int(r["vote_count"]),
+        genres=genres,
+        country=country,
+        duration=float(r["runtime"]) if pd.notna(r["runtime"]) else None,
+        language=str(r["original_language"]),
+        director=str(r["director_name"]),
+        cluster=cluster,
+        overview=str(r["overview"]) if pd.notna(r["overview"]) else None,
+        time=_decade_label(year) if year else "Mixed era",
+        place=country,
+        poster_color=_hash_hsl(int(r["id"])),
+        poster_url=poster_url,
+        backdrop_url=backdrop_url,
+        tagline=tagline,
+        style=style,
+        plot=plot,
+        tmdb_status=status,
+    )
+
+
+def _decade_label(year: int) -> str:
+    return f"{(year // 10) * 10}s"
+
+
+def _hash_hsl(film_id: int) -> str:
+    """Deterministic posterColor fallback."""
+    h = (film_id * 2654435761) % 360
+    return f"hsl({h}, 60%, 55%)"
