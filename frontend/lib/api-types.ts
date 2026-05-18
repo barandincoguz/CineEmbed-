@@ -9,7 +9,7 @@ export const FilmSchema = z.object({
   year: z.number().int().nullable(),
   rating: z.number(),
   votes: z.number().int(),
-  genres: z.array(z.string()).default([]),
+  genres: z.array(z.string()),
   country: z.string().nullable(),
   duration: z.number().nullable(),
   language: z.string(),
@@ -22,8 +22,8 @@ export const FilmSchema = z.object({
   posterUrl: z.string().nullable(),
   backdropUrl: z.string().nullable(),
   tagline: z.string().nullable(),
-  style: z.array(z.string()).default([]),
-  plot: z.array(z.string()).default([]),
+  style: z.array(z.string()),
+  plot: z.array(z.string()),
   tmdbStatus: z.enum(["ok", "missing"]),
 });
 export type Film = z.infer<typeof FilmSchema>;
@@ -47,12 +47,12 @@ export const ClusterSchema = z.object({
   size: z.number().int(),
   topGenres: z.array(z.object({ genre: z.string(), pct: z.number() })),
   modalDecade: z.string(),
-  previewFilms: z.array(FilmSchema).default([]),
+  previewFilms: z.array(FilmSchema),
 });
 export type Cluster = z.infer<typeof ClusterSchema>;
 
 export const ClusterDetailSchema = ClusterSchema.extend({
-  films: z.array(FilmSchema).default([]),
+  films: z.array(FilmSchema),
   total: z.number().int(),
 });
 export type ClusterDetail = z.infer<typeof ClusterDetailSchema>;
