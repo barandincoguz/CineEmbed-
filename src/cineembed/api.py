@@ -2,22 +2,25 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
 from contextlib import asynccontextmanager
+from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Literal
 
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Path as PathParam, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from cineembed.api_models import (
     Backbone,
     Film,
     HealthResponse,
+    Neighbor,
 )
 from cineembed.search import FilmSearcher
 from cineembed.tmdb import TMDbClient, make_backdrop_url, make_poster_url
@@ -203,3 +206,66 @@ def _hash_hsl(film_id: int) -> str:
     """Deterministic posterColor fallback."""
     h = (film_id * 2654435761) % 360
     return f"hsl({h}, 60%, 55%)"
+
+
+@app.get("/api/films/{film_id}", response_model=Film)
+async def film_detail(
+    film_id: Annotated[int, PathParam(ge=1)],
+    backbone: BackboneId = "ae_z32",
+) -> Film:
+    if film_id not in state.id_to_row:
+        raise HTTPException(404, detail="film not found")
+    row_idx = state.id_to_row[film_id]
+    blob = await state.tmdb.get_enrichment(film_id) if state.tmdb else None
+    return _row_to_film(row_idx, backbone, with_tmdb_blob=blob)
+
+
+def _compute_cosines(film_id: int, backbone: str) -> np.ndarray:
+    row = state.id_to_row[film_id]
+    q = state.embeddings[backbone][row]
+    return state.embeddings[backbone] @ q
+
+
+@lru_cache(maxsize=50)
+def _compute_cosines_cached(film_id: int, backbone: str) -> tuple:
+    """lru_cache can't key ndarrays; wrap as tuple-of-one. Callers don't mutate."""
+    return (_compute_cosines(film_id, backbone),)
+
+
+def get_cosines(film_id: int, backbone: str) -> np.ndarray:
+    return _compute_cosines_cached(film_id, backbone)[0]
+
+
+@app.get("/api/films/{film_id}/similar", response_model=list[Neighbor])
+async def similar(
+    film_id: Annotated[int, PathParam(ge=1)],
+    backbone: BackboneId = "ae_z32",
+    limit: Annotated[int, Query(ge=1, le=50)] = 10,
+) -> list[Neighbor]:
+    if film_id not in state.id_to_row:
+        raise HTTPException(404, detail="film not found")
+    cosines = get_cosines(film_id, backbone)
+    self_row = state.id_to_row[film_id]
+    k = min(limit + 1, len(cosines) - 1)
+    top_idx = np.argpartition(-cosines, k)[: k + 1]
+    top_idx = top_idx[np.argsort(-cosines[top_idx])]
+    # Drop self, slice to limit
+    top_idx_filtered: list[int] = [int(i) for i in top_idx if i != self_row][:limit]
+
+    # Top-5 TMDb-enriched in parallel; rest left lazy
+    enrich_ids = [int(state.row_to_id[i]) for i in top_idx_filtered[:5]]
+    if state.tmdb:
+        blobs = await asyncio.gather(
+            *(state.tmdb.get_enrichment(fid) for fid in enrich_ids),
+            return_exceptions=False,
+        )
+    else:
+        blobs = [None] * len(enrich_ids)
+    blob_by_id = dict(zip(enrich_ids, blobs))
+
+    out: list[Neighbor] = []
+    for i in top_idx_filtered:
+        film_id_int = int(state.row_to_id[i])
+        film_payload = _row_to_film(i, backbone, with_tmdb_blob=blob_by_id.get(film_id_int))
+        out.append(Neighbor(**film_payload.model_dump(), cosine=float(cosines[i])))
+    return out
