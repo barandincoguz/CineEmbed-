@@ -208,7 +208,7 @@ def _decade_label(year: int) -> str:
 def _hash_hsl(film_id: int) -> str:
     """Deterministic posterColor fallback."""
     h = (film_id * 2654435761) % 360
-    return f"hsl({h}, 60%, 55%)"
+    return f"hsl({h}, 65%, 42%)"
 
 
 @app.get("/api/films/{film_id}", response_model=Film)

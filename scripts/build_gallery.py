@@ -35,7 +35,7 @@ BACKBONES = ["ae_z32", "ae_z64", "ae_z128"]
 
 def hash_hsl(film_id: int) -> str:
     h = (film_id * 2654435761) % 360
-    return f"hsl({h}, 60%, 55%)"
+    return f"hsl({h}, 65%, 42%)"
 
 
 def decade_label(year) -> str:

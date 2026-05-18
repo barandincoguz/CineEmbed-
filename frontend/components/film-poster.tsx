@@ -20,7 +20,7 @@ export function FilmPoster({ film, size = "md" }: { film: Film; size?: "sm" | "m
   }
   return (
     <div
-      className={`${dims} rounded-md flex items-center justify-center text-white text-xs font-medium text-center px-2`}
+      className={`${dims} rounded-md flex items-center justify-center text-white text-xs font-medium text-center px-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]`}
       style={{ background: film.posterColor }}
       role="img"
       aria-label={`${film.title} (no poster available)`}
