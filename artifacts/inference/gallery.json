@@ -31,12 +31,21 @@
           "time": "2010s",
           "place": "GB",
           "posterColor": "hsl(85, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
+          "posterUrl": "https://image.tmdb.org/t/p/w342/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg",
+          "tagline": "Your mind is the scene of the crime.",
           "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "plot": [
+            "mission",
+            "dreams",
+            "kidnapping",
+            "spy",
+            "allegory",
+            "intellectual",
+            "manipulation",
+            "heist"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -60,12 +69,23 @@
             "time": "2000s",
             "place": "GB",
             "posterColor": "hsl(275, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/cfT29Im5VDvjE0RpyKOSdCKZal7.jpg",
+            "tagline": "Welcome to a world without rules.",
+            "style": [
+              "neo-noir"
+            ],
+            "plot": [
+              "sadism",
+              "chaos",
+              "secret identity",
+              "crime fighter",
+              "superhero",
+              "anti hero",
+              "scarecrow",
+              "based on comic"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9911093711853027
           },
           {
@@ -89,12 +109,21 @@
             "time": "2010s",
             "place": "US",
             "posterColor": "hsl(66, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/hr0L2aueqlP2BYUblTTjmtn0hw4.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/c3OHQncTAnKFhdOTX7D3LTW6son.jpg",
+            "tagline": "The legend ends.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "airplane",
+              "fight",
+              "burglar",
+              "hostage",
+              "secret identity",
+              "crime fighter",
+              "superhero",
+              "villainess"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9815813302993774
           },
           {
@@ -117,12 +146,21 @@
             "time": "2010s",
             "place": "US",
             "posterColor": "hsl(104, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/8Td0kkocW6sD3uRpzwfMfkqMWhx.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/ihdFypo7MyfJvDSjK7Sbnsjhu8H.jpg",
+            "tagline": "Out here survival is everything.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "ship",
+              "africa",
+              "fisherman",
+              "hijacking",
+              "somalia",
+              "based on true story",
+              "poverty",
+              "pirate"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9628816843032837
           },
           {
@@ -147,12 +185,21 @@
             "time": "2010s",
             "place": "NL",
             "posterColor": "hsl(80, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/b4Oe15CGLL61Ped0RAS9JpqdmCt.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/ddIkmH3TpR6XSc47jj0BrGK5Rbz.jpg",
+            "tagline": "When 400,000 men couldn't get home, home came for them.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "army",
+              "beach",
+              "france",
+              "allies",
+              "raf (royal air force)",
+              "military officer",
+              "world war ii",
+              "evacuation"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9574687480926514
           },
           {
@@ -176,12 +223,21 @@
             "time": "2000s",
             "place": "DE",
             "posterColor": "hsl(223, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/15rMz5MRXFp7CP4VxhjYw4y0FUn.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/qiBILuWhv7ipF0pxiEqIJdkQzj8.jpg",
+            "tagline": "Remember everything. Forgive nothing.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "assassin",
+              "central intelligence agency (cia)",
+              "corruption",
+              "paris, france",
+              "based on novel or book",
+              "madrid, spain",
+              "espionage",
+              "prosecution"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9567030668258667
           }
         ]
@@ -209,12 +265,21 @@
           "time": "2010s",
           "place": "GB",
           "posterColor": "hsl(85, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
+          "posterUrl": "https://image.tmdb.org/t/p/w342/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg",
+          "tagline": "Your mind is the scene of the crime.",
           "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "plot": [
+            "mission",
+            "dreams",
+            "kidnapping",
+            "spy",
+            "allegory",
+            "intellectual",
+            "manipulation",
+            "heist"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -237,12 +302,21 @@
             "time": "2010s",
             "place": "CA",
             "posterColor": "hsl(256, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/2ssWTSVklAEc98frZUQhgtGHx7s.jpg",
+            "tagline": "Mankind was born on Earth. It was never meant to die here.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "rescue",
+              "future",
+              "spacecraft",
+              "race against time",
+              "artificial intelligence (a.i.)",
+              "nasa",
+              "time warp",
+              "dystopia"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.969092607498169
           },
           {
@@ -265,12 +339,21 @@
             "time": "2010s",
             "place": "US",
             "posterColor": "hsl(141, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/4ssDuvEDkSArWEdyBl2X5EHvYKU.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/kIBK5SKwgqIIuRKhhWrJn3XkbPq.jpg",
+            "tagline": "A new age has come.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "artificial intelligence (a.i.)",
+              "saving the world",
+              "superhero",
+              "based on comic",
+              "sequel",
+              "vision",
+              "robot",
+              "superhero team"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9655241370201111
           },
           {
@@ -293,12 +376,21 @@
             "time": "2010s",
             "place": "US",
             "posterColor": "hsl(68, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/RYMX2wcKCBAr24UyPD7xwmjaTn.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/9BBTo63ANSmhC4e6r62OJFuK2GL.jpg",
+            "tagline": "Some assembly required.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "new york city",
+              "superhero",
+              "shield",
+              "based on comic",
+              "alien invasion",
+              "superhero team",
+              "aftercreditsstinger",
+              "duringcreditsstinger"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9609421491622925
           },
           {
@@ -322,12 +414,21 @@
             "time": "2010s",
             "place": "US",
             "posterColor": "hsl(66, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/hr0L2aueqlP2BYUblTTjmtn0hw4.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/c3OHQncTAnKFhdOTX7D3LTW6son.jpg",
+            "tagline": "The legend ends.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "airplane",
+              "fight",
+              "burglar",
+              "hostage",
+              "secret identity",
+              "crime fighter",
+              "superhero",
+              "villainess"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9523729681968689
           },
           {
@@ -352,12 +453,21 @@
             "time": "2010s",
             "place": "NL",
             "posterColor": "hsl(80, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/b4Oe15CGLL61Ped0RAS9JpqdmCt.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/ddIkmH3TpR6XSc47jj0BrGK5Rbz.jpg",
+            "tagline": "When 400,000 men couldn't get home, home came for them.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "army",
+              "beach",
+              "france",
+              "allies",
+              "raf (royal air force)",
+              "military officer",
+              "world war ii",
+              "evacuation"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9506400227546692
           }
         ]
@@ -385,12 +495,21 @@
           "time": "2010s",
           "place": "GB",
           "posterColor": "hsl(85, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
+          "posterUrl": "https://image.tmdb.org/t/p/w342/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg",
+          "tagline": "Your mind is the scene of the crime.",
           "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "plot": [
+            "mission",
+            "dreams",
+            "kidnapping",
+            "spy",
+            "allegory",
+            "intellectual",
+            "manipulation",
+            "heist"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -415,12 +534,21 @@
             "time": "2010s",
             "place": "NL",
             "posterColor": "hsl(80, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/b4Oe15CGLL61Ped0RAS9JpqdmCt.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/ddIkmH3TpR6XSc47jj0BrGK5Rbz.jpg",
+            "tagline": "When 400,000 men couldn't get home, home came for them.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "army",
+              "beach",
+              "france",
+              "allies",
+              "raf (royal air force)",
+              "military officer",
+              "world war ii",
+              "evacuation"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9686420559883118
           },
           {
@@ -443,12 +571,21 @@
             "time": "2010s",
             "place": "US",
             "posterColor": "hsl(141, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/4ssDuvEDkSArWEdyBl2X5EHvYKU.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/kIBK5SKwgqIIuRKhhWrJn3XkbPq.jpg",
+            "tagline": "A new age has come.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "artificial intelligence (a.i.)",
+              "saving the world",
+              "superhero",
+              "based on comic",
+              "sequel",
+              "vision",
+              "robot",
+              "superhero team"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9642475843429565
           },
           {
@@ -472,12 +609,23 @@
             "time": "2000s",
             "place": "GB",
             "posterColor": "hsl(275, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/cfT29Im5VDvjE0RpyKOSdCKZal7.jpg",
+            "tagline": "Welcome to a world without rules.",
+            "style": [
+              "neo-noir"
+            ],
+            "plot": [
+              "sadism",
+              "chaos",
+              "secret identity",
+              "crime fighter",
+              "superhero",
+              "anti hero",
+              "scarecrow",
+              "based on comic"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9634292125701904
           },
           {
@@ -501,12 +649,21 @@
             "time": "2010s",
             "place": "US",
             "posterColor": "hsl(66, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/hr0L2aueqlP2BYUblTTjmtn0hw4.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/c3OHQncTAnKFhdOTX7D3LTW6son.jpg",
+            "tagline": "The legend ends.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "airplane",
+              "fight",
+              "burglar",
+              "hostage",
+              "secret identity",
+              "crime fighter",
+              "superhero",
+              "villainess"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9624461531639099
           },
           {
@@ -529,12 +686,21 @@
             "time": "2010s",
             "place": "US",
             "posterColor": "hsl(104, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/8Td0kkocW6sD3uRpzwfMfkqMWhx.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/ihdFypo7MyfJvDSjK7Sbnsjhu8H.jpg",
+            "tagline": "Out here survival is everything.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "ship",
+              "africa",
+              "fisherman",
+              "hijacking",
+              "somalia",
+              "based on true story",
+              "poverty",
+              "pirate"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9621762633323669
           }
         ]
@@ -563,12 +729,23 @@
           "time": "2000s",
           "place": "JP",
           "posterColor": "hsl(129, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
-          "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "posterUrl": "https://image.tmdb.org/t/p/w342/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/dyJvKsNs2KP8qQnAXbRwDjblViy.jpg",
+          "tagline": "Beyond the tunnel was a mysterious town.",
+          "style": [
+            "anime"
+          ],
+          "plot": [
+            "witch",
+            "parent child relationship",
+            "darkness",
+            "bath house",
+            "magic",
+            "spirit",
+            "parallel world",
+            "amusement park"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -591,12 +768,23 @@
             "time": "1990s",
             "place": "JP",
             "posterColor": "hsl(248, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/cMYCDADoLKLbB83g4WnJegaZimC.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/gl0jzn4BupSbL2qMVeqrjKkF9Js.jpg",
+            "tagline": "The fate of the world rests on the courage of one warrior.",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "friendship",
+              "human vs nature",
+              "wolf",
+              "fight",
+              "wild boar",
+              "territory",
+              "leprosy",
+              "feral child"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9933561086654663
           },
           {
@@ -619,12 +807,23 @@
             "time": "1990s",
             "place": "JP",
             "posterColor": "hsl(221, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/8mIvSvnVBApfORL9N6S38Q7wD6A.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/pFalq14lacs2oO7Q6YKiNqz5uAC.jpg",
+            "tagline": "Can a pig really fly?",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "beach",
+              "mediterranean",
+              "italy",
+              "fascism",
+              "transformation",
+              "singer",
+              "war hero",
+              "air pirate"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9874287843704224
           },
           {
@@ -647,12 +846,23 @@
             "time": "1980s",
             "place": "JP",
             "posterColor": "hsl(352, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/rtGDOeG9LzoerkDGZF9dnVeLppL.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/6O1mOoTXuc1WqjKd2R7MFQHZ7Eb.jpg",
+            "tagline": "He's your friendly neighbourhood forest spirit!",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "mother",
+              "sibling relationship",
+              "village",
+              "leave",
+              "rural area",
+              "hospital",
+              "new neighbor",
+              "new home"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9800611734390259
           },
           {
@@ -673,12 +883,22 @@
             "time": "2000s",
             "place": "JP",
             "posterColor": "hsl(194, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/yHy8TrRLnuBZ4t2C0l0pSpRXVHO.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/wSFAoevZuVBo4L9f8NgYSD1o9cQ.jpg",
+            "tagline": "Always protect your network.",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "card game",
+              "artificial intelligence (a.i.)",
+              "computer",
+              "hacker",
+              "virtual reality",
+              "family holiday",
+              "adult animation"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9785721302032471
           },
           {
@@ -702,12 +922,23 @@
             "time": "1980s",
             "place": "JP",
             "posterColor": "hsl(59, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/Aufa4YdZIv4AXpR9rznwVA5SEfd.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/h5pAEVma835u8xoE60kmLVopLct.jpg",
+            "tagline": "I was feeling blue, but I'm better now.",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "witch",
+              "clock tower",
+              "bicycle accident",
+              "female friendship",
+              "bakery",
+              "coming of age",
+              "based on children's book",
+              "cartoon cat"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9783883094787598
           }
         ]
@@ -734,12 +965,23 @@
           "time": "2000s",
           "place": "JP",
           "posterColor": "hsl(129, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
-          "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "posterUrl": "https://image.tmdb.org/t/p/w342/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/dyJvKsNs2KP8qQnAXbRwDjblViy.jpg",
+          "tagline": "Beyond the tunnel was a mysterious town.",
+          "style": [
+            "anime"
+          ],
+          "plot": [
+            "witch",
+            "parent child relationship",
+            "darkness",
+            "bath house",
+            "magic",
+            "spirit",
+            "parallel world",
+            "amusement park"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -762,12 +1004,23 @@
             "time": "1990s",
             "place": "JP",
             "posterColor": "hsl(248, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/cMYCDADoLKLbB83g4WnJegaZimC.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/gl0jzn4BupSbL2qMVeqrjKkF9Js.jpg",
+            "tagline": "The fate of the world rests on the courage of one warrior.",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "friendship",
+              "human vs nature",
+              "wolf",
+              "fight",
+              "wild boar",
+              "territory",
+              "leprosy",
+              "feral child"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9819537401199341
           },
           {
@@ -790,12 +1043,23 @@
             "time": "1980s",
             "place": "JP",
             "posterColor": "hsl(81, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/tcrkfB8SRPQCgwI88hQScua6nxh.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/ulVUa2MvnJAjAeRt7h23FFJVRKH.jpg",
+            "tagline": "A young girl's love called forth miracles…",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "future",
+              "airplane",
+              "saving the world",
+              "human vs nature",
+              "fungus spores   ",
+              "post-apocalyptic future",
+              "giant insect",
+              "toxic"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9676857590675354
           },
           {
@@ -818,12 +1082,19 @@
             "time": "1990s",
             "place": "JP",
             "posterColor": "hsl(43, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/zat2MMhejQyJJN6CucLI9Or9kdo.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/AouRp7KcIOVmsSuZlTXKqT4aYT2.jpg",
+            "tagline": "A Fantastic Tale Of Survival",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "animals",
+              "environment",
+              "japanese mythology",
+              "critical"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9626134634017944
           },
           {
@@ -846,12 +1117,21 @@
             "time": "2000s",
             "place": "JP",
             "posterColor": "hsl(56, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/aLGKAQKgzWpJ6egyWzzC11jXBRJ.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/gtYmm8HeM6CneomZ98flixAGsBe.jpg",
+            "tagline": "Could you kill your best friend?",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "high school",
+              "friendship",
+              "suicide",
+              "island",
+              "japan",
+              "based on novel or book",
+              "asia",
+              "dystopia"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9617228507995605
           },
           {
@@ -875,12 +1155,23 @@
             "time": "1980s",
             "place": "JP",
             "posterColor": "hsl(59, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/Aufa4YdZIv4AXpR9rznwVA5SEfd.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/h5pAEVma835u8xoE60kmLVopLct.jpg",
+            "tagline": "I was feeling blue, but I'm better now.",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "witch",
+              "clock tower",
+              "bicycle accident",
+              "female friendship",
+              "bakery",
+              "coming of age",
+              "based on children's book",
+              "cartoon cat"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9580549001693726
           }
         ]
@@ -907,12 +1198,23 @@
           "time": "2000s",
           "place": "JP",
           "posterColor": "hsl(129, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
-          "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "posterUrl": "https://image.tmdb.org/t/p/w342/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/dyJvKsNs2KP8qQnAXbRwDjblViy.jpg",
+          "tagline": "Beyond the tunnel was a mysterious town.",
+          "style": [
+            "anime"
+          ],
+          "plot": [
+            "witch",
+            "parent child relationship",
+            "darkness",
+            "bath house",
+            "magic",
+            "spirit",
+            "parallel world",
+            "amusement park"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -935,12 +1237,23 @@
             "time": "1990s",
             "place": "JP",
             "posterColor": "hsl(248, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/cMYCDADoLKLbB83g4WnJegaZimC.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/gl0jzn4BupSbL2qMVeqrjKkF9Js.jpg",
+            "tagline": "The fate of the world rests on the courage of one warrior.",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "friendship",
+              "human vs nature",
+              "wolf",
+              "fight",
+              "wild boar",
+              "territory",
+              "leprosy",
+              "feral child"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9880555868148804
           },
           {
@@ -963,12 +1276,23 @@
             "time": "1990s",
             "place": "JP",
             "posterColor": "hsl(221, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/8mIvSvnVBApfORL9N6S38Q7wD6A.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/pFalq14lacs2oO7Q6YKiNqz5uAC.jpg",
+            "tagline": "Can a pig really fly?",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "beach",
+              "mediterranean",
+              "italy",
+              "fascism",
+              "transformation",
+              "singer",
+              "war hero",
+              "air pirate"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.977299690246582
           },
           {
@@ -991,12 +1315,23 @@
             "time": "1980s",
             "place": "JP",
             "posterColor": "hsl(352, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/rtGDOeG9LzoerkDGZF9dnVeLppL.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/6O1mOoTXuc1WqjKd2R7MFQHZ7Eb.jpg",
+            "tagline": "He's your friendly neighbourhood forest spirit!",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "mother",
+              "sibling relationship",
+              "village",
+              "leave",
+              "rural area",
+              "hospital",
+              "new neighbor",
+              "new home"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9754511713981628
           },
           {
@@ -1017,12 +1352,22 @@
             "time": "2000s",
             "place": "JP",
             "posterColor": "hsl(194, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/yHy8TrRLnuBZ4t2C0l0pSpRXVHO.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/wSFAoevZuVBo4L9f8NgYSD1o9cQ.jpg",
+            "tagline": "Always protect your network.",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "card game",
+              "artificial intelligence (a.i.)",
+              "computer",
+              "hacker",
+              "virtual reality",
+              "family holiday",
+              "adult animation"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9732431173324585
           },
           {
@@ -1046,12 +1391,23 @@
             "time": "2010s",
             "place": "JP",
             "posterColor": "hsl(20, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/3Nllh6JgcrFdtOn6iFOWHudNInd.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/oMqgJMCaNIqeJtilc71D4nRqdmt.jpg",
+            "tagline": "One mother, two worlds, endless sacrifice...",
+            "style": [
+              "anime"
+            ],
+            "plot": [
+              "wolf",
+              "forest",
+              "death of father",
+              "growing up",
+              "rural area",
+              "werewolf",
+              "single mother",
+              "adult animation"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9714540243148804
           }
         ]
@@ -1078,12 +1434,21 @@
           "time": "1990s",
           "place": "US",
           "posterColor": "hsl(38, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
+          "posterUrl": "https://image.tmdb.org/t/p/w342/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg",
+          "tagline": "Fear can hold you prisoner. Hope can set you free.",
           "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "plot": [
+            "prison",
+            "friendship",
+            "police brutality",
+            "corruption",
+            "based on novel or book",
+            "freedom",
+            "hope",
+            "prison cell"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -1105,12 +1470,21 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(50, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/v4ox4aSCNT5vyLXl4Q71JiWwCXW.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/zcuF8dkH9rgHyigLRf9lkFsWVQp.jpg",
+            "tagline": "Once upon a time in South Central L.A... It ain't no fairy tale.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "street gang",
+              "gangster",
+              "rapper",
+              "ghetto",
+              "street war",
+              "violence in schools",
+              "coming of age",
+              "social commentary"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9904147982597351
           },
           {
@@ -1132,12 +1506,21 @@
             "time": "1960s",
             "place": "US",
             "posterColor": "hsl(183, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/4ykzTiHKLamh3eZJ8orVICtU2Jp.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/9TDi0FPOSAePfVLZXAUgFZhiMLf.jpg",
+            "tagline": "The man... and the motion picture that simply do not conform.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "prison",
+              "dying and death",
+              "florida",
+              "based on novel or book",
+              "escape",
+              "loss of loved one",
+              "rebel",
+              "harassment"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9837258458137512
           },
           {
@@ -1159,12 +1542,21 @@
             "time": "2000s",
             "place": "US",
             "posterColor": "hsl(293, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/yYZFVfk8aeMP4GxBSU9MTvqs9mJ.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/v3ClsT59peXyGJ4XuDvIQAPwcZy.jpg",
+            "tagline": "based on a true story",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "drug smuggling",
+              "war on drugs",
+              "drug trafficking",
+              "1970s",
+              "drug addiction",
+              "rise and fall",
+              "cautionary",
+              "factual"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9833019971847534
           },
           {
@@ -1186,12 +1578,21 @@
             "time": "1970s",
             "place": "US",
             "posterColor": "hsl(287, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/mIzGfVCSWmmYjLIIbA2BX3rlV56.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/f4dcx5U9X3w27e8iithmsaohF5t.jpg",
+            "tagline": "Walk into the incredible true experience of Billy Hayes. And bring all the courage you can.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "prison",
+              "airport",
+              "drug smuggling",
+              "escape",
+              "court",
+              "1970s",
+              "attempt to escape",
+              "based on true story"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9816889762878418
           },
           {
@@ -1213,12 +1614,21 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(274, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/AhvO1GGDPIgN0hOqZEgaFCbswMK.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/oDdRrwTCgaDzAshScrFO09qWqPB.jpg",
+            "tagline": "The true story of the death of innocence and the birth of an artist.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "new york city",
+              "sports",
+              "heroin",
+              "addiction",
+              "basketball",
+              "friends",
+              "based on memoir or autobiography",
+              "drugs"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9802589416503906
           }
         ]
@@ -1243,12 +1653,21 @@
           "time": "1990s",
           "place": "US",
           "posterColor": "hsl(38, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
+          "posterUrl": "https://image.tmdb.org/t/p/w342/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg",
+          "tagline": "Fear can hold you prisoner. Hope can set you free.",
           "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "plot": [
+            "prison",
+            "friendship",
+            "police brutality",
+            "corruption",
+            "based on novel or book",
+            "freedom",
+            "hope",
+            "prison cell"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -1271,12 +1690,25 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(154, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/uS9m8OBk1A8eM9I042bx8XXpqAq.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/aYcnDyLMnpKce1FOYUpZrXtgUye.jpg",
+            "tagline": "To enter the mind of a killer she must challenge the mind of a madman.",
+            "style": [
+              "psychological thriller",
+              "neo-noir",
+              "psychological horror"
+            ],
+            "plot": [
+              "prison",
+              "based on novel or book",
+              "kidnapping",
+              "psychopath",
+              "fbi",
+              "scientific study",
+              "murder",
+              "serial killer"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9872654676437378
           },
           {
@@ -1299,12 +1731,23 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(29, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/99X2SgyFunJFXGAYnDv3sb9pnUD.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/hy0Hx9fMPk2fmw26Li60z1S2giU.jpg",
+            "tagline": "Five criminals. One line up. No coincidence.",
+            "style": [
+              "neo-noir"
+            ],
+            "plot": [
+              "new york city",
+              "robbery",
+              "relatives",
+              "heist",
+              "flashback",
+              "police corruption",
+              "whodunit",
+              "los angeles, california"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9861107468605042
           },
           {
@@ -1325,12 +1768,21 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(313, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/x2drgoXYZ8484lqyDj7L1CEVR4T.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/6qHI1IYj7QlLSCwHRzkL62X175s.jpg",
+            "tagline": "Some legacies must end.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "prison",
+              "neo-nazism",
+              "rape",
+              "skinhead",
+              "sibling relationship",
+              "swastika",
+              "nazi",
+              "brother"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9860029816627502
           },
           {
@@ -1352,12 +1804,21 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(50, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/v4ox4aSCNT5vyLXl4Q71JiWwCXW.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/zcuF8dkH9rgHyigLRf9lkFsWVQp.jpg",
+            "tagline": "Once upon a time in South Central L.A... It ain't no fairy tale.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "street gang",
+              "gangster",
+              "rapper",
+              "ghetto",
+              "street war",
+              "violence in schools",
+              "coming of age",
+              "social commentary"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.98444002866745
           },
           {
@@ -1379,12 +1840,21 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(260, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/xi8Iu6qyTfyZVDVy60raIOYJJmk.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/jwt159hXWA9Q5xpBo8hWb3zwLi7.jpg",
+            "tagline": "Every dog has his day.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "escape",
+              "jewelry",
+              "psychopath",
+              "traitor",
+              "ear",
+              "heist",
+              "thief",
+              "betrayal"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9839439392089844
           }
         ]
@@ -1409,12 +1879,21 @@
           "time": "1990s",
           "place": "US",
           "posterColor": "hsl(38, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
+          "posterUrl": "https://image.tmdb.org/t/p/w342/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/zfbjgQE1uSd9wiPTX4VzsLi0rGG.jpg",
+          "tagline": "Fear can hold you prisoner. Hope can set you free.",
           "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "plot": [
+            "prison",
+            "friendship",
+            "police brutality",
+            "corruption",
+            "based on novel or book",
+            "freedom",
+            "hope",
+            "prison cell"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -1435,12 +1914,21 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(313, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/x2drgoXYZ8484lqyDj7L1CEVR4T.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/6qHI1IYj7QlLSCwHRzkL62X175s.jpg",
+            "tagline": "Some legacies must end.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "prison",
+              "neo-nazism",
+              "rape",
+              "skinhead",
+              "sibling relationship",
+              "swastika",
+              "nazi",
+              "brother"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9864296913146973
           },
           {
@@ -1462,12 +1950,21 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(50, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/v4ox4aSCNT5vyLXl4Q71JiWwCXW.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/zcuF8dkH9rgHyigLRf9lkFsWVQp.jpg",
+            "tagline": "Once upon a time in South Central L.A... It ain't no fairy tale.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "street gang",
+              "gangster",
+              "rapper",
+              "ghetto",
+              "street war",
+              "violence in schools",
+              "coming of age",
+              "social commentary"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9840344190597534
           },
           {
@@ -1489,12 +1986,21 @@
             "time": "1960s",
             "place": "US",
             "posterColor": "hsl(183, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/4ykzTiHKLamh3eZJ8orVICtU2Jp.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/9TDi0FPOSAePfVLZXAUgFZhiMLf.jpg",
+            "tagline": "The man... and the motion picture that simply do not conform.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "prison",
+              "dying and death",
+              "florida",
+              "based on novel or book",
+              "escape",
+              "loss of loved one",
+              "rebel",
+              "harassment"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.98226398229599
           },
           {
@@ -1517,12 +2023,21 @@
             "time": "1980s",
             "place": "GB",
             "posterColor": "hsl(145, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/cX6Bv7natnZwQjsV9bLL8mmWjkS.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/c7OeJd34rc9bI1DXqd4ucb1wVrf.jpg",
+            "tagline": "Here, only the silent survive.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "journalist",
+              "vietnam",
+              "cambodia",
+              "civil war",
+              "based on novel or book",
+              "photographer",
+              "mass murder",
+              "1970s"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9822260141372681
           },
           {
@@ -1544,12 +2059,21 @@
             "time": "2000s",
             "place": "US",
             "posterColor": "hsl(293, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/yYZFVfk8aeMP4GxBSU9MTvqs9mJ.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/v3ClsT59peXyGJ4XuDvIQAPwcZy.jpg",
+            "tagline": "based on a true story",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "drug smuggling",
+              "war on drugs",
+              "drug trafficking",
+              "1970s",
+              "drug addiction",
+              "rise and fall",
+              "cautionary",
+              "factual"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9803072810173035
           }
         ]
@@ -1576,12 +2100,24 @@
           "time": "1990s",
           "place": "US",
           "posterColor": "hsl(80, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
-          "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "posterUrl": "https://image.tmdb.org/t/p/w342/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/suaEOtk1N1sgg2MTM7oZd2cfVp3.jpg",
+          "tagline": "You won’t know the facts until you’ve seen the fiction.",
+          "style": [
+            "dark comedy",
+            "neo-noir"
+          ],
+          "plot": [
+            "drug dealer",
+            "drug crime",
+            "stolen money",
+            "crime boss",
+            "redemption",
+            "los angeles, california",
+            "theft",
+            "nonlinear timeline"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -1604,12 +2140,24 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(35, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/rt7cpEr1uP6RTZykBFhBTcRaKvG.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/747dgDfL5d8esobk7h4odaOFhUq.jpg",
+            "tagline": "A homespun murder story.",
+            "style": [
+              "dark comedy",
+              "neo-noir"
+            ],
+            "plot": [
+              "salesclerk",
+              "unsociability",
+              "police",
+              "cheating",
+              "ransom",
+              "winter",
+              "kidnapping",
+              "minnesota"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9412819147109985
           },
           {
@@ -1632,12 +2180,21 @@
             "time": "2000s",
             "place": "DE",
             "posterColor": "hsl(340, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/jbccmnqE4oAPI67bApgt2JiRPz8.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/nkMgY1XFLWr91najzfvwie8LyYF.jpg",
+            "tagline": "No one gets away clean",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "drug dealer",
+              "daughter",
+              "mother",
+              "drug abuse",
+              "drug smuggling",
+              "smuggling (contraband)",
+              "war on drugs",
+              "drug trafficking"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9158706665039062
           },
           {
@@ -1660,12 +2217,21 @@
             "time": "2000s",
             "place": "US",
             "posterColor": "hsl(33, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/2yhg0mZQMhDyvUQ4rG1IZ4oIA8L.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/pgG6tzJzC8mjGqhaT8IWwEk00xf.jpg",
+            "tagline": "The bride is back for the final cut.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "daughter",
+              "martial arts",
+              "kung fu",
+              "showdown",
+              "right and justice",
+              "rage and hate",
+              "sibling relationship",
+              "swordplay"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.8928201198577881
           },
           {
@@ -1688,12 +2254,24 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(38, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/fdTtij6H0sX9AzIjUeynh5zbfm7.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/hGnJhGSeyWlerHcLNnD06sbX5wU.jpg",
+            "tagline": "A lost road on the edge of strange...",
+            "style": [
+              "surrealism",
+              "psychological thriller"
+            ],
+            "plot": [
+              "prison",
+              "pornography",
+              "jealousy",
+              "dreams",
+              "dual identity",
+              "nightmare",
+              "police",
+              "sexual frustration"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.8917987942695618
           },
           {
@@ -1716,12 +2294,24 @@
             "time": "1950s",
             "place": "FR",
             "posterColor": "hsl(253, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/jgeZS97po2luaeElfUh07VAbVfV.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/r8fEOeDjlbtvaxYZ3QDh21gzpKh.jpg",
+            "tagline": "Frantic for life and love, frantic for excitement.",
+            "style": [
+              "film noir",
+              "black and white"
+            ],
+            "plot": [
+              "secret love",
+              "paris, france",
+              "car race",
+              "suicide attempt",
+              "arms deal",
+              "photography",
+              "camera",
+              "suspicion of murder"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.8887618780136108
           }
         ]
@@ -1746,12 +2336,24 @@
           "time": "1990s",
           "place": "US",
           "posterColor": "hsl(80, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
-          "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "posterUrl": "https://image.tmdb.org/t/p/w342/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/suaEOtk1N1sgg2MTM7oZd2cfVp3.jpg",
+          "tagline": "You won’t know the facts until you’ve seen the fiction.",
+          "style": [
+            "dark comedy",
+            "neo-noir"
+          ],
+          "plot": [
+            "drug dealer",
+            "drug crime",
+            "stolen money",
+            "crime boss",
+            "redemption",
+            "los angeles, california",
+            "theft",
+            "nonlinear timeline"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -1773,12 +2375,23 @@
             "time": "1990s",
             "place": "GB",
             "posterColor": "hsl(50, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/oDkp5iClJ9WKJGtKHz8BydodHC3.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/3VTY3ZaP5UDLgfI1z2HJHEgesnA.jpg",
+            "tagline": "There's only one thing stranger than what's going on inside his head... What's going on outside.",
+            "style": [
+              "neo-noir"
+            ],
+            "plot": [
+              "hotel",
+              "screenplay",
+              "mass murder",
+              "movie business",
+              "screenwriter",
+              "neighbor",
+              "los angeles, california",
+              "1940s"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9609776735305786
           },
           {
@@ -1799,12 +2412,23 @@
             "time": "1980s",
             "place": "US",
             "posterColor": "hsl(138, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/1WV7WlTS8LI1L5NkCgjWT9GSW3O.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/tvNuhRlpRozDgsX1zR9gQ2aHv1X.jpg",
+            "tagline": "I don’t go down for nobody.",
+            "style": [
+              "black and white"
+            ],
+            "plot": [
+              "florida",
+              "new york city",
+              "jealousy",
+              "transporter",
+              "sports",
+              "brother",
+              "paranoia",
+              "violent husband"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9487870335578918
           },
           {
@@ -1825,12 +2449,21 @@
             "time": "2000s",
             "place": "BE",
             "posterColor": "hsl(329, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/acEtvzFPeOQwbzRWncjRLenhnKV.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/ejpLiTuMGBtmaLqvy97GOp6YUrU.jpg",
+            "tagline": "At what moment do we begin to live?",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "hotel room",
+              "rape",
+              "sexual abuse",
+              "bureaucracy",
+              "totalitarian regime",
+              "cohabitant",
+              "female friendship",
+              "dormitory"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9482939839363098
           },
           {
@@ -1852,12 +2485,23 @@
             "time": "1970s",
             "place": "US",
             "posterColor": "hsl(343, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/ekstpH614fwDX8DUln1a2Opz0N8.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/9uddYYTNcLWpzUkl5iw1RUYhLhY.jpg",
+            "tagline": "On every street in every city in this country, there's a nobody who dreams of being somebody. He's a lonely forgotten man desperate to prove that he's alive.",
+            "style": [
+              "neo-noir"
+            ],
+            "plot": [
+              "drug dealer",
+              "vietnam veteran",
+              "new york city",
+              "taxi",
+              "pornography",
+              "obsession",
+              "taxi driver",
+              "1970s"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9435064792633057
           },
           {
@@ -1878,12 +2522,21 @@
             "time": "1980s",
             "place": "US",
             "posterColor": "hsl(92, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/pj1uKm07svgXZDHbYE8AzRfNHcu.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/wD95UmpUazo9820qnbbjRtbQ884.jpg",
+            "tagline": "the husband. the wife. her sister. his friend.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "sexual obsession",
+              "sexuality",
+              "orgasm",
+              "spanner",
+              "louisiana",
+              "longing",
+              "interview",
+              "love affair"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9258149266242981
           }
         ]
@@ -1908,12 +2561,24 @@
           "time": "1990s",
           "place": "US",
           "posterColor": "hsl(80, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
-          "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "posterUrl": "https://image.tmdb.org/t/p/w342/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/suaEOtk1N1sgg2MTM7oZd2cfVp3.jpg",
+          "tagline": "You won’t know the facts until you’ve seen the fiction.",
+          "style": [
+            "dark comedy",
+            "neo-noir"
+          ],
+          "plot": [
+            "drug dealer",
+            "drug crime",
+            "stolen money",
+            "crime boss",
+            "redemption",
+            "los angeles, california",
+            "theft",
+            "nonlinear timeline"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -1935,12 +2600,23 @@
             "time": "1970s",
             "place": "US",
             "posterColor": "hsl(343, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/ekstpH614fwDX8DUln1a2Opz0N8.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/9uddYYTNcLWpzUkl5iw1RUYhLhY.jpg",
+            "tagline": "On every street in every city in this country, there's a nobody who dreams of being somebody. He's a lonely forgotten man desperate to prove that he's alive.",
+            "style": [
+              "neo-noir"
+            ],
+            "plot": [
+              "drug dealer",
+              "vietnam veteran",
+              "new york city",
+              "taxi",
+              "pornography",
+              "obsession",
+              "taxi driver",
+              "1970s"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9284831881523132
           },
           {
@@ -1963,12 +2639,24 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(35, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/rt7cpEr1uP6RTZykBFhBTcRaKvG.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/747dgDfL5d8esobk7h4odaOFhUq.jpg",
+            "tagline": "A homespun murder story.",
+            "style": [
+              "dark comedy",
+              "neo-noir"
+            ],
+            "plot": [
+              "salesclerk",
+              "unsociability",
+              "police",
+              "cheating",
+              "ransom",
+              "winter",
+              "kidnapping",
+              "minnesota"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.928148627281189
           },
           {
@@ -1989,12 +2677,21 @@
             "time": "2000s",
             "place": "BE",
             "posterColor": "hsl(329, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/acEtvzFPeOQwbzRWncjRLenhnKV.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/ejpLiTuMGBtmaLqvy97GOp6YUrU.jpg",
+            "tagline": "At what moment do we begin to live?",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "hotel room",
+              "rape",
+              "sexual abuse",
+              "bureaucracy",
+              "totalitarian regime",
+              "cohabitant",
+              "female friendship",
+              "dormitory"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9104166626930237
           },
           {
@@ -2015,12 +2712,23 @@
             "time": "1980s",
             "place": "US",
             "posterColor": "hsl(138, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/1WV7WlTS8LI1L5NkCgjWT9GSW3O.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/tvNuhRlpRozDgsX1zR9gQ2aHv1X.jpg",
+            "tagline": "I don’t go down for nobody.",
+            "style": [
+              "black and white"
+            ],
+            "plot": [
+              "florida",
+              "new york city",
+              "jealousy",
+              "transporter",
+              "sports",
+              "brother",
+              "paranoia",
+              "violent husband"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9081568121910095
           },
           {
@@ -2042,12 +2750,23 @@
             "time": "1990s",
             "place": "GB",
             "posterColor": "hsl(50, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/oDkp5iClJ9WKJGtKHz8BydodHC3.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/3VTY3ZaP5UDLgfI1z2HJHEgesnA.jpg",
+            "tagline": "There's only one thing stranger than what's going on inside his head... What's going on outside.",
+            "style": [
+              "neo-noir"
+            ],
+            "plot": [
+              "hotel",
+              "screenplay",
+              "mass murder",
+              "movie business",
+              "screenwriter",
+              "neighbor",
+              "los angeles, california",
+              "1940s"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9050073623657227
           }
         ]
@@ -2075,12 +2794,21 @@
           "time": "1990s",
           "place": "US",
           "posterColor": "hsl(22, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
+          "posterUrl": "https://image.tmdb.org/t/p/w342/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/3Rfvhy1Nl6sSGJwyjb0QiZzZYlB.jpg",
+          "tagline": "The adventure takes off when toys come to life!",
           "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "plot": [
+            "rescue",
+            "friendship",
+            "mission",
+            "jealousy",
+            "villain",
+            "bullying",
+            "elementary school",
+            "rivalry"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -2103,12 +2831,21 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(263, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/4rbcp3ng8n1MKHjpeqW0L7Fnpzz.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/7iUDfakacY1HpajP1DtHrCuDB95.jpg",
+            "tagline": "The toys are back in town!",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "friendship",
+              "airplane",
+              "museum",
+              "prosecution",
+              "identity crisis",
+              "villain",
+              "flea market",
+              "collector"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.980739176273346
           },
           {
@@ -2132,12 +2869,21 @@
             "time": "2000s",
             "place": "US",
             "posterColor": "hsl(142, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/t3vaWRPSf6WjDSamIkKDs1iQWna.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/xgDj56UWyeWQcxQ44f5A3RTWuSs.jpg",
+            "tagline": "He's dying to become a chef.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "work",
+              "sibling relationship",
+              "paris, france",
+              "expensive restaurant",
+              "river",
+              "confidence",
+              "cooking",
+              "evacuation"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9805177450180054
           },
           {
@@ -2159,12 +2905,21 @@
             "time": "2000s",
             "place": "US",
             "posterColor": "hsl(121, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/hbhFnRzzg6ZDmm8YAmxBnQpQIPh.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/nYs4ZwnJBK4AgljhvzwNz7fpr3E.jpg",
+            "tagline": "After 700 years of doing what he was built for, he'll discover what he was meant for.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "garbage",
+              "dystopia",
+              "space travel",
+              "distant future",
+              "loneliness",
+              "robot",
+              "aftercreditsstinger",
+              "duringcreditsstinger"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9749256372451782
           },
           {
@@ -2187,12 +2942,25 @@
             "time": "1990s",
             "place": "GB",
             "posterColor": "hsl(171, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/mV8SDTjkxrDxu0a0egvFz1lRPU7.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/9AbessEz2YKjmPtYKATDeYRW3Px.jpg",
             "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "style": [
+              "surrealism",
+              "stop motion",
+              "claymation"
+            ],
+            "plot": [
+              "robbery",
+              "inventor",
+              "diamond",
+              "human animal relationship",
+              "penguin",
+              "telecontrol",
+              "villain",
+              "anthropomorphism"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9672614336013794
           },
           {
@@ -2214,12 +2982,24 @@
             "time": "1980s",
             "place": "US",
             "posterColor": "hsl(237, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/kNbaxEsnCyWBTfANVPHayujBsxp.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/5j77rB8NRa7lXuu1Sgmm6wfgrzZ.jpg",
+            "tagline": "May the schwartz be with you.",
+            "style": [
+              "satire",
+              "parody"
+            ],
+            "plot": [
+              "galaxy",
+              "android",
+              "space marine",
+              "laser gun",
+              "temple",
+              "swordplay",
+              "space battle",
+              "space travel"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9668878316879272
           }
         ]
@@ -2245,12 +3025,21 @@
           "time": "1990s",
           "place": "US",
           "posterColor": "hsl(22, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
+          "posterUrl": "https://image.tmdb.org/t/p/w342/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/3Rfvhy1Nl6sSGJwyjb0QiZzZYlB.jpg",
+          "tagline": "The adventure takes off when toys come to life!",
           "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "plot": [
+            "rescue",
+            "friendship",
+            "mission",
+            "jealousy",
+            "villain",
+            "bullying",
+            "elementary school",
+            "rivalry"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -2273,12 +3062,21 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(263, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/4rbcp3ng8n1MKHjpeqW0L7Fnpzz.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/7iUDfakacY1HpajP1DtHrCuDB95.jpg",
+            "tagline": "The toys are back in town!",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "friendship",
+              "airplane",
+              "museum",
+              "prosecution",
+              "identity crisis",
+              "villain",
+              "flea market",
+              "collector"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.985792338848114
           },
           {
@@ -2300,12 +3098,21 @@
             "time": "2000s",
             "place": "US",
             "posterColor": "hsl(121, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/hbhFnRzzg6ZDmm8YAmxBnQpQIPh.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/nYs4ZwnJBK4AgljhvzwNz7fpr3E.jpg",
+            "tagline": "After 700 years of doing what he was built for, he'll discover what he was meant for.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "garbage",
+              "dystopia",
+              "space travel",
+              "distant future",
+              "loneliness",
+              "robot",
+              "aftercreditsstinger",
+              "duringcreditsstinger"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9779961109161377
           },
           {
@@ -2329,12 +3136,21 @@
             "time": "2000s",
             "place": "US",
             "posterColor": "hsl(142, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/t3vaWRPSf6WjDSamIkKDs1iQWna.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/xgDj56UWyeWQcxQ44f5A3RTWuSs.jpg",
+            "tagline": "He's dying to become a chef.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "work",
+              "sibling relationship",
+              "paris, france",
+              "expensive restaurant",
+              "river",
+              "confidence",
+              "cooking",
+              "evacuation"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.974452793598175
           },
           {
@@ -2356,12 +3172,24 @@
             "time": "1980s",
             "place": "US",
             "posterColor": "hsl(237, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/kNbaxEsnCyWBTfANVPHayujBsxp.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/5j77rB8NRa7lXuu1Sgmm6wfgrzZ.jpg",
+            "tagline": "May the schwartz be with you.",
+            "style": [
+              "satire",
+              "parody"
+            ],
+            "plot": [
+              "galaxy",
+              "android",
+              "space marine",
+              "laser gun",
+              "temple",
+              "swordplay",
+              "space battle",
+              "space travel"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9563207626342773
           },
           {
@@ -2384,12 +3212,23 @@
             "time": "2000s",
             "place": "AU",
             "posterColor": "hsl(358, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/ebmsM382m9IClLUzKYY2U5biFwM.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/8UxYHvKBNFnoyfHjgjMwzj4zOuy.jpg",
+            "tagline": "Sometimes perfect strangers make the best of friends.",
+            "style": [
+              "stop motion"
+            ],
+            "plot": [
+              "australia",
+              "chocolate",
+              "approach",
+              "letter",
+              "birthmark",
+              "only child",
+              "bullying",
+              "friendship bracelet"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9555639028549194
           }
         ]
@@ -2415,12 +3254,21 @@
           "time": "1990s",
           "place": "US",
           "posterColor": "hsl(22, 65%, 42%)",
-          "posterUrl": null,
-          "backdropUrl": null,
-          "tagline": null,
+          "posterUrl": "https://image.tmdb.org/t/p/w342/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+          "backdropUrl": "https://image.tmdb.org/t/p/w1280/3Rfvhy1Nl6sSGJwyjb0QiZzZYlB.jpg",
+          "tagline": "The adventure takes off when toys come to life!",
           "style": [],
-          "plot": [],
-          "tmdbStatus": "missing"
+          "plot": [
+            "rescue",
+            "friendship",
+            "mission",
+            "jealousy",
+            "villain",
+            "bullying",
+            "elementary school",
+            "rivalry"
+          ],
+          "tmdbStatus": "ok"
         },
         "neighbors": [
           {
@@ -2443,12 +3291,25 @@
             "time": "1990s",
             "place": "GB",
             "posterColor": "hsl(171, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/mV8SDTjkxrDxu0a0egvFz1lRPU7.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/9AbessEz2YKjmPtYKATDeYRW3Px.jpg",
             "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "style": [
+              "surrealism",
+              "stop motion",
+              "claymation"
+            ],
+            "plot": [
+              "robbery",
+              "inventor",
+              "diamond",
+              "human animal relationship",
+              "penguin",
+              "telecontrol",
+              "villain",
+              "anthropomorphism"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9916481971740723
           },
           {
@@ -2471,12 +3332,21 @@
             "time": "1990s",
             "place": "US",
             "posterColor": "hsl(263, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/4rbcp3ng8n1MKHjpeqW0L7Fnpzz.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/7iUDfakacY1HpajP1DtHrCuDB95.jpg",
+            "tagline": "The toys are back in town!",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "friendship",
+              "airplane",
+              "museum",
+              "prosecution",
+              "identity crisis",
+              "villain",
+              "flea market",
+              "collector"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9878078103065491
           },
           {
@@ -2500,12 +3370,21 @@
             "time": "2000s",
             "place": "US",
             "posterColor": "hsl(142, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/t3vaWRPSf6WjDSamIkKDs1iQWna.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/xgDj56UWyeWQcxQ44f5A3RTWuSs.jpg",
+            "tagline": "He's dying to become a chef.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "work",
+              "sibling relationship",
+              "paris, france",
+              "expensive restaurant",
+              "river",
+              "confidence",
+              "cooking",
+              "evacuation"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9822983741760254
           },
           {
@@ -2527,12 +3406,21 @@
             "time": "2000s",
             "place": "US",
             "posterColor": "hsl(121, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
+            "posterUrl": "https://image.tmdb.org/t/p/w342/hbhFnRzzg6ZDmm8YAmxBnQpQIPh.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/nYs4ZwnJBK4AgljhvzwNz7fpr3E.jpg",
+            "tagline": "After 700 years of doing what he was built for, he'll discover what he was meant for.",
             "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "plot": [
+              "garbage",
+              "dystopia",
+              "space travel",
+              "distant future",
+              "loneliness",
+              "robot",
+              "aftercreditsstinger",
+              "duringcreditsstinger"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9814716577529907
           },
           {
@@ -2554,12 +3442,24 @@
             "time": "1980s",
             "place": "US",
             "posterColor": "hsl(237, 65%, 42%)",
-            "posterUrl": null,
-            "backdropUrl": null,
-            "tagline": null,
-            "style": [],
-            "plot": [],
-            "tmdbStatus": "missing",
+            "posterUrl": "https://image.tmdb.org/t/p/w342/kNbaxEsnCyWBTfANVPHayujBsxp.jpg",
+            "backdropUrl": "https://image.tmdb.org/t/p/w1280/5j77rB8NRa7lXuu1Sgmm6wfgrzZ.jpg",
+            "tagline": "May the schwartz be with you.",
+            "style": [
+              "satire",
+              "parody"
+            ],
+            "plot": [
+              "galaxy",
+              "android",
+              "space marine",
+              "laser gun",
+              "temple",
+              "swordplay",
+              "space battle",
+              "space travel"
+            ],
+            "tmdbStatus": "ok",
             "cosine": 0.9588607549667358
           }
         ]

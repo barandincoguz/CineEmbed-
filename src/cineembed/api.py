@@ -101,6 +101,7 @@ async def lifespan(_app: FastAPI):
     log.info("[boot] tmdb client")
     state.tmdb = TMDbClient(
         api_key=os.environ.get("TMDB_API_KEY"),
+        access_token=os.environ.get("TMDB_ACCESS_TOKEN"),
         cache_dir=TMDB_CACHE_DIR,
     )
 

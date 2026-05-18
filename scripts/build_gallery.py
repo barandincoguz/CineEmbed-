@@ -72,7 +72,11 @@ async def main() -> None:
 
     print(f"[gallery] unique film ids: {len(seen_ids)}")
 
-    client = TMDbClient(api_key=os.environ.get("TMDB_API_KEY"), cache_dir=CACHE)
+    client = TMDbClient(
+        api_key=os.environ.get("TMDB_API_KEY"),
+        access_token=os.environ.get("TMDB_ACCESS_TOKEN"),
+        cache_dir=CACHE,
+    )
     enrichment: dict[int, object | None] = {}
     if client.key_configured:
         print(f"[gallery] fetching TMDb for {len(seen_ids)} ids...")
@@ -83,7 +87,7 @@ async def main() -> None:
         enrichment = dict(zip(seen_ids, blobs))
         print(f"[gallery] TMDb successes: {sum(1 for b in blobs if b)}")
     else:
-        print("[gallery] no TMDB_API_KEY — all entries will have tmdbStatus=missing")
+        print("[gallery] no TMDB credentials — all entries will have tmdbStatus=missing")
     await client.aclose()
 
     def film_payload(row_idx: int, backbone: str) -> dict:

@@ -37,17 +37,26 @@ def make_backdrop_url(path: str | None) -> str | None:
 
 
 class TMDbClient:
-    """Singleton-style async client."""
+    """Singleton-style async client.
 
-    def __init__(self, api_key: str | None, cache_dir: Path):
-        self.api_key = api_key
+    Auth precedence: v4 access token (Bearer JWT) > v3 api_key (query param).
+    Sending both is redundant; v3 key is not a JWT so it must not be used as Bearer.
+    """
+
+    def __init__(
+        self,
+        api_key: str | None = None,
+        access_token: str | None = None,
+        cache_dir: Path = Path("artifacts/cache/tmdb"),
+    ):
+        self.api_key = api_key or None
+        self.access_token = access_token or None
         self.cache_dir = cache_dir
         self.cache_dir.mkdir(parents=True, exist_ok=True)
-        # 35 requests / 10 seconds — safely under TMDb's legacy 40 / 10 s.
         self.limiter = AsyncLimiter(35, 10)
         headers: dict[str, str] = {}
-        if api_key:
-            headers["Authorization"] = f"Bearer {api_key}"
+        if self.access_token:
+            headers["Authorization"] = f"Bearer {self.access_token}"
         self._client = httpx.AsyncClient(
             base_url=TMDB_BASE,
             headers=headers,
@@ -57,7 +66,14 @@ class TMDbClient:
 
     @property
     def key_configured(self) -> bool:
-        return bool(self.api_key)
+        return bool(self.access_token or self.api_key)
+
+    def _auth_params(self) -> dict[str, str]:
+        if self.access_token:
+            return {}
+        if self.api_key:
+            return {"api_key": self.api_key}
+        return {}
 
     def _cache_path(self, film_id: int) -> Path:
         return self.cache_dir / f"{film_id}.json"
@@ -89,28 +105,23 @@ class TMDbClient:
         tmp.replace(p)
 
     async def _fetch_remote(self, film_id: int) -> TmdbBlob | None:
-        if not self.api_key:
+        if not self.key_configured:
             return None
+        params = self._auth_params()
         try:
             async with self.limiter:
-                movie_resp = await self._client.get(
-                    f"/movie/{film_id}", params={"api_key": self.api_key},
-                )
+                movie_resp = await self._client.get(f"/movie/{film_id}", params=params)
             if movie_resp.status_code == 429:
                 await asyncio.sleep(2.0)
                 async with self.limiter:
-                    movie_resp = await self._client.get(
-                        f"/movie/{film_id}", params={"api_key": self.api_key},
-                    )
+                    movie_resp = await self._client.get(f"/movie/{film_id}", params=params)
             if movie_resp.status_code != 200:
                 log.warning("tmdb movie/%d returned %d", film_id, movie_resp.status_code)
                 return None
             movie = movie_resp.json()
 
             async with self.limiter:
-                kw_resp = await self._client.get(
-                    f"/movie/{film_id}/keywords", params={"api_key": self.api_key},
-                )
+                kw_resp = await self._client.get(f"/movie/{film_id}/keywords", params=params)
             keywords = kw_resp.json().get("keywords", []) if kw_resp.status_code == 200 else []
 
             self._write_cache_atomic(film_id, movie, keywords)
@@ -125,7 +136,7 @@ class TMDbClient:
             return None
 
     async def get_enrichment(self, film_id: int) -> TmdbBlob | None:
-        if not self.api_key:
+        if not self.key_configured:
             return None
         cached = self._read_cache(film_id)
         if cached is not None:
