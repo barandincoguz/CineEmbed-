@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/search-bar";
 import { SelectedFilmPanel } from "@/components/selected-film-panel";
 import { SimilarFilmsPanel } from "@/components/similar-films-panel";
 import { EmptyState } from "@/components/empty-state";
+import { BackboneSwitcher } from "@/components/backbone-switcher";
 import { api, type BackboneId } from "@/lib/api";
 
 export default function HomePage() {
@@ -37,6 +38,11 @@ export default function HomePage() {
       {/* Main content */}
       <main className="flex-1 flex flex-col min-h-screen" style={{ marginLeft: 220 }}>
         <div className="flex flex-col flex-1 px-6 pt-6 pb-6 gap-5 max-w-[1200px] w-full mx-auto">
+          {/* Backbone switcher */}
+          <div className="flex justify-end">
+            <BackboneSwitcher />
+          </div>
+
           {/* Search bar */}
           <SearchBar backbone={backbone} onSelectFilm={(id) => setFilm(id)} />
 
