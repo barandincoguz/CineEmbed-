@@ -351,3 +351,47 @@ def gallery() -> dict:
     if not GALLERY_PATH.exists():
         raise HTTPException(503, detail="gallery.json not built; run scripts/build_gallery.py")
     return json.loads(GALLERY_PATH.read_text())
+
+
+@app.get("/api/films/{film_id}/cosine-dist")
+def cosine_dist(
+    film_id: Annotated[int, PathParam(ge=1)],
+    backbone: BackboneId = "ae_z32",
+    bins: Annotated[int, Query(ge=5, le=100)] = 30,
+) -> dict:
+    if film_id not in state.id_to_row:
+        raise HTTPException(404, detail="film not found")
+    assert state.films is not None
+    cosines = get_cosines(film_id, backbone)
+    self_row = state.id_to_row[film_id]
+    mask = np.ones_like(cosines, dtype=bool)
+    mask[self_row] = False
+    arr = cosines[mask]
+    counts, edges = np.histogram(arr, bins=bins, range=(-1.0, 1.0))
+
+    # top-10 from arr (which has self removed)
+    top_idx = np.argpartition(-arr, 10)[:10]
+    top_idx = top_idx[np.argsort(-arr[top_idx])]
+    valid_rows = np.where(mask)[0]
+    top10 = []
+    for i in top_idx:
+        orig_row = int(valid_rows[i])
+        top10.append({
+            "id": int(state.row_to_id[orig_row]),
+            "title": str(state.films.iloc[orig_row]["title"]),
+            "cosine": float(arr[i]),
+        })
+
+    return {
+        "bins": edges.tolist(),
+        "counts": counts.tolist(),
+        "stats": {
+            "mean": float(arr.mean()),
+            "std": float(arr.std()),
+            "min": float(arr.min()),
+            "max": float(arr.max()),
+            "p50": float(np.median(arr)),
+            "p95": float(np.percentile(arr, 95)),
+        },
+        "top10": top10,
+    }

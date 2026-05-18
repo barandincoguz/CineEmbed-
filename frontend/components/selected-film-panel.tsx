@@ -1,12 +1,18 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { FilmPoster } from "./film-poster";
-import type { Film } from "@/lib/api";
+import type { BackboneId, Film } from "@/lib/api";
+
+const CosineHeatmap = dynamic(
+  () => import("./cosine-heatmap").then((m) => m.CosineHeatmap),
+  { ssr: false, loading: () => <div className="mt-6 h-44 bg-gray-50 rounded animate-pulse" /> }
+);
 
 interface Props {
   film: Film | null;
   loading: boolean;
-  backbone: string;
+  backbone: BackboneId;
 }
 
 export function SelectedFilmPanel({ film, loading, backbone }: Props) {
@@ -66,6 +72,7 @@ export function SelectedFilmPanel({ film, loading, backbone }: Props) {
       {!showSplit && flatKeywords.length > 0 && (
         <ChipList title="Keywords" chips={flatKeywords} variant="slate" />
       )}
+      <CosineHeatmap filmId={film.id} backbone={backbone} />
     </article>
   );
 }
