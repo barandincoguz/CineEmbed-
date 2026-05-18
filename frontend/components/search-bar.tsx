@@ -1,107 +1,82 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { Search, X } from "lucide-react"
-import type { Film } from "@/lib/mock-data"
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Search as SearchIcon } from "lucide-react";
+import { api, type BackboneId } from "@/lib/api";
 
-interface SearchBarProps {
-  films: Film[]
-  onSelect: (film: Film | null) => void
-  value: string
-  onChange: (value: string) => void
+interface Props {
+  backbone: BackboneId;
+  onSelectFilm: (id: number) => void;
 }
 
-export function SearchBar({ films, onSelect, value, onChange }: SearchBarProps) {
-  const [showDropdown, setShowDropdown] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  const filtered = value.trim()
-    ? films.filter((f) => f.title.toLowerCase().includes(value.toLowerCase()))
-    : []
+export function SearchBar({ backbone, onSelectFilm }: Props) {
+  const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
 
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setShowDropdown(false)
-      }
-    }
-    document.addEventListener("mousedown", handleClick)
-    return () => document.removeEventListener("mousedown", handleClick)
-  }, [])
+    const t = setTimeout(() => setDebouncedQ(q), 300);
+    return () => clearTimeout(t);
+  }, [q]);
 
-  function handleSelect(film: Film) {
-    onChange(film.title)
-    onSelect(film)
-    setShowDropdown(false)
-  }
-
-  function handleClear() {
-    onChange("")
-    onSelect(null)
-    setShowDropdown(false)
-  }
+  const { data: hits = [] } = useQuery({
+    queryKey: ["search", debouncedQ, backbone],
+    queryFn: ({ signal }) => api.searchFilms(debouncedQ, backbone, 10, { signal }),
+    enabled: debouncedQ.length >= 1,
+  });
 
   return (
-    <div className="relative" ref={ref}>
-      <div
-        className="flex items-center gap-3 px-4 py-3 rounded-xl border shadow-sm"
-        style={{
-          background: "#ffffff",
-          borderColor: "#e5e4ec",
-        }}
-      >
-        <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#9ca3af" }} />
-        <input
-          type="text"
-          placeholder="Search for a film…"
-          className="flex-1 bg-transparent text-sm outline-none"
-          style={{ color: "#1a1a2e" }}
-          value={value}
-          onChange={(e) => {
-            onChange(e.target.value)
-            setShowDropdown(true)
-            if (!e.target.value) onSelect(null)
-          }}
-          onFocus={() => value && setShowDropdown(true)}
+    <div className="relative">
+      <div className="relative">
+        <SearchIcon
+          aria-hidden="true"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"
         />
-        {value && (
-          <button
-            onClick={handleClear}
-            className="flex-shrink-0 transition-colors"
-            style={{ color: "#9ca3af" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#1a1a2e")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#9ca3af")}
-            aria-label="Clear search"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
+        <input
+          type="search"
+          role="combobox"
+          aria-expanded={hits.length > 0}
+          aria-autocomplete="list"
+          aria-controls="search-results"
+          placeholder="Search 329,044 films..."
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          className="w-full pl-9 pr-3 py-2 border border-[#e5e4ec] rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-purple-300"
+        />
       </div>
-
-      {/* Dropdown suggestions */}
-      {showDropdown && filtered.length > 0 && (
-        <div
-          className="absolute top-full mt-1 w-full rounded-xl border z-50 overflow-hidden shadow-lg"
-          style={{ background: "#ffffff", borderColor: "#e5e4ec" }}
+      {hits.length > 0 && (
+        <ul
+          id="search-results"
+          role="listbox"
+          className="absolute mt-1 w-full bg-white border border-[#e5e4ec] rounded-md shadow-lg z-10 max-h-80 overflow-y-auto"
         >
-          {filtered.map((film) => (
-            <button
-              key={film.id}
-              className="w-full text-left px-4 py-3 text-sm border-b transition-colors flex items-center gap-3"
-              style={{ borderColor: "#f1f0f5" }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(110,86,207,0.06)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-              onClick={() => handleSelect(film)}
+          {hits.map((f) => (
+            <li
+              key={f.id}
+              role="option"
+              aria-selected="false"
+              tabIndex={0}
+              className="px-3 py-2 hover:bg-purple-50 cursor-pointer text-sm"
+              onClick={() => {
+                onSelectFilm(f.id);
+                setQ("");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onSelectFilm(f.id);
+                  setQ("");
+                }
+              }}
             >
-              <Search className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#6e56cf" }} />
-              <span className="font-medium" style={{ color: "#1a1a2e" }}>{film.title}</span>
-              <span className="ml-auto text-xs" style={{ color: "#9ca3af" }}>
-                {film.year}
-              </span>
-            </button>
+              <div className="font-medium">{f.title}</div>
+              <div className="text-xs text-gray-500">
+                {f.year ?? "—"} · {f.director}
+              </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
-  )
+  );
 }
