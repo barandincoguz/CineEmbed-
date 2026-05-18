@@ -1,84 +1,73 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import type { Film } from "@/lib/mock-data"
+import { useQuery } from "@tanstack/react-query";
+import { api, type BackboneId, type Neighbor } from "@/lib/api";
 
-interface SimilarFilmsPanelProps {
-  films: Film[]
-  onSelect: (film: Film) => void
+interface Props {
+  filmId: number;
+  backbone: BackboneId;
+  onSelectFilm: (id: number) => void;
 }
 
-function GenreTag({ label }: { label: string }) {
-  return (
-    <span
-      className="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
-      style={{ background: "#f1f0f5", color: "#6b7280", border: "1px solid #e5e4ec" }}
-    >
-      {label}
-    </span>
-  )
+function cosineColor(c: number): string {
+  if (c >= 0.95) return "bg-green-100 text-green-800";
+  if (c >= 0.8) return "bg-blue-100 text-blue-800";
+  return "bg-slate-100 text-slate-700";
 }
 
-export function SimilarFilmsPanel({ films, onSelect }: SimilarFilmsPanelProps) {
-  const [hoveredId, setHoveredId] = useState<number | null>(null)
+export function SimilarFilmsPanel({ filmId, backbone, onSelectFilm }: Props) {
+  const { data: neighbors = [], isLoading } = useQuery({
+    queryKey: ["similar", filmId, backbone],
+    queryFn: ({ signal }) => api.getSimilar(filmId, backbone, 10, { signal }),
+  });
 
-  return (
-    <div
-      className="rounded-xl border flex flex-col overflow-hidden h-full shadow-sm"
-      style={{ background: "#ffffff", borderColor: "#e5e4ec" }}
-    >
-      {/* Header */}
-      <div className="px-5 pt-4 pb-3 border-b" style={{ borderColor: "#e5e4ec" }}>
-        <h2 className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#6e56cf" }}>
-          Similar Films
-        </h2>
-      </div>
-
-      {/* Film list */}
-      <div className="flex-1 overflow-y-auto">
-        {films.map((film, index) => (
-          <button
-            key={film.id}
-            className="w-full text-left px-5 py-3.5 border-b transition-colors flex items-center gap-4"
-            style={{
-              borderColor: "#f1f0f5",
-              background: hoveredId === film.id ? "rgba(110,86,207,0.06)" : "transparent",
-            }}
-            onMouseEnter={() => setHoveredId(film.id)}
-            onMouseLeave={() => setHoveredId(null)}
-            onClick={() => onSelect(film)}
-          >
-            {/* Row number */}
-            <span
-              className="text-sm font-mono w-6 flex-shrink-0 text-right"
-              style={{ color: "#d1d5db" }}
-            >
-              #{index + 1}
-            </span>
-
-            {/* Title + year */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate" style={{ color: "#1a1a2e" }}>{film.title}</p>
-              <p className="text-xs mt-0.5" style={{ color: "#9ca3af" }}>
-                {film.year} · {film.director}
-              </p>
-            </div>
-
-            {/* Genre tags */}
-            <div className="flex-shrink-0 flex flex-wrap gap-1 justify-end max-w-[120px]">
-              {film.genres.slice(0, 2).map((g) => (
-                <GenreTag key={g} label={g} />
-              ))}
-            </div>
-          </button>
+  if (isLoading) {
+    return (
+      <div className="border border-[#e5e4ec] rounded-lg p-4 bg-white animate-pulse">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="h-10 bg-gray-100 rounded mb-2" />
         ))}
-
-        {films.length === 0 && (
-          <div className="px-5 py-10 text-center text-sm" style={{ color: "#d1d5db" }}>
-            No similar films found.
-          </div>
-        )}
       </div>
-    </div>
-  )
+    );
+  }
+
+  if (neighbors.length === 0) {
+    return <div className="border border-[#e5e4ec] rounded-lg p-4 bg-white text-sm text-gray-500">No similar films found.</div>;
+  }
+
+  return (
+    <aside className="border border-[#e5e4ec] rounded-lg p-4 bg-white">
+      <h3 className="text-sm font-medium text-gray-700 mb-3">Similar films (backbone {backbone})</h3>
+      <ol className="space-y-2">
+        {neighbors.map((n: Neighbor, i: number) => (
+          <li key={n.id}>
+            <button
+              type="button"
+              onClick={() => onSelectFilm(n.id)}
+              className="w-full flex items-start gap-3 px-2 py-2 rounded hover:bg-purple-50 text-left"
+            >
+              <span className="text-xs text-gray-400 w-6">#{i + 1}</span>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{n.title}</div>
+                <div className="text-xs text-gray-500 truncate">
+                  {n.year ?? "—"} · {n.director}
+                </div>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {n.genres.slice(0, 2).map((g) => (
+                    <span key={g} className="text-[10px] px-1.5 py-0.5 bg-gray-100 rounded">{g}</span>
+                  ))}
+                </div>
+              </div>
+              <span
+                className={`text-xs px-1.5 py-0.5 rounded ${cosineColor(n.cosine)}`}
+                aria-label={`cosine ${n.cosine.toFixed(3)}`}
+              >
+                {n.cosine.toFixed(2)}
+              </span>
+            </button>
+          </li>
+        ))}
+      </ol>
+    </aside>
+  );
 }

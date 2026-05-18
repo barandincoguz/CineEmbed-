@@ -1,42 +1,31 @@
-import type { Film } from "@/lib/mock-data"
+"use client";
 
-interface FilmPosterProps {
-  film: Film
-  className?: string
-}
+import Image from "next/image";
+import type { Film } from "@/lib/api";
 
-export function FilmPoster({ film, className = "" }: FilmPosterProps) {
-  const initials = film.title
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-
+export function FilmPoster({ film, size = "md" }: { film: Film; size?: "sm" | "md" | "lg" }) {
+  const dims = size === "sm" ? "w-16 h-24" : size === "lg" ? "w-64 h-96" : "w-32 h-48";
+  if (film.posterUrl) {
+    return (
+      <div className={`relative overflow-hidden rounded-md ${dims}`}>
+        <Image
+          src={film.posterUrl}
+          alt={`${film.title} poster`}
+          fill
+          sizes="200px"
+          className="object-cover"
+        />
+      </div>
+    );
+  }
   return (
     <div
-      className={`flex items-center justify-center rounded-lg flex-shrink-0 ${className}`}
-      style={{
-        background: film.posterColor,
-        width: 140,
-        minWidth: 140,
-        minHeight: 200,
-        border: "1px solid #21262d",
-      }}
+      className={`${dims} rounded-md flex items-center justify-center text-white text-xs font-medium text-center px-2`}
+      style={{ background: film.posterColor }}
+      role="img"
+      aria-label={`${film.title} (no poster available)`}
     >
-      <div className="text-center select-none">
-        <div
-          className="text-3xl font-bold mb-1"
-          style={{ color: "rgba(255,255,255,0.7)" }}
-        >
-          {initials}
-        </div>
-        <div
-          className="text-xs font-medium px-2 text-center leading-tight"
-          style={{ color: "rgba(255,255,255,0.35)" }}
-        >
-          {film.year}
-        </div>
-      </div>
+      {film.title}
     </div>
-  )
+  );
 }
