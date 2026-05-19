@@ -27,11 +27,17 @@ export default async function GalleryPage() {
           <a className="text-primary underline underline-offset-2 hover:text-primary/80" href="/about">About</a>).
         </p>
         <div className="space-y-12">
-          {gallery.queries.map((q) => {
+          {gallery.queries.map((q, i) => {
             const queryFilm = gallery.matrix[q]["ae_z32"].query;
             return (
               <section key={q}>
                 <div className="flex items-center gap-4 mb-4">
+                  <span
+                    className="text-4xl font-light text-muted-foreground/30 tabular-nums leading-none w-12 shrink-0 select-none"
+                    aria-hidden="true"
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <FilmPoster film={queryFilm} size="sm" />
                   <div>
                     <h2 className="text-lg font-medium mt-0 mb-1 text-foreground">{q}</h2>
