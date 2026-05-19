@@ -81,3 +81,6 @@ frontend/.env.local
 # tmdb runtime cache (gitignored, regenerable)
 artifacts/cache/tmdb/
 
+# teammate artifact bundle outputs (scripts/package-artifacts.sh) — too large for git
+cineembed-artifacts-*.tar.gz
+
