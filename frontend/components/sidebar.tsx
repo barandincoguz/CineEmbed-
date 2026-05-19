@@ -18,7 +18,10 @@ export function Sidebar() {
       aria-label="Primary navigation"
       className="fixed left-0 top-0 bottom-0 w-[220px] bg-card border-r border-border p-4"
     >
-      <h1 className="font-semibold mb-6 text-purple-700">CineEmbed</h1>
+      <h1 className="font-semibold mb-6 text-purple-700 flex items-center gap-2">
+        <Film className="w-5 h-5" aria-hidden="true" />
+        <span>CineEmbed</span>
+      </h1>
       <ul className="space-y-1">
         {NAV.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== "/" && pathname.startsWith(href));
@@ -26,8 +29,10 @@ export function Sidebar() {
             <li key={href}>
               <Link
                 href={href}
-                className={`flex items-center gap-2 px-2 py-1.5 rounded text-sm ${
-                  active ? "bg-purple-50 text-purple-800" : "text-gray-700 hover:bg-gray-50"
+                className={`flex items-center gap-2 py-1.5 rounded text-sm ${
+                  active
+                    ? "bg-purple-50 text-purple-800 border-l-2 border-primary pl-[6px] pr-2 font-semibold"
+                    : "text-gray-700 hover:bg-gray-50 px-2"
                 }`}
               >
                 <Icon className="w-4 h-4" aria-hidden="true" />
