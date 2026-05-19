@@ -77,7 +77,7 @@ export default function HomePage() {
           {/* Content area */}
           {filmId === null ? (
             <>
-              <section className="bg-card border border-border rounded-lg p-5">
+              <section className="bg-card border border-border rounded-lg p-5 shadow-primary-soft">
                 <div className="flex items-start gap-3">
                   <Sparkles className="w-5 h-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
                   <div className="flex-1">

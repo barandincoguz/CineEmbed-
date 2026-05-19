@@ -31,7 +31,7 @@ export default function AboutPage() {
 
           <h2 className="text-lg font-medium mt-8 mb-3 text-foreground">Two methodological findings</h2>
 
-          <article className="bg-card border border-border rounded-lg p-5 mb-4">
+          <article className="bg-card border border-border rounded-lg p-5 mb-4 shadow-primary-soft">
             <p className="text-[10px] uppercase tracking-widest text-primary font-semibold mb-2">Finding 1 — Methodology</p>
             <h3 className="text-base font-semibold mb-2 text-foreground">NMI ≠ retrieval quality</h3>
             <p className="text-sm text-foreground leading-relaxed">
@@ -46,7 +46,7 @@ export default function AboutPage() {
             </p>
           </article>
 
-          <article className="bg-card border border-border rounded-lg p-5 mb-4">
+          <article className="bg-card border border-border rounded-lg p-5 mb-4 shadow-primary-soft">
             <p className="text-[10px] uppercase tracking-widest text-primary font-semibold mb-2">Finding 2 — Information bottleneck</p>
             <h3 className="text-base font-semibold mb-2 text-foreground">Sweet spot at z=32</h3>
             <p className="text-sm text-foreground leading-relaxed">

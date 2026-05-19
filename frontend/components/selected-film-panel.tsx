@@ -32,7 +32,7 @@ export function SelectedFilmPanel({ film, loading, backbone }: Props) {
   const flatKeywords = !showSplit ? film.plot : [];
 
   return (
-    <article className="relative overflow-hidden border border-border rounded-lg p-6 bg-card">
+    <article className="relative overflow-hidden border border-border rounded-lg p-6 bg-card shadow-primary-soft">
       {film.backdropUrl && (
         <div
           aria-hidden="true"

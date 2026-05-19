@@ -27,7 +27,7 @@ export default function ClustersPage() {
           <BackboneSwitcher />
         </div>
 
-        <section className="bg-card border border-border rounded-lg p-5 mb-6">
+        <section className="bg-card border border-border rounded-lg p-5 mb-6 shadow-primary-soft">
           <div className="flex items-start gap-3">
             <Layers className="w-5 h-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
             <div className="flex-1">

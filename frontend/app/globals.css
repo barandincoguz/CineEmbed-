@@ -120,6 +120,11 @@ body::before {
   background-position: 0 0;
 }
 
+/* V9 — primary-card soft purple-tinted shadow */
+.shadow-primary-soft {
+  box-shadow: 0 1px 0 0 rgb(110 86 207 / 0.04), 0 2px 8px -2px rgb(110 86 207 / 0.08);
+}
+
 /* V12 — shimmer keyframe + utility */
 @keyframes ce-shimmer {
   0% { background-position: -200% 0; }

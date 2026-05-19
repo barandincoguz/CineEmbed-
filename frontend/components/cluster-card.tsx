@@ -8,7 +8,7 @@ export function ClusterCard({ cluster, backbone }: { cluster: Cluster; backbone:
   return (
     <Link
       href={`/cluster/${cluster.id}?backbone=${backbone}`}
-      className="block border border-border rounded-lg p-4 bg-card hover:border-purple-300 hover:-translate-y-0.5 hover:shadow-md transition-all duration-150"
+      className="block border border-border rounded-lg p-4 bg-card shadow-sm hover:border-purple-300 hover:-translate-y-0.5 hover:shadow-md transition-all duration-150"
     >
       <h3 className="font-medium text-sm flex items-center gap-2">
         <span className="w-1.5 h-1.5 rounded-full bg-primary/60 shrink-0" aria-hidden="true" />

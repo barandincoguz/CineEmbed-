@@ -48,7 +48,7 @@ export function SimilarFilmsPanel({ filmId, backbone, onSelectFilm }: Props) {
   }
 
   return (
-    <aside className="border border-border rounded-lg p-4 bg-card">
+    <aside className="border border-border rounded-lg p-4 bg-card shadow-sm">
       <h3 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5">
         <span>Similar films (backbone {backbone})</span>
         <span title="Cosine: 1 = same direction in latent, 0 = orthogonal" className="inline-flex">

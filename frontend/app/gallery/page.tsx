@@ -57,7 +57,7 @@ export default async function GalleryPage() {
                     return (
                       <div
                         key={bb}
-                        className="border border-border rounded-lg p-5 bg-card hover:-translate-y-0.5 hover:shadow-md transition-all duration-150"
+                        className="border border-border rounded-lg p-5 bg-card shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-150"
                       >
                         <div className="flex justify-between items-baseline mb-3">
                           <p className="text-xs font-medium text-purple-700">{bb}</p>
