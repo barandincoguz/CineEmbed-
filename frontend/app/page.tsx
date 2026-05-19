@@ -9,6 +9,7 @@ import { SimilarFilmsPanel } from "@/components/similar-films-panel";
 import { EmptyState } from "@/components/empty-state";
 import { BackboneSwitcher } from "@/components/backbone-switcher";
 import { Footer } from "@/components/footer";
+import { ErrorFallback } from "@/components/error-fallback";
 import { api, type BackboneId } from "@/lib/api";
 
 export default function HomePage() {
@@ -18,7 +19,13 @@ export default function HomePage() {
   const filmId = filmIdParam && /^\d+$/.test(filmIdParam) ? Number(filmIdParam) : null;
   const backbone = ((params.get("backbone") ?? "ae_z32") as BackboneId);
 
-  const { data: film, isLoading: filmLoading } = useQuery({
+  const {
+    data: film,
+    isLoading: filmLoading,
+    isError: filmIsError,
+    error: filmError,
+    refetch: refetchFilm,
+  } = useQuery({
     queryKey: ["film", filmId, backbone],
     queryFn: ({ signal }) => api.getFilm(filmId!, backbone, { signal }),
     enabled: filmId !== null,
@@ -61,11 +68,19 @@ export default function HomePage() {
             <div className="flex gap-5 flex-1 items-start">
               {/* Selected Film panel — ~58% */}
               <div className="flex-[58] min-w-0">
-                <SelectedFilmPanel
-                  film={film ?? null}
-                  loading={filmLoading}
-                  backbone={backbone}
-                />
+                {filmIsError ? (
+                  <ErrorFallback
+                    title="Couldn't load film details"
+                    error={filmError}
+                    onRetry={() => refetchFilm()}
+                  />
+                ) : (
+                  <SelectedFilmPanel
+                    film={film ?? null}
+                    loading={filmLoading}
+                    backbone={backbone}
+                  />
+                )}
               </div>
 
               {/* Similar Films panel — ~42% */}

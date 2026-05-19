@@ -7,6 +7,7 @@ import { Sidebar } from "@/components/sidebar";
 import { BackboneSwitcher } from "@/components/backbone-switcher";
 import { FilmPoster } from "@/components/film-poster";
 import { Footer } from "@/components/footer";
+import { ErrorFallback } from "@/components/error-fallback";
 import { api, type BackboneId } from "@/lib/api";
 
 export default function ClusterDetailPage({ params: pa }: { params: Promise<{ k: string }> }) {
@@ -16,7 +17,7 @@ export default function ClusterDetailPage({ params: pa }: { params: Promise<{ k:
   const router = useRouter();
   const backbone = ((params.get("backbone") ?? "ae_z32") as BackboneId);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["cluster", kInt, backbone],
     queryFn: ({ signal }) => api.getCluster(kInt, backbone, 50, { signal }),
     enabled: !isNaN(kInt) && kInt >= 0 && kInt <= 20,
@@ -43,6 +44,9 @@ export default function ClusterDetailPage({ params: pa }: { params: Promise<{ k:
               <div key={i} className="w-full h-48 bg-muted rounded-md animate-pulse" />
             ))}
           </div>
+        )}
+        {isError && (
+          <ErrorFallback title="Couldn't load cluster" error={error} onRetry={() => refetch()} />
         )}
         {data && (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">

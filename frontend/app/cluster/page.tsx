@@ -6,12 +6,13 @@ import { Sidebar } from "@/components/sidebar";
 import { BackboneSwitcher } from "@/components/backbone-switcher";
 import { ClusterCard } from "@/components/cluster-card";
 import { Footer } from "@/components/footer";
+import { ErrorFallback } from "@/components/error-fallback";
 import { api, type BackboneId } from "@/lib/api";
 
 export default function ClustersPage() {
   const params = useSearchParams();
   const backbone = ((params.get("backbone") ?? "ae_z32") as BackboneId);
-  const { data: clusters = [], isLoading } = useQuery({
+  const { data: clusters = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ["clusters", backbone],
     queryFn: ({ signal }) => api.getClusters(backbone, { signal }),
   });
@@ -30,6 +31,8 @@ export default function ClustersPage() {
               <div key={i} className="border border-border rounded-lg p-4 bg-card animate-pulse h-48" />
             ))}
           </div>
+        ) : isError ? (
+          <ErrorFallback title="Couldn't load clusters" error={error} onRetry={() => refetch()} />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {clusters.map((c) => (
