@@ -93,8 +93,46 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* V10 — Geist stylistic alt characters: alt-zero, alt-four, single-story-a */
+    font-feature-settings: "ss01" on, "ss03" on, "cv11" on;
   }
   :where(a, button, input, textarea, select, [role="button"], [role="radio"], [role="option"], [role="tab"], [tabindex="0"]):focus-visible {
     @apply ring-2 ring-ring ring-offset-2 outline-none;
   }
+}
+
+/* V5 — fixed-position SVG grain overlay, mix-blend multiply */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.035;
+  z-index: 1;
+}
+
+/* V1 — dot-grid background utility */
+.dot-grid {
+  background-image: radial-gradient(circle, rgb(110 86 207 / 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: 0 0;
+}
+
+/* V12 — shimmer keyframe + utility */
+@keyframes ce-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background-image: linear-gradient(
+    90deg,
+    rgb(241 240 245 / 1) 0%,
+    rgb(241 240 245 / 0.5) 50%,
+    rgb(241 240 245 / 1) 100%
+  );
+  background-size: 200% 100%;
+  animation: ce-shimmer 1.8s linear infinite;
 }
