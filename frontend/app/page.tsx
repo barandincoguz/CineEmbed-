@@ -55,11 +55,23 @@ export default function HomePage() {
           {/* Search bar */}
           <SearchBar backbone={backbone} onSelectFilm={(id) => setFilm(id)} />
 
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground py-2 border-b border-border tabular-nums">
-            <span>329,044 films</span><span aria-hidden="true">·</span>
-            <span>3 backbones</span><span aria-hidden="true">·</span>
-            <span>32-dim latent</span><span aria-hidden="true">·</span>
-            <span>cosine over L2-normalized</span>
+          <div className="grid grid-cols-4 gap-4 py-3 border-b border-border">
+            <div className="border-l-2 border-primary/30 pl-3">
+              <div className="text-2xl font-semibold tracking-tight tabular-nums text-foreground leading-none">329,044</div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1.5">films indexed</div>
+            </div>
+            <div className="border-l-2 border-primary/30 pl-3">
+              <div className="text-2xl font-semibold tracking-tight tabular-nums text-foreground leading-none">3</div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1.5">backbones</div>
+            </div>
+            <div className="border-l-2 border-primary/30 pl-3">
+              <div className="text-2xl font-semibold tracking-tight tabular-nums text-foreground leading-none">32</div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1.5">dim latent</div>
+            </div>
+            <div className="border-l-2 border-primary/30 pl-3">
+              <div className="text-2xl font-semibold tracking-tight text-foreground leading-none">cosine</div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1.5">L2-normalized</div>
+            </div>
           </div>
 
           {/* Content area */}
