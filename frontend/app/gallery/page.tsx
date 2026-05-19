@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/sidebar";
 import { Footer } from "@/components/footer";
+import { FilmPoster } from "@/components/film-poster";
 import { GallerySchema } from "@/lib/api-types";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
@@ -19,37 +20,67 @@ export default async function GalleryPage() {
       <Sidebar />
       <main className="flex-1 ml-[220px] p-8">
         <h1 className="text-2xl font-semibold tracking-tight mb-6">Eyeball gallery</h1>
-        <p className="text-sm text-gray-600 mb-6">
+        <p className="text-sm text-muted-foreground mb-6">
           Five well-known queries × three backbones. The same query produces
           visibly different top-5 neighbours per backbone — the strongest
           demonstration of the project&rsquo;s z-sweep finding (see{" "}
-          <a className="text-purple-700 underline" href="/about">About</a>).
+          <a className="text-primary underline underline-offset-2 hover:text-primary/80" href="/about">About</a>).
         </p>
-        <div className="space-y-8">
-          {gallery.queries.map((q) => (
-            <section key={q}>
-              <h2 className="text-lg font-medium mt-8 mb-3">{q}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {backbones.map((bb) => {
-                  const cell = gallery.matrix[q][bb];
-                  return (
-                    <div key={bb} className="border border-border rounded-lg p-3 bg-card">
-                      <p className="text-xs font-medium text-purple-700 mb-2">{bb}</p>
-                      <p className="text-sm font-medium mb-2">{cell.query.title} ({cell.query.year ?? "—"})</p>
-                      <ol className="text-xs space-y-1">
-                        {cell.neighbors.map((n, i) => (
-                          <li key={n.id} className="flex justify-between">
-                            <span>#{i + 1} {n.title}</span>
-                            <span className="text-muted-foreground">{n.cosine.toFixed(3)}</span>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          ))}
+        <div className="space-y-12">
+          {gallery.queries.map((q) => {
+            const queryFilm = gallery.matrix[q]["ae_z32"].query;
+            return (
+              <section key={q}>
+                <div className="flex items-center gap-4 mb-4">
+                  <FilmPoster film={queryFilm} size="sm" />
+                  <div>
+                    <h2 className="text-lg font-medium mt-0 mb-1 text-foreground">{q}</h2>
+                    <p className="text-xs text-muted-foreground tabular-nums">
+                      {queryFilm.title} ({queryFilm.year ?? "—"})
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {backbones.map((bb) => {
+                    const cell = gallery.matrix[q][bb];
+                    const queryPrimary = cell.query.genres[0];
+                    const top5 = cell.neighbors.slice(0, 5);
+                    const genreAt5 = queryPrimary
+                      ? top5.filter((n) => n.genres[0] === queryPrimary).length / 5
+                      : null;
+                    return (
+                      <div
+                        key={bb}
+                        className="border border-border rounded-lg p-5 bg-card hover:-translate-y-0.5 hover:shadow-md transition-all duration-150"
+                      >
+                        <div className="flex justify-between items-baseline mb-3">
+                          <p className="text-xs font-medium text-purple-700">{bb}</p>
+                          {genreAt5 !== null && (
+                            <p className="text-[10px] text-muted-foreground tabular-nums">
+                              genre@5={genreAt5.toFixed(2)}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-1.5 mb-3">
+                          {top5.map((n) => (
+                            <FilmPoster key={n.id} film={n} size="sm" />
+                          ))}
+                        </div>
+                        <ol className="text-xs space-y-1">
+                          {top5.map((n, i) => (
+                            <li key={n.id} className="flex justify-between gap-2">
+                              <span className="truncate">#{i + 1} {n.title}</span>
+                              <span className="text-muted-foreground tabular-nums shrink-0">{n.cosine.toFixed(3)}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
         </div>
         <Footer />
       </main>
