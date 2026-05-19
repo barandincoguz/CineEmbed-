@@ -10,7 +10,10 @@ export function ClusterCard({ cluster, backbone }: { cluster: Cluster; backbone:
       href={`/cluster/${cluster.id}?backbone=${backbone}`}
       className="block border border-border rounded-lg p-4 bg-card hover:border-purple-300 hover:-translate-y-0.5 hover:shadow-md transition-all duration-150"
     >
-      <h3 className="font-medium text-sm">{cluster.name}</h3>
+      <h3 className="font-medium text-sm flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-primary/60 shrink-0" aria-hidden="true" />
+        <span>{cluster.name}</span>
+      </h3>
       <p className="text-xs text-muted-foreground mt-1 tabular-nums">{cluster.size.toLocaleString()} films</p>
       <div className="flex flex-wrap gap-1 mt-2">
         {cluster.topGenres.slice(0, 2).map((g) => (
