@@ -37,7 +37,7 @@ export function SelectedFilmPanel({ film, loading, backbone }: Props) {
         <FilmPoster film={film} size="md" />
         <div className="flex-1">
           <h2 className="text-2xl font-semibold">{film.title}</h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1 tabular-nums">
             {film.year ?? "—"} · {film.director}
             {film.duration ? ` · ${Math.round(film.duration)} min` : ""}
             {film.country ? ` · ${film.country}` : ""}
@@ -50,7 +50,7 @@ export function SelectedFilmPanel({ film, loading, backbone }: Props) {
               <span key={g} className="px-2 py-0.5 text-xs bg-purple-50 text-purple-800 rounded">{g}</span>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
+          <p className="text-xs text-muted-foreground mt-2 tabular-nums">
             ★ {film.rating.toFixed(1)} ({film.votes.toLocaleString()} votes) ·
             Cluster #{film.cluster} · {film.time} · backbone {backbone}
           </p>

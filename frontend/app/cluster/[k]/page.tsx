@@ -32,7 +32,7 @@ export default function ClusterDetailPage({ params: pa }: { params: Promise<{ k:
           <BackboneSwitcher />
         </div>
         {data && (
-          <p className="text-sm text-muted-foreground mb-6">
+          <p className="text-sm text-muted-foreground mb-6 tabular-nums">
             {data.size.toLocaleString()} films · top genres:&nbsp;
             {data.topGenres.map((g) => `${g.genre} ${(g.pct * 100).toFixed(0)}%`).join(", ")}
             &nbsp;· decade {data.modalDecade}&nbsp;· showing {data.films.length} of {data.total}
@@ -59,7 +59,7 @@ export default function ClusterDetailPage({ params: pa }: { params: Promise<{ k:
               >
                 <FilmPoster film={f} size="sm" />
                 <p className="text-xs mt-1 truncate">{f.title}</p>
-                <p className="text-[10px] text-muted-foreground">{f.year ?? "—"}</p>
+                <p className="text-[10px] text-muted-foreground tabular-nums">{f.year ?? "—"}</p>
               </button>
             ))}
           </div>
