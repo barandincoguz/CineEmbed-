@@ -20,7 +20,7 @@ export default function ClustersPage() {
       <Sidebar />
       <main className="flex-1 ml-[220px] p-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold">Clusters (k=21)</h1>
+          <h1 className="text-2xl font-semibold tracking-tight mb-6">Clusters (k=21)</h1>
           <BackboneSwitcher />
         </div>
         {isLoading ? (

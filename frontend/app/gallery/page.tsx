@@ -17,7 +17,7 @@ export default async function GalleryPage() {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 ml-[220px] p-8">
-        <h1 className="text-2xl font-semibold mb-2">Eyeball gallery</h1>
+        <h1 className="text-2xl font-semibold tracking-tight mb-6">Eyeball gallery</h1>
         <p className="text-sm text-gray-600 mb-6">
           Five well-known queries × three backbones. The same query produces
           visibly different top-5 neighbours per backbone — the strongest
@@ -27,7 +27,7 @@ export default async function GalleryPage() {
         <div className="space-y-8">
           {gallery.queries.map((q) => (
             <section key={q}>
-              <h2 className="text-lg font-medium mb-3">{q}</h2>
+              <h2 className="text-lg font-medium mt-8 mb-3">{q}</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {backbones.map((bb) => {
                   const cell = gallery.matrix[q][bb];

@@ -5,7 +5,7 @@ export default function AboutPage() {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 ml-[220px] p-8 max-w-3xl">
-        <h1 className="text-2xl font-semibold mb-4">About CineEmbed</h1>
+        <h1 className="text-2xl font-semibold tracking-tight mb-6">About CineEmbed</h1>
 
         <section className="prose prose-sm">
           <p>

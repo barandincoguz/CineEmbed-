@@ -26,7 +26,7 @@ export default function ClusterDetailPage({ params: pa }: { params: Promise<{ k:
       <Sidebar />
       <main className="flex-1 ml-[220px] p-8">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-semibold">{data?.name ?? `Cluster #${k}`}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight mb-6">{data?.name ?? `Cluster #${k}`}</h1>
           <BackboneSwitcher />
         </div>
         {data && (
