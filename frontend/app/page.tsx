@@ -49,7 +49,7 @@ export default function HomePage() {
 
           {/* Content area */}
           {filmId === null ? (
-            <EmptyState />
+            <EmptyState onPickExample={(id) => setFilm(id)} />
           ) : (
             <div className="flex gap-5 flex-1 items-start">
               {/* Selected Film panel — ~58% */}
