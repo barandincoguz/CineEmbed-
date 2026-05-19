@@ -37,7 +37,13 @@ export default function ClusterDetailPage({ params: pa }: { params: Promise<{ k:
             &nbsp;· decade {data.modalDecade}&nbsp;· showing {data.films.length} of {data.total}
           </p>
         )}
-        {isLoading && <p className="text-muted-foreground">Loading…</p>}
+        {isLoading && (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="w-full h-48 bg-muted rounded-md animate-pulse" />
+            ))}
+          </div>
+        )}
         {data && (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {data.films.map((f) => (
