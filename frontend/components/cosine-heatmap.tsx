@@ -26,7 +26,7 @@ export function CosineHeatmap({ filmId, backbone }: Props) {
   }
 
   if (isLoading || !data) {
-    return <div className="mt-6 h-44 bg-gray-50 rounded animate-pulse" />;
+    return <div className="mt-6 h-44 rounded shimmer" />;
   }
 
   const histData = data.counts.map((c, i) => ({

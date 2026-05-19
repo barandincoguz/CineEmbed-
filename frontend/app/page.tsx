@@ -40,7 +40,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background dot-grid">
       {/* Sidebar */}
       <Sidebar />
 

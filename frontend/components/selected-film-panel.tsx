@@ -6,7 +6,7 @@ import type { BackboneId, Film } from "@/lib/api";
 
 const CosineHeatmap = dynamic(
   () => import("./cosine-heatmap").then((m) => m.CosineHeatmap),
-  { ssr: false, loading: () => <div className="mt-6 h-44 bg-gray-50 rounded animate-pulse" /> }
+  { ssr: false, loading: () => <div className="mt-6 h-44 rounded shimmer" /> }
 );
 
 interface Props {
@@ -18,10 +18,10 @@ interface Props {
 export function SelectedFilmPanel({ film, loading, backbone }: Props) {
   if (loading || !film) {
     return (
-      <div className="border border-border rounded-lg p-6 bg-card animate-pulse">
-        <div className="h-64 bg-gray-100 rounded mb-4" />
-        <div className="h-6 bg-gray-100 rounded w-2/3 mb-2" />
-        <div className="h-4 bg-gray-100 rounded w-1/2" />
+      <div className="border border-border rounded-lg p-6 bg-card">
+        <div className="h-64 rounded mb-4 shimmer" />
+        <div className="h-6 rounded w-2/3 mb-2 shimmer" />
+        <div className="h-4 rounded w-1/2 shimmer" />
       </div>
     );
   }

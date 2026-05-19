@@ -35,9 +35,9 @@ export function SimilarFilmsPanel({ filmId, backbone, onSelectFilm }: Props) {
 
   if (isLoading) {
     return (
-      <div className="border border-border rounded-lg p-4 bg-card animate-pulse">
+      <div className="border border-border rounded-lg p-4 bg-card">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-10 bg-gray-100 rounded mb-2" />
+          <div key={i} className="h-10 rounded mb-2 shimmer" />
         ))}
       </div>
     );
