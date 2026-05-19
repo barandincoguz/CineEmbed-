@@ -47,6 +47,13 @@ export default function HomePage() {
           {/* Search bar */}
           <SearchBar backbone={backbone} onSelectFilm={(id) => setFilm(id)} />
 
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground py-2 border-b border-border tabular-nums">
+            <span>329,044 films</span><span aria-hidden="true">·</span>
+            <span>3 backbones</span><span aria-hidden="true">·</span>
+            <span>32-dim latent</span><span aria-hidden="true">·</span>
+            <span>cosine over L2-normalized</span>
+          </div>
+
           {/* Content area */}
           {filmId === null ? (
             <EmptyState onPickExample={(id) => setFilm(id)} />
