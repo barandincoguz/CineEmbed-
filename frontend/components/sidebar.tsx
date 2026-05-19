@@ -16,7 +16,7 @@ export function Sidebar() {
   return (
     <nav
       aria-label="Primary navigation"
-      className="fixed left-0 top-0 bottom-0 w-[220px] bg-white border-r border-[#e5e4ec] p-4"
+      className="fixed left-0 top-0 bottom-0 w-[220px] bg-card border-r border-border p-4"
     >
       <h1 className="font-semibold mb-6 text-purple-700">CineEmbed</h1>
       <ul className="space-y-1">

@@ -37,7 +37,7 @@ export function BackboneSwitcher() {
     <div
       role="radiogroup"
       aria-label="Backbone selection"
-      className="inline-flex border border-[#e5e4ec] rounded-md overflow-hidden bg-white"
+      className="inline-flex border border-border rounded-md overflow-hidden bg-card"
     >
       {backbones.map((b) => {
         const active = current === b.id;

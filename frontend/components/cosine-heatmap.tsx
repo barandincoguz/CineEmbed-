@@ -25,11 +25,11 @@ export function CosineHeatmap({ filmId, backbone }: Props) {
   }));
 
   return (
-    <div className="mt-6 border-t border-[#e5e4ec] pt-4">
-      <p className="text-xs font-medium text-gray-500 mb-2">
+    <div className="mt-6 border-t border-border pt-4">
+      <p className="text-xs font-medium text-muted-foreground mb-2">
         Cosine distribution across 329,043 films
       </p>
-      <p className="text-xs text-gray-500 mb-3">
+      <p className="text-xs text-muted-foreground mb-3">
         μ={data.stats.mean.toFixed(2)} · σ={data.stats.std.toFixed(2)} ·
         p50={data.stats.p50.toFixed(2)} · p95={data.stats.p95.toFixed(2)} ·
         top={data.stats.max.toFixed(3)}
@@ -49,12 +49,12 @@ export function CosineHeatmap({ filmId, backbone }: Props) {
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-xs font-medium text-gray-500 mt-3 mb-1">Top-10 cosines</p>
+      <p className="text-xs font-medium text-muted-foreground mt-3 mb-1">Top-10 cosines</p>
       <div className="space-y-1">
         {data.top10.map((t) => (
           <div key={t.id} className="flex justify-between text-xs">
             <span className="truncate flex-1 pr-2">{t.title}</span>
-            <span className="text-gray-500">{t.cosine.toFixed(3)}</span>
+            <span className="text-muted-foreground">{t.cosine.toFixed(3)}</span>
           </div>
         ))}
       </div>

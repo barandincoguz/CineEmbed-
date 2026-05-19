@@ -8,10 +8,10 @@ export function ClusterCard({ cluster, backbone }: { cluster: Cluster; backbone:
   return (
     <Link
       href={`/cluster/${cluster.id}?backbone=${backbone}`}
-      className="block border border-[#e5e4ec] rounded-lg p-4 bg-white hover:border-purple-300 transition"
+      className="block border border-border rounded-lg p-4 bg-card hover:border-purple-300 transition"
     >
       <h3 className="font-medium text-sm">{cluster.name}</h3>
-      <p className="text-xs text-gray-500 mt-1">{cluster.size.toLocaleString()} films</p>
+      <p className="text-xs text-muted-foreground mt-1">{cluster.size.toLocaleString()} films</p>
       <div className="flex flex-wrap gap-1 mt-2">
         {cluster.topGenres.slice(0, 3).map((g) => (
           <span key={g.genre} className="text-[10px] px-1.5 py-0.5 bg-purple-50 text-purple-700 rounded">

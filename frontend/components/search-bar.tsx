@@ -41,14 +41,14 @@ export function SearchBar({ backbone, onSelectFilm }: Props) {
           placeholder="Search 329,044 films..."
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 border border-[#e5e4ec] rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-purple-300"
+          className="w-full pl-9 pr-3 py-2 border border-border rounded-md bg-card focus:outline-none focus:ring-2 focus:ring-purple-300"
         />
       </div>
       {hits.length > 0 && (
         <ul
           id="search-results"
           role="listbox"
-          className="absolute mt-1 w-full bg-white border border-[#e5e4ec] rounded-md shadow-lg z-10 max-h-80 overflow-y-auto"
+          className="absolute mt-1 w-full bg-card border border-border rounded-md shadow-lg z-10 max-h-80 overflow-y-auto"
         >
           {hits.map((f) => (
             <li
@@ -70,7 +70,7 @@ export function SearchBar({ backbone, onSelectFilm }: Props) {
               }}
             >
               <div className="font-medium">{f.title}</div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-muted-foreground">
                 {f.year ?? "—"} · {f.director}
               </div>
             </li>

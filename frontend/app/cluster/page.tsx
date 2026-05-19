@@ -16,7 +16,7 @@ export default function ClustersPage() {
   });
 
   return (
-    <div className="flex min-h-screen bg-[#f8f9fb]">
+    <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 ml-[220px] p-8">
         <div className="flex justify-between items-center mb-6">
@@ -24,7 +24,7 @@ export default function ClustersPage() {
           <BackboneSwitcher />
         </div>
         {isLoading ? (
-          <p className="text-gray-500">Loading clusters…</p>
+          <p className="text-muted-foreground">Loading clusters…</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {clusters.map((c) => (

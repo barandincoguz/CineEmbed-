@@ -23,7 +23,7 @@ export function SimilarFilmsPanel({ filmId, backbone, onSelectFilm }: Props) {
 
   if (isLoading) {
     return (
-      <div className="border border-[#e5e4ec] rounded-lg p-4 bg-white animate-pulse">
+      <div className="border border-border rounded-lg p-4 bg-card animate-pulse">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="h-10 bg-gray-100 rounded mb-2" />
         ))}
@@ -32,11 +32,11 @@ export function SimilarFilmsPanel({ filmId, backbone, onSelectFilm }: Props) {
   }
 
   if (neighbors.length === 0) {
-    return <div className="border border-[#e5e4ec] rounded-lg p-4 bg-white text-sm text-gray-500">No similar films found.</div>;
+    return <div className="border border-border rounded-lg p-4 bg-card text-sm text-muted-foreground">No similar films found.</div>;
   }
 
   return (
-    <aside className="border border-[#e5e4ec] rounded-lg p-4 bg-white">
+    <aside className="border border-border rounded-lg p-4 bg-card">
       <h3 className="text-sm font-medium text-gray-700 mb-3">Similar films (backbone {backbone})</h3>
       <ol className="space-y-2">
         {neighbors.map((n: Neighbor, i: number) => (
@@ -49,7 +49,7 @@ export function SimilarFilmsPanel({ filmId, backbone, onSelectFilm }: Props) {
               <span className="text-xs text-gray-400 w-6">#{i + 1}</span>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium truncate">{n.title}</div>
-                <div className="text-xs text-gray-500 truncate">
+                <div className="text-xs text-muted-foreground truncate">
                   {n.year ?? "—"} · {n.director}
                 </div>
                 <div className="flex flex-wrap gap-1 mt-1">

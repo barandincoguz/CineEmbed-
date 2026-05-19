@@ -31,7 +31,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex min-h-screen" style={{ background: "#f8f9fb" }}>
+    <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
       <Sidebar />
 
@@ -73,8 +73,8 @@ export default function HomePage() {
         </div>
 
         {/* Footer */}
-        <footer className="py-4 text-center border-t" style={{ borderColor: "#e5e4ec" }}>
-          <p className="text-xs" style={{ color: "#9ca3af" }}>
+        <footer className="py-4 text-center border-t border-border">
+          <p className="text-xs text-muted-foreground">
             CineEmbed · SENG 474 · TED University · 2026
           </p>
         </footer>

@@ -2,7 +2,7 @@ import { Sidebar } from "@/components/sidebar";
 
 export default function AboutPage() {
   return (
-    <div className="flex min-h-screen bg-[#f8f9fb]">
+    <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 ml-[220px] p-8 max-w-3xl">
         <h1 className="text-2xl font-semibold mb-4">About CineEmbed</h1>
@@ -53,7 +53,7 @@ export default function AboutPage() {
             — the strongest demonstration of the project&rsquo;s findings.
           </p>
 
-          <p className="text-xs text-gray-500 mt-8">
+          <p className="text-xs text-muted-foreground mt-8">
             Source repo: github.com/barandincoguz/CineEmbed- · branch
             feature/wandb-integration · spec
             docs/superpowers/specs/2026-05-18-frontend-backend-integration-design.md

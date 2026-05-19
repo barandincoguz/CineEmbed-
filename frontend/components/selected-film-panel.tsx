@@ -18,7 +18,7 @@ interface Props {
 export function SelectedFilmPanel({ film, loading, backbone }: Props) {
   if (loading || !film) {
     return (
-      <div className="border border-[#e5e4ec] rounded-lg p-6 bg-white animate-pulse">
+      <div className="border border-border rounded-lg p-6 bg-card animate-pulse">
         <div className="h-64 bg-gray-100 rounded mb-4" />
         <div className="h-6 bg-gray-100 rounded w-2/3 mb-2" />
         <div className="h-4 bg-gray-100 rounded w-1/2" />
@@ -32,12 +32,12 @@ export function SelectedFilmPanel({ film, loading, backbone }: Props) {
   const flatKeywords = !showSplit ? film.plot : [];
 
   return (
-    <article className="border border-[#e5e4ec] rounded-lg p-6 bg-white">
+    <article className="border border-border rounded-lg p-6 bg-card">
       <div className="flex gap-6 mb-4">
         <FilmPoster film={film} size="md" />
         <div className="flex-1">
           <h2 className="text-2xl font-semibold">{film.title}</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             {film.year ?? "—"} · {film.director}
             {film.duration ? ` · ${Math.round(film.duration)} min` : ""}
             {film.country ? ` · ${film.country}` : ""}
@@ -50,7 +50,7 @@ export function SelectedFilmPanel({ film, loading, backbone }: Props) {
               <span key={g} className="px-2 py-0.5 text-xs bg-purple-50 text-purple-800 rounded">{g}</span>
             ))}
           </div>
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-muted-foreground mt-2">
             ★ {film.rating.toFixed(1)} ({film.votes.toLocaleString()} votes) ·
             Cluster #{film.cluster} · {film.time} · backbone {backbone}
           </p>
@@ -85,7 +85,7 @@ function ChipList({ title, chips, variant }: { title: string; chips: string[]; v
   };
   return (
     <div className="mt-4">
-      <p className="text-xs font-medium text-gray-500 mb-1">{title}</p>
+      <p className="text-xs font-medium text-muted-foreground mb-1">{title}</p>
       <div className="flex flex-wrap gap-1">
         {chips.map((c) => (
           <span key={c} className={`px-2 py-0.5 text-xs rounded ${colors[variant]}`}>{c}</span>

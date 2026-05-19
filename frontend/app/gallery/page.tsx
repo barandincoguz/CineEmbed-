@@ -14,7 +14,7 @@ export default async function GalleryPage() {
   const backbones = ["ae_z32", "ae_z64", "ae_z128"] as const;
 
   return (
-    <div className="flex min-h-screen bg-[#f8f9fb]">
+    <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 ml-[220px] p-8">
         <h1 className="text-2xl font-semibold mb-2">Eyeball gallery</h1>
@@ -32,14 +32,14 @@ export default async function GalleryPage() {
                 {backbones.map((bb) => {
                   const cell = gallery.matrix[q][bb];
                   return (
-                    <div key={bb} className="border border-[#e5e4ec] rounded-lg p-3 bg-white">
+                    <div key={bb} className="border border-border rounded-lg p-3 bg-card">
                       <p className="text-xs font-medium text-purple-700 mb-2">{bb}</p>
                       <p className="text-sm font-medium mb-2">{cell.query.title} ({cell.query.year ?? "—"})</p>
                       <ol className="text-xs space-y-1">
                         {cell.neighbors.map((n, i) => (
                           <li key={n.id} className="flex justify-between">
                             <span>#{i + 1} {n.title}</span>
-                            <span className="text-gray-500">{n.cosine.toFixed(3)}</span>
+                            <span className="text-muted-foreground">{n.cosine.toFixed(3)}</span>
                           </li>
                         ))}
                       </ol>
