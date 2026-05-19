@@ -34,6 +34,77 @@ query list.
 
 ---
 
+## Teammate Quick Start (clone + run)
+
+Code is on GitHub. Some files are gitignored (secrets + large model artifacts).
+Get them from Baran via secure channels, then run one setup script.
+
+### What you need from Baran (out-of-band)
+| File | Size | How to share | What's in it |
+|---|---|---|---|
+| `.env` | <1 KB | Slack/iMessage DM | `TMDB_API_KEY` + `TMDB_ACCESS_TOKEN` + CORS config |
+| `cineembed-artifacts-YYYYMMDD.tar.gz` | ~580 MB | Google Drive / WeTransfer link | Pre-computed embeddings (fastest path, **recommended**) |
+| **OR** `artifacts/movies_eda_final.csv` | 252 MB | Google Drive | Raw EDA output — slower path, regenerates everything locally |
+
+### Path A — Pre-computed bundle (fastest, ~3 min)
+
+```bash
+# 1. Clone
+git clone https://github.com/barandincoguz/CineEmbed-.git
+cd CineEmbed-
+git checkout feature/wandb-integration
+
+# 2. Drop the .env Baran sent you into the repo root
+cp ~/Downloads/.env .env
+
+# 3. Extract the artifact bundle Baran sent
+tar -xzf ~/Downloads/cineembed-artifacts-*.tar.gz
+
+# 4. Install deps + launch
+pip install -e ".[demo]"
+cd frontend && pnpm install && cd ..
+bash scripts/dev-up.sh
+
+# 5. Open
+open http://localhost:3000
+```
+
+### Path B — Regenerate from source (slower, ~10–15 min)
+
+```bash
+# 1. Clone
+git clone https://github.com/barandincoguz/CineEmbed-.git
+cd CineEmbed- && git checkout feature/wandb-integration
+
+# 2. Drop the .env Baran sent you
+cp ~/Downloads/.env .env
+
+# 3. Drop the raw EDA CSV Baran sent
+cp ~/Downloads/movies_eda_final.csv artifacts/movies_eda_final.csv
+
+# 4. One-shot setup (deps + regen + launch)
+bash scripts/setup-teammate.sh
+```
+
+The script installs Python + frontend deps, regenerates `films_master.parquet`
+from the CSV, builds per-backbone `embeddings.npy` + `films.parquet` from the
+tracked model checkpoints (`artifacts/models/ae_z*/`), then starts `dev-up.sh`.
+
+### What you'll see
+- Frontend: http://localhost:3000 (Next.js + Tailwind + shadcn)
+- API: http://localhost:8000 (FastAPI; `/api/health` should return JSON)
+- 5 pages: home, /cluster, /cluster/[k], /gallery, /about
+- Without `.env`, posters fall back to gradient cards (demo still works)
+
+### For Baran — packaging the bundle
+```bash
+bash scripts/package-artifacts.sh
+# → outputs cineembed-artifacts-YYYYMMDD.tar.gz in repo root
+# → upload to Drive, share link, also share .env separately via Slack
+```
+
+---
+
 ## Quick start
 
 ```bash
