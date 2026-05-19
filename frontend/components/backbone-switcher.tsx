@@ -33,30 +33,37 @@ export function BackboneSwitcher() {
     qc.invalidateQueries({ queryKey: ["cluster"] });
   };
 
+  const currentBackbone = backbones.find((b) => b.id === current) ?? backbones[0];
+
   return (
-    <div
-      role="radiogroup"
-      aria-label="Backbone selection"
-      className="inline-flex border border-border rounded-md overflow-hidden bg-card"
-    >
-      {backbones.map((b) => {
-        const active = current === b.id;
-        return (
-          <button
-            key={b.id}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            onClick={() => setBackbone(b.id as BackboneId)}
-            title={`${b.label} · genre@5=${b.genreAtFive.toFixed(3)} · gNMI=${b.gnmi.toFixed(3)}`}
-            className={`px-3 py-1.5 text-xs font-medium transition ${
-              active ? "bg-purple-600 text-white" : "text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            {b.label}
-          </button>
-        );
-      })}
+    <div className="inline-flex flex-col items-end gap-1.5">
+      <div
+        role="radiogroup"
+        aria-label="Backbone selection"
+        className="inline-flex border border-border rounded-md overflow-hidden bg-card"
+      >
+        {backbones.map((b) => {
+          const active = current === b.id;
+          return (
+            <button
+              key={b.id}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => setBackbone(b.id as BackboneId)}
+              title={`${b.label} · genre@5=${b.genreAtFive.toFixed(3)} · gNMI=${b.gnmi.toFixed(3)}`}
+              className={`px-3 py-1.5 text-xs font-medium transition ${
+                active ? "bg-purple-600 text-white" : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              {b.label}
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-[10px] text-muted-foreground text-right tabular-nums">
+        Active: {currentBackbone.label} · genre@5={currentBackbone.genreAtFive.toFixed(3)} · gNMI={currentBackbone.gnmi.toFixed(3)}
+      </p>
     </div>
   );
 }
