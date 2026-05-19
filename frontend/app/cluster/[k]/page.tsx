@@ -6,6 +6,7 @@ import { use } from "react";
 import { Sidebar } from "@/components/sidebar";
 import { BackboneSwitcher } from "@/components/backbone-switcher";
 import { FilmPoster } from "@/components/film-poster";
+import { Footer } from "@/components/footer";
 import { api, type BackboneId } from "@/lib/api";
 
 export default function ClusterDetailPage({ params: pa }: { params: Promise<{ k: string }> }) {
@@ -53,6 +54,7 @@ export default function ClusterDetailPage({ params: pa }: { params: Promise<{ k:
             ))}
           </div>
         )}
+        <Footer />
       </main>
     </div>
   );

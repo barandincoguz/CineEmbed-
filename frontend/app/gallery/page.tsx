@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/sidebar";
+import { Footer } from "@/components/footer";
 import { GallerySchema } from "@/lib/api-types";
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
@@ -50,6 +51,7 @@ export default async function GalleryPage() {
             </section>
           ))}
         </div>
+        <Footer />
       </main>
     </div>
   );

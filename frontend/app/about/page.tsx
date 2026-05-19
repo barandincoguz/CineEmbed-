@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/sidebar";
+import { Footer } from "@/components/footer";
 
 export default function AboutPage() {
   return (
@@ -59,6 +60,7 @@ export default function AboutPage() {
             docs/superpowers/specs/2026-05-18-frontend-backend-integration-design.md
           </p>
         </section>
+        <Footer />
       </main>
     </div>
   );

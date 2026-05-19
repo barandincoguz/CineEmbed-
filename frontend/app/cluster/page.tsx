@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { BackboneSwitcher } from "@/components/backbone-switcher";
 import { ClusterCard } from "@/components/cluster-card";
+import { Footer } from "@/components/footer";
 import { api, type BackboneId } from "@/lib/api";
 
 export default function ClustersPage() {
@@ -32,6 +33,7 @@ export default function ClustersPage() {
             ))}
           </div>
         )}
+        <Footer />
       </main>
     </div>
   );

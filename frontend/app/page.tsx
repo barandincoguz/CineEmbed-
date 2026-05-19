@@ -8,6 +8,7 @@ import { SelectedFilmPanel } from "@/components/selected-film-panel";
 import { SimilarFilmsPanel } from "@/components/similar-films-panel";
 import { EmptyState } from "@/components/empty-state";
 import { BackboneSwitcher } from "@/components/backbone-switcher";
+import { Footer } from "@/components/footer";
 import { api, type BackboneId } from "@/lib/api";
 
 export default function HomePage() {
@@ -72,12 +73,7 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Footer */}
-        <footer className="py-4 text-center border-t border-border">
-          <p className="text-xs text-muted-foreground">
-            CineEmbed · SENG 474 · TED University · 2026
-          </p>
-        </footer>
+        <Footer />
       </main>
     </div>
   );
