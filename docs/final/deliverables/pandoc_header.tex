@@ -1,0 +1,129 @@
+% Elegance-pass LaTeX header for the CineEmbed final report.
+% v3 (2026-05-19 PM-2) — applied after user feedback that PDF tables still
+% overlap and the document needs more polish + elegance.
+
+% ── Unicode glyph fallbacks ───────────────────────────────────────────────
+\usepackage{newunicodechar}
+\newunicodechar{→}{$\rightarrow$}
+\newunicodechar{∈}{$\in$}
+\newunicodechar{≥}{$\geq$}
+\newunicodechar{≤}{$\leq$}
+\newunicodechar{≫}{$\gg$}
+\newunicodechar{≪}{$\ll$}
+\newunicodechar{≈}{$\approx$}
+\newunicodechar{≠}{$\neq$}
+\newunicodechar{·}{$\cdot$}
+\newunicodechar{‖}{$\Vert$}
+\newunicodechar{∝}{$\propto$}
+\newunicodechar{σ}{$\sigma$}
+\newunicodechar{Σ}{$\Sigma$}
+\newunicodechar{τ}{$\tau$}
+\newunicodechar{β}{$\beta$}
+\newunicodechar{γ}{$\gamma$}
+\newunicodechar{λ}{$\lambda$}
+\newunicodechar{μ}{$\mu$}
+\newunicodechar{α}{$\alpha$}
+\newunicodechar{ε}{$\epsilon$}
+\newunicodechar{✓}{\checkmark}
+
+% ── Brand colour palette ──────────────────────────────────────────────────
+\usepackage{xcolor}
+\definecolor{brandPurple}{HTML}{6E56CF}
+\definecolor{brandPurpleDark}{HTML}{4C3AA1}
+\definecolor{brandSlate}{HTML}{475569}
+\definecolor{brandSlateLight}{HTML}{94A3B8}
+\definecolor{brandOrange}{HTML}{C2410C}
+\definecolor{brandGreen}{HTML}{15803D}
+\definecolor{ruleGrey}{HTML}{D1D5DB}
+\definecolor{tableTint}{HTML}{F3F0FB}
+
+% ── Hyperref links in brand purple ────────────────────────────────────────
+% Defer until pandoc has loaded hyperref later in the preamble
+\AtBeginDocument{\hypersetup{
+  colorlinks=true,
+  linkcolor=brandPurpleDark,
+  urlcolor=brandPurple,
+  citecolor=brandPurpleDark,
+  pdfborder={0 0 0}
+}}
+
+% ── Section headings — coloured, denser ───────────────────────────────────
+\usepackage{titlesec}
+\titleformat{\section}
+  {\color{brandPurple}\Large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}
+  {\color{brandPurpleDark}\large\bfseries}{\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}
+  {\color{brandSlate}\normalsize\bfseries\itshape}{\thesubsubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{2.2ex plus 0.5ex minus 0.5ex}{1.0ex plus 0.4ex}
+\titlespacing*{\subsection}{0pt}{1.8ex plus 0.4ex minus 0.4ex}{0.65ex plus 0.3ex}
+\titlespacing*{\subsubsection}{0pt}{1.4ex plus 0.3ex minus 0.3ex}{0.5ex plus 0.2ex}
+
+% ── Orphan-heading guard ──────────────────────────────────────────────────
+\usepackage{needspace}
+\usepackage{etoolbox}
+\preto\section{\Needspace{6\baselineskip}}
+\preto\subsection{\Needspace{4\baselineskip}}
+\preto\subsubsection{\Needspace{3\baselineskip}}
+
+\widowpenalty=10000
+\clubpenalty=10000
+\displaywidowpenalty=10000
+\hyphenpenalty=1200
+\tolerance=1000
+\emergencystretch=2em
+
+% ── Tables — booktabs rules + tinted header + tighter cells ──────────────
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{colortbl}
+
+% Tighter row spacing
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{6pt}
+
+% Booktabs rules slightly thinner + slate-grey
+\setlength{\heavyrulewidth}{0.7pt}
+\setlength{\lightrulewidth}{0.4pt}
+\arrayrulecolor{ruleGrey}
+
+% Small but readable inside long tables — avoids over-shrink
+\AtBeginEnvironment{longtable}{\small}
+\AtBeginEnvironment{tabular}{\small}
+
+% ── Captions — slate, smaller, italic ─────────────────────────────────────
+\usepackage{caption}
+\captionsetup{
+  font={small,it},
+  labelfont={bf,color=brandPurple},
+  labelsep=period,
+  skip=4pt
+}
+
+% ── Code blocks — light tinted background + thinner indent ────────────────
+\usepackage{fancyvrb}
+\fvset{frame=none,fontsize=\small,xleftmargin=0.5em}
+% pandoc uses Shaded around Highlighting; tint it
+\definecolor{shadecolor}{HTML}{F8F7FC}
+
+% ── Float spacing ─────────────────────────────────────────────────────────
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+
+% ── Paragraph spacing — slight, no first-line indent ──────────────────────
+\setlength{\parskip}{0.55em plus 0.15em minus 0.10em}
+\setlength{\parindent}{0pt}
+
+% ── Bibliography on a fresh page ──────────────────────────────────────────
+\BeforeBeginEnvironment{thebibliography}{\clearpage}
+
+% ── TOC tweak — colour section numbers ────────────────────────────────────
+\usepackage{tocloft}
+\renewcommand{\cftsecfont}{\color{brandPurpleDark}\bfseries}
+\renewcommand{\cftsecpagefont}{\color{brandSlate}}
+\renewcommand{\cftsubsecfont}{\color{brandSlate}}
+\renewcommand{\cftsubsecpagefont}{\color{brandSlate}}
+\setlength{\cftbeforesecskip}{6pt}
